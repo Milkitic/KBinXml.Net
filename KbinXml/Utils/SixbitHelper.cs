@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace KbinXml.Utils;
@@ -13,6 +14,13 @@ public static class SixbitHelper
         .ToDictionary(k => k.k, k => (byte)k.i);
 
     public static byte[] Encode(string input)
+    {
+        using var ms = new MemoryStream();
+        EncodeAndWrite(ms, input);
+        return ms.ToArray();
+    }
+
+    public static void EncodeAndWrite(Stream stream, string input)
     {
         // todo: ArrayPool
         var buffer = input.Length <= 128
@@ -34,7 +42,7 @@ public static class SixbitHelper
                                    ((buffer[i / 6] >> (5 - (i % 6)) & 1) << (7 - (i % 8))));
 
         var encode = output.Slice(0, output.Length);
-        return encode.ToArray();
+        stream.WriteSpan(encode);
     }
 
     public static string Decode(ReadOnlySpan<byte> buffer, int length)

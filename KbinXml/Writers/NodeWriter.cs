@@ -21,7 +21,7 @@ namespace KbinXml.Writers
             if (_compressed)
             {
                 WriteU8((byte)value.Length);
-                WriteBytes(SixbitHelper.Encode(value));
+                SixbitHelper.EncodeAndWrite(Stream, value);
             }
             else
             {

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Buffers;
+using System.IO;
 
 namespace KbinXml.Utils;
 
@@ -21,5 +23,24 @@ public static class StreamExtensions
 
         stream.Position = pos;
         return copyMs.ToArray();
+    }
+
+
+    public static void WriteSpan(this Stream builder, ReadOnlySpan<byte> buffer)
+    {
+#if NETCOREAPP3_1_OR_GREATER
+        builder.Write(buffer);
+#else
+        byte[] sharedBuffer = ArrayPool<byte>.Shared.Rent(buffer.Length);
+        try
+        {
+            buffer.CopyTo(sharedBuffer);
+            builder.Write(sharedBuffer, 0, buffer.Length);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(sharedBuffer);
+        }
+#endif
     }
 }

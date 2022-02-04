@@ -1,32 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 using KbinXml.Utils;
 
 namespace KbinXml.Writers
 {
     public class BeBinaryWriter
     {
-        protected readonly List<byte> Stream;
+        protected internal readonly MemoryStream Stream;
         public BeBinaryWriter()
         {
-            Stream = new List<byte>(0);
+            Stream = new MemoryStream(0);
         }
 
         public virtual void WriteBytes(ReadOnlySpan<byte> buffer)
         {
-            Stream.Capacity += buffer.Length;
-            foreach (var span in buffer)
-            {
-                Stream.Add(span);
-            }
+            Stream.WriteSpan(buffer);
         }
 
         public virtual void WriteS8(sbyte value)
         {
-            Stream.Add((byte)value);
+            WriteBytes(stackalloc[] { (byte)value });
         }
 
         public virtual void WriteS16(short value)
@@ -46,7 +39,7 @@ namespace KbinXml.Writers
 
         public virtual void WriteU8(byte value)
         {
-            Stream.Add(value);
+            Stream.WriteByte(value);
         }
 
         public virtual void WriteU16(ushort value)
@@ -66,24 +59,13 @@ namespace KbinXml.Writers
 
         internal void Pad()
         {
-            var add = Stream.Count % 4;
-            if (add == 0) return;
-
-            var left = 4 - add;
-            Stream.Capacity += left;
-            for (int i = 0; i < left; i++)
-            {
-                Stream.Add(0);
-            }
+            while (Stream.Length % 4 != 0)
+                Stream.WriteByte(0);
         }
 
-        public Span<byte> AsSpan()
+        public byte[] ToArray()
         {
-#if NET5_0_OR_GREATER
-            return CollectionsMarshal.AsSpan(Stream);
-#else
-            return Stream.ToArray().AsSpan();
-#endif
+            return Stream.ToArray();
         }
     }
 }

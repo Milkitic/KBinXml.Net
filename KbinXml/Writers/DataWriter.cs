@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using KbinXml.Utils;
 
 namespace KbinXml.Writers
 {
@@ -39,17 +41,32 @@ namespace KbinXml.Writers
         public void WriteString(string value)
         {
             var bytes = _encoding.GetBytes(value);
-
-            // todo: ArrayPool
+            
             var length = bytes.Length + 1;
-            var array = length <= 128
-                ? stackalloc byte[length]
-                : new byte[length];
+            if (length <= 128)
+            {
+                Span<byte> span = stackalloc byte[length];
+                bytes.CopyTo(span);
 
-            bytes.CopyTo(array);
+                WriteU32((uint)span.Length);
+                Write32BitAligned(span);
+            }
+            else
+            {
+                var arr = ArrayPool<byte>.Shared.Rent(length);
+                try
+                {
+                    Span<byte> array = arr.AsSpan(0, length);
+                    bytes.CopyTo(array);
 
-            WriteU32((uint)array.Length);
-            Write32BitAligned(array);
+                    WriteU32((uint)array.Length);
+                    Write32BitAligned(array);
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(arr);
+                }
+            }
         }
 
         public void WriteBinary(string value)
@@ -93,32 +110,24 @@ namespace KbinXml.Writers
 
         private void SetRange(ReadOnlySpan<byte> buffer, ref int offset)
         {
-            if (offset != Stream.Count)
+            if (offset == Stream.Length)
             {
-                for (int i = 0; i < buffer.Length; i++)
-                {
-                    // fix the problem if the buffer length is greater than list count
-                    if (offset == Stream.Count)
-                    {
-                        buffer = buffer.Slice(i);
-                        goto SetRange_Add;
-                    }
-
-                    Stream[offset] = buffer[i];
-                    offset++;
-                }
-
-                return;
+                Stream.WriteSpan(buffer);
+                offset += buffer.Length;
             }
-
-SetRange_Add:
-            Stream.Capacity += buffer.Length;
-            foreach (var span in buffer)
+            else
             {
-                Stream.Add(span);
-            }
+                var pos = Stream.Position;
+                Stream.Position = offset;
 
-            offset += buffer.Length;
+                Stream.WriteSpan(buffer);
+
+                offset += buffer.Length;
+
+                // fix the problem if the buffer length is greater than list count
+                if (offset <= Stream.Length)
+                    Stream.Position = pos;
+            }
         }
 
         private void Realign16_8()
@@ -132,12 +141,11 @@ SetRange_Add:
 
         private void Pad(int target)
         {
-            var left = target - Stream.Count;
+            var left = target - Stream.Length;
             if (left <= 0) return;
-            Stream.Capacity += left;
             for (int i = 0; i < left; i++)
             {
-                Stream.Add(0);
+                Stream.WriteByte(0);
             }
         }
 

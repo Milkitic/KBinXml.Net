@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -175,16 +176,64 @@ public static partial class KbinConverter
         output.WriteU8((byte)~EncodingDictionary.ReverseEncodingMap[encoding]);
 
         //Write node buffer length and contents.
-        var buffer = context.NodeWriter.AsSpan();
-        output.WriteS32(buffer.Length);
-        output.WriteBytes(buffer);
+        var nodeStream = context.NodeWriter.Stream;
+        if (nodeStream.Length <= int.MaxValue)
+        {
+            nodeStream.Position = 0;
+
+            var length = (int)nodeStream.Length;
+            var arr = ArrayPool<byte>.Shared.Rent(length);
+            try
+            {
+                var read = nodeStream.Read(arr, 0, length);
+
+                Debug.Assert(length == read);
+
+                output.WriteS32(length);
+                output.WriteBytes(arr.AsSpan(0, length));
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(arr);
+            }
+        }
+        else
+        {
+            var buffer = context.NodeWriter.ToArray();
+            output.WriteS32(buffer.Length);
+            output.WriteBytes(buffer);
+        }
 
         //Write data buffer length and contents.
-        var array = context.DataWriter.AsSpan();
-        output.WriteS32(array.Length);
-        output.WriteBytes(array);
+        var dataStream = context.DataWriter.Stream;
+        if (dataStream.Length <= int.MaxValue)
+        {
+            dataStream.Position = 0;
 
-        return output.AsSpan().ToArray();
+            var length = (int)dataStream.Length;
+            var arr = ArrayPool<byte>.Shared.Rent(length);
+            try
+            {
+                var read = dataStream.Read(arr, 0, length);
+
+                Debug.Assert(length == read);
+
+                output.WriteS32(length);
+                output.WriteBytes(arr.AsSpan(0, length));
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(arr);
+            }
+        }
+        else
+        {
+            var array = context.DataWriter.ToArray();
+            output.WriteS32(array.Length);
+            output.WriteBytes(array);
+        }
+
+        return output.ToArray();
     }
 
     private class WriteContext
