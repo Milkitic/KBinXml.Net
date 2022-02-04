@@ -79,6 +79,6 @@ internal static class TypeDictionary
     }
 
     private static string ThrowExceptionConvert(ReadOnlySpan<byte> c) => throw new NotSupportedException();
-    private static int ThrowExceptionConvert(ValueListBuilder<byte> builder, ReadOnlySpan<char> c) => throw new NotSupportedException();
+    private static int ThrowExceptionConvert(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> c) => throw new NotSupportedException();
 
 }

@@ -12,7 +12,7 @@ namespace KbinXml;
 
 public static partial class KbinConverter
 {
-    private static byte[] WriteRaw(string rawXml, Encoding encoding)
+    public static byte[] WriteRaw(string rawXml, Encoding encoding)
     {
         var context = new WriteContext(new NodeWriter(true, encoding), new DataWriter(encoding));
 
@@ -56,7 +56,7 @@ public static partial class KbinConverter
                             foreach (var s in value)
                             {
                                 if (i == iSize) break;
-                                var add = type.WriteString(builder, s);
+                                var add = type.WriteString(ref builder, s);
                                 if (add < type.Size)
                                 {
                                     var left = type.Size - add;

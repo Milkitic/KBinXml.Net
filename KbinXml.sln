@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReadBenchmark", "Benchmarks
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ListBenchmark", "Benchmarks\ListBenchmark\ListBenchmark.csproj", "{B66990E3-310D-494D-8202-2BD97CE598E7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteBenchmark", "Benchmarks\WriteBenchmark\WriteBenchmark.csproj", "{B8C46AF9-32EF-407D-81B1-5CD86A59AEC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{B66990E3-310D-494D-8202-2BD97CE598E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B66990E3-310D-494D-8202-2BD97CE598E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B66990E3-310D-494D-8202-2BD97CE598E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8C46AF9-32EF-407D-81B1-5CD86A59AEC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8C46AF9-32EF-407D-81B1-5CD86A59AEC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8C46AF9-32EF-407D-81B1-5CD86A59AEC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8C46AF9-32EF-407D-81B1-5CD86A59AEC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,6 +42,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{01F81CEF-7E95-4B59-9622-FB398DA5710F} = {E22A17F6-C130-40B0-89A1-99E3D67DBC78}
 		{B66990E3-310D-494D-8202-2BD97CE598E7} = {E22A17F6-C130-40B0-89A1-99E3D67DBC78}
+		{B8C46AF9-32EF-407D-81B1-5CD86A59AEC5} = {E22A17F6-C130-40B0-89A1-99E3D67DBC78}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E1113C82-4EE9-4805-A9F1-26E8E8950B58}

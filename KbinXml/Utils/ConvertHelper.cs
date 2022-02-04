@@ -5,7 +5,7 @@ namespace KbinXml.Utils;
 
 public static class ConvertHelper
 {
-    public static int WriteU8String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
+    public static int WriteU8String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         builder.Append(byte.Parse(str
 #if NETSTANDARD2_0
@@ -16,7 +16,7 @@ public static class ConvertHelper
         return 1;
     }
 
-    public static int WriteS8String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
+    public static int WriteS8String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         builder.Append((byte)sbyte.Parse(str
 #if NETSTANDARD2_0
@@ -27,71 +27,71 @@ public static class ConvertHelper
         return 1;
     }
 
-    public static int WriteU16String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        builder,
+    public static int WriteU16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        ref builder,
         ushort.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static int WriteS16String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        builder,
+    public static int WriteS16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        ref builder,
         short.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static int WriteU32String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        builder,
+    public static int WriteU32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        ref builder,
         uint.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static int WriteS32String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        builder,
+    public static int WriteS32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        ref builder,
         int.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static int WriteU64String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        builder,
+    public static int WriteU64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        ref builder,
         ulong.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static int WriteS64String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        builder,
+    public static int WriteS64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        ref builder,
         long.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static int WriteSingleString(ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
-        builder,
+    public static int WriteSingleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
+        ref builder,
         float.Parse(input
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static int WriteDoubleString(ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
-        builder,
+    public static int WriteDoubleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
+        ref builder,
         double.Parse(input
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static int WriteIp4String(ValueListBuilder<byte> builder, ReadOnlySpan<char> input)
+    public static int WriteIp4String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input)
     {
         var bytes = IPAddress.Parse(input
 #if NETSTANDARD2_0
