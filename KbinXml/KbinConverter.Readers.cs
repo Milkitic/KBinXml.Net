@@ -132,7 +132,7 @@ public static partial class KbinConverter
                         if (i != loopCount - 1)
                         {
 #if NETCOREAPP3_1_OR_GREATER
-                                stringBuilder.Append(' ');
+                            stringBuilder.Append(' ');
 #else
                             stringBuilder.Append(" ");
 #endif
