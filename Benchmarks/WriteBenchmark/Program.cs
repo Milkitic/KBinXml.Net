@@ -52,7 +52,7 @@ namespace WriteBenchmark
         [GlobalSetup]
         public void Setup()
         {
-            _bytes = File.ReadAllBytes(@"data\test_case.bin");
+            _bytes = File.ReadAllBytes(@"data\test_case2.bin");
 #if NETCOREAPP3_1_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
@@ -68,11 +68,11 @@ namespace WriteBenchmark
         }
 
         [Benchmark]
-        public object? New_400KB_16ThreadsX160()
+        public object? New_400KB_32ThreadsX160()
         {
             return _target
                 .AsParallel()
-                .WithDegreeOfParallelism(16)
+                .WithDegreeOfParallelism(32)
                 .Select(_ => KbinConverter.WriteRaw(_str, Encoding.UTF8))
                 .ToArray();
         }

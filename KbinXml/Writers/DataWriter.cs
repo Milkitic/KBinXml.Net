@@ -41,7 +41,7 @@ namespace KbinXml.Writers
         public void WriteString(string value)
         {
             var bytes = _encoding.GetBytes(value);
-            
+
             var length = bytes.Length + 1;
             if (length <= 128)
             {
@@ -75,7 +75,16 @@ namespace KbinXml.Writers
             Write32BitAligned(ConvertHexString(value));
         }
 
-        public void Write32BitAligned(ReadOnlySpan<byte> buffer)
+        //todo: base default impl
+        public override void WriteU32(uint value)
+        {
+            Span<byte> span = stackalloc byte[sizeof(uint)];
+            var builder = new ValueListBuilder<byte>(span);
+            BitConverterHelper.WriteBeBytes(ref builder, value);
+            WriteBytes(builder.AsSpan());
+        }
+
+        private void Write32BitAligned(ReadOnlySpan<byte> buffer)
         {
             Pad(_pos32);
 
@@ -86,7 +95,7 @@ namespace KbinXml.Writers
             Realign16_8();
         }
 
-        public void Write16BitAligned(ReadOnlySpan<byte> buffer)
+        private void Write16BitAligned(ReadOnlySpan<byte> buffer)
         {
             Pad(_pos16);
 
@@ -97,7 +106,7 @@ namespace KbinXml.Writers
             Realign16_8();
         }
 
-        public void Write8BitAligned(byte value)
+        private void Write8BitAligned(byte value)
         {
             Pad(_pos8);
 

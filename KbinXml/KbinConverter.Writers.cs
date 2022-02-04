@@ -49,6 +49,7 @@ public static partial class KbinConverter
                             throw new KbinException("uint size is greater than int.MaxValue");
 
                         var iSize = (int)size;
+                        // todo: stackalloc
                         var arr = ArrayPool<byte>.Shared.Rent(iSize);
                         var builder = new ValueListBuilder<byte>(arr);
                         try
