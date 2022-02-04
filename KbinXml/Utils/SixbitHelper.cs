@@ -22,7 +22,6 @@ public static class SixbitHelper
 
     public static void EncodeAndWrite(Stream stream, string input)
     {
-        // todo: ArrayPool
         var buffer = input.Length <= 128
             ? stackalloc byte[input.Length]
             : new byte[input.Length];

@@ -31,16 +31,17 @@ public static class StreamExtensions
 #if NETCOREAPP3_1_OR_GREATER
         builder.Write(buffer);
 #else
-        byte[] sharedBuffer = ArrayPool<byte>.Shared.Rent(buffer.Length);
-        try
-        {
-            buffer.CopyTo(sharedBuffer);
-            builder.Write(sharedBuffer, 0, buffer.Length);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(sharedBuffer);
-        }
+        builder.Write(buffer.ToArray(), 0, buffer.Length);
+        //byte[] sharedBuffer = ArrayPool<byte>.Shared.Rent(buffer.Length);
+        //try
+        //{
+        //    buffer.CopyTo(sharedBuffer);
+        //    builder.Write(sharedBuffer, 0, buffer.Length);
+        //}
+        //finally
+        //{
+        //    ArrayPool<byte>.Shared.Return(sharedBuffer);
+        //}
 #endif
     }
 }

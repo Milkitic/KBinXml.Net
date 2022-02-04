@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
@@ -19,6 +20,19 @@ namespace WriteBenchmark
             //var sb = KbinConverter.ReadLinq(backs).ToString();
             Console.WriteLine("Hello World!");
 
+            //var obj = new object();
+            //int i = 0;
+            //new int[10000].AsParallel().ForAll(_ =>
+            //{
+            //    KbinConverter.WriteRaw(str, Encoding.UTF8);
+            //    lock (obj)
+            //    {
+            //        i++;
+            //        Console.WriteLine(i);
+            //    }
+            //});
+            //return;
+
             var summary = BenchmarkRunner.Run<GeneralTask>();
         }
     }
@@ -33,6 +47,7 @@ namespace WriteBenchmark
     {
         private byte[] _bytes;
         private string _str;
+        private int[] _target;
 
         [GlobalSetup]
         public void Setup()
@@ -42,12 +57,24 @@ namespace WriteBenchmark
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
             _str = KbinConverter.ReadLinq(_bytes).ToString();
+
+            _target = new int[160];
         }
 
         [Benchmark]
         public object? New_400KB()
         {
             return KbinConverter.WriteRaw(_str, Encoding.UTF8);
+        }
+
+        [Benchmark]
+        public object? New_400KB_16ThreadsX160()
+        {
+            return _target
+                .AsParallel()
+                .WithDegreeOfParallelism(16)
+                .Select(_ => KbinConverter.WriteRaw(_str, Encoding.UTF8))
+                .ToArray();
         }
     }
 }
