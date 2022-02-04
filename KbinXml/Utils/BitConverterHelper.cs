@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Buffers.Binary;
-using System.IO;
+using System.Collections.Generic;
 
 namespace KbinXml.Utils;
 
@@ -44,80 +44,167 @@ public static class BitConverterHelper
         return BinaryPrimitivesExt.ReadDoubleBigEndian(value);
     }
 
-    public static void WriteBeBytes(Stream stream, ushort value)
+    public static int WriteBeBytes(List<byte> builder, ushort value)
     {
         Span<byte> span = stackalloc byte[sizeof(ushort)];
         BinaryPrimitives.WriteUInt16BigEndian(span, value);
-        WriteSpan(stream, span);
+        WriteSpan(builder, span);
+        return span.Length;
     }
 
-    public static void WriteBeBytes(Stream stream, short value)
+    public static int WriteBeBytes(List<byte> builder, short value)
     {
         Span<byte> span = stackalloc byte[sizeof(short)];
         BinaryPrimitives.WriteInt16BigEndian(span, value);
-        WriteSpan(stream, span);
+        WriteSpan(builder, span);
+        return span.Length;
     }
 
-    public static void WriteBeBytes(Stream stream, uint value)
+    public static int WriteBeBytes(List<byte> builder, uint value)
     {
         Span<byte> span = stackalloc byte[sizeof(uint)];
         BinaryPrimitives.WriteUInt32BigEndian(span, value);
-        WriteSpan(stream, span);
+        WriteSpan(builder, span);
+        return span.Length;
     }
 
-    public static void WriteBeBytes(Stream stream, int value)
+    public static int WriteBeBytes(List<byte> builder, int value)
     {
         Span<byte> span = stackalloc byte[sizeof(int)];
         BinaryPrimitives.WriteInt32BigEndian(span, value);
-        WriteSpan(stream, span);
+        WriteSpan(builder, span);
+        return span.Length;
     }
 
-    public static void WriteBeBytes(Stream stream, ulong value)
+    public static int WriteBeBytes(List<byte> builder, ulong value)
     {
         Span<byte> span = stackalloc byte[sizeof(ulong)];
         BinaryPrimitives.WriteUInt64BigEndian(span, value);
-        WriteSpan(stream, span);
+        WriteSpan(builder, span);
+        return span.Length;
     }
 
-    public static void WriteBeBytes(Stream stream, long value)
+    public static int WriteBeBytes(List<byte> builder, long value)
     {
         Span<byte> span = stackalloc byte[sizeof(long)];
         BinaryPrimitives.WriteInt64BigEndian(span, value);
-        WriteSpan(stream, span);
+        WriteSpan(builder, span);
+        return span.Length;
     }
 
-    public static void WriteBeBytes(Stream stream, float value)
+    public static int WriteBeBytes(List<byte> builder, float value)
     {
 #if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
         Span<byte> span = stackalloc byte[sizeof(float)];
         BinaryPrimitivesExt.WriteSingleBigEndian(span, value);
-        WriteSpan(stream, span);
+        WriteSpan(builder, span);
 #elif NETSTANDARD2_0
         var bytes = BitConverter.GetBytes(value);
         Span<byte> span = bytes;
         span.Reverse();
-        stream.Write(bytes, 0, bytes.Length);
+        builder.AddRange(bytes);
 #endif
+        return span.Length;
     }
 
-    public static void WriteBeBytes(Stream stream, double value)
+    public static int WriteBeBytes(List<byte> builder, double value)
     {
         Span<byte> span = stackalloc byte[sizeof(double)];
         BinaryPrimitivesExt.WriteDoubleBigEndian(span, value);
-        WriteSpan(stream, span);
+        WriteSpan(builder, span);
+        return span.Length;
     }
 
-    private static void WriteSpan(Stream stream, ReadOnlySpan<byte> buffer)
+    public static int WriteBeBytes(ValueListBuilder<byte> builder, ushort value)
     {
-        byte[] sharedBuffer = ArrayPool<byte>.Shared.Rent(buffer.Length);
-        try
+        Span<byte> span = stackalloc byte[sizeof(ushort)];
+        BinaryPrimitives.WriteUInt16BigEndian(span, value);
+        WriteSpan(builder, span);
+        return span.Length;
+    }
+
+    public static int WriteBeBytes(ValueListBuilder<byte> builder, short value)
+    {
+        Span<byte> span = stackalloc byte[sizeof(short)];
+        BinaryPrimitives.WriteInt16BigEndian(span, value);
+        WriteSpan(builder, span);
+        return span.Length;
+    }
+
+    public static int WriteBeBytes(ValueListBuilder<byte> builder, uint value)
+    {
+        Span<byte> span = stackalloc byte[sizeof(uint)];
+        BinaryPrimitives.WriteUInt32BigEndian(span, value);
+        WriteSpan(builder, span);
+        return span.Length;
+    }
+
+    public static int WriteBeBytes(ValueListBuilder<byte> builder, int value)
+    {
+        Span<byte> span = stackalloc byte[sizeof(int)];
+        BinaryPrimitives.WriteInt32BigEndian(span, value);
+        WriteSpan(builder, span);
+        return span.Length;
+    }
+
+    public static int WriteBeBytes(ValueListBuilder<byte> builder, ulong value)
+    {
+        Span<byte> span = stackalloc byte[sizeof(ulong)];
+        BinaryPrimitives.WriteUInt64BigEndian(span, value);
+        WriteSpan(builder, span);
+        return span.Length;
+    }
+
+    public static int WriteBeBytes(ValueListBuilder<byte> builder, long value)
+    {
+        Span<byte> span = stackalloc byte[sizeof(long)];
+        BinaryPrimitives.WriteInt64BigEndian(span, value);
+        WriteSpan(builder, span);
+        return span.Length;
+    }
+
+    public static int WriteBeBytes(ValueListBuilder<byte> builder, float value)
+    {
+#if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
+        Span<byte> span = stackalloc byte[sizeof(float)];
+        BinaryPrimitivesExt.WriteSingleBigEndian(span, value);
+        WriteSpan(builder, span);
+#elif NETSTANDARD2_0
+        var bytes = BitConverter.GetBytes(value);
+        Span<byte> span = bytes;
+        span.Reverse();
+        for (var i = 0; i < bytes.Length; i++)
         {
-            buffer.CopyTo(sharedBuffer);
-            stream.Write(sharedBuffer, 0, buffer.Length);
+            builder.Append(bytes[i]);
         }
-        finally
+#endif
+        return span.Length;
+    }
+
+    public static int WriteBeBytes(ValueListBuilder<byte> builder, double value)
+    {
+        Span<byte> span = stackalloc byte[sizeof(double)];
+        BinaryPrimitivesExt.WriteDoubleBigEndian(span, value);
+        WriteSpan(builder, span);
+        return span.Length;
+    }
+
+
+    private static void WriteSpan(List<byte> builder, ReadOnlySpan<byte> buffer)
+    {
+        builder.Capacity += buffer.Length;
+
+        foreach (var span in buffer)
         {
-            ArrayPool<byte>.Shared.Return(sharedBuffer);
+            builder.Add(span);
+        }
+    }
+
+    private static void WriteSpan(ValueListBuilder<byte> builder, ReadOnlySpan<byte> buffer)
+    {
+        foreach (var span in buffer)
+        {
+            builder.Append(span);
         }
     }
 }

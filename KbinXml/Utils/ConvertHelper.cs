@@ -1,97 +1,110 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 
 namespace KbinXml.Utils;
 
 public static class ConvertHelper
 {
-    public static void WriteU8String(Stream stream, ReadOnlySpan<char> str) => stream.WriteByte(
-        byte.Parse(str
+    public static int WriteU8String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
+    {
+        builder.Append(byte.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static void WriteS8String(Stream stream, ReadOnlySpan<char> str) => stream.WriteByte(
-        (byte)sbyte.Parse(str
+        return 1;
+    }
+
+    public static int WriteS8String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
+    {
+        builder.Append((byte)sbyte.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static void WriteU16String(Stream stream, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        stream,
+        return 1;
+    }
+
+    public static int WriteU16String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        builder,
         ushort.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static void WriteS16String(Stream stream, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        stream,
+    public static int WriteS16String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        builder,
         short.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static void WriteU32String(Stream stream, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        stream,
+    public static int WriteU32String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        builder,
         uint.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static void WriteS32String(Stream stream, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        stream,
+    public static int WriteS32String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        builder,
         int.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static void WriteU64String(Stream stream, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        stream,
+    public static int WriteU64String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        builder,
         ulong.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static void WriteS64String(Stream stream, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        stream,
+    public static int WriteS64String(ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
+        builder,
         long.Parse(str
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static void WriteSingleString(Stream stream, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
-        stream,
+    public static int WriteSingleString(ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
+        builder,
         float.Parse(input
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static void WriteDoubleString(Stream stream, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
-        stream,
+    public static int WriteDoubleString(ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
+        builder,
         double.Parse(input
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ));
 
-    public static void WriteIp4String(Stream stream, ReadOnlySpan<char> input)
+    public static int WriteIp4String(ValueListBuilder<byte> builder, ReadOnlySpan<char> input)
     {
         var bytes = IPAddress.Parse(input
 #if NETSTANDARD2_0
                 .ToString()
 #endif
         ).GetAddressBytes();
-        stream.Write(bytes, 0, bytes.Length);
+
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            builder.Append(bytes[i]);
+        }
+
+        return bytes.Length;
     }
 
     public static string U8ToString(ReadOnlySpan<byte> bytes) => bytes[0].ToString();

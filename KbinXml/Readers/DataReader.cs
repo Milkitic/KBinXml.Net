@@ -7,7 +7,9 @@ namespace KbinXml.Readers;
 internal class DataReader : BeBinaryReader
 {
     private readonly Encoding _encoding;
-    private int _pos32, _pos16, _pos8;
+    private int _pos32;
+    private int _pos16;
+    private int _pos8;
 
     public DataReader(Memory<byte> buffer, Encoding encoding) : base(buffer)
     {

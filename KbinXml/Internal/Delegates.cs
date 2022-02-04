@@ -1,7 +1,7 @@
 ﻿using System;
-using System.IO;
+using KbinXml.Utils;
 
 namespace KbinXml.Internal;
 
-internal delegate void WriteStringDelegate(Stream stream,ReadOnlySpan<char> str);
+internal delegate int WriteStringDelegate(ValueListBuilder<byte> builder, ReadOnlySpan<char> str);
 internal delegate string ByteToStringDelegate(ReadOnlySpan<byte> bytes);

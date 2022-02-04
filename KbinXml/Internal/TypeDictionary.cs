@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using KbinXml.Utils;
 using static KbinXml.Utils.ConvertHelper;
 
 namespace KbinXml.Internal;
@@ -78,6 +79,6 @@ internal static class TypeDictionary
     }
 
     private static string ThrowExceptionConvert(ReadOnlySpan<byte> c) => throw new NotSupportedException();
-    private static void ThrowExceptionConvert(Stream stream, ReadOnlySpan<char> c) => throw new NotSupportedException();
+    private static int ThrowExceptionConvert(ValueListBuilder<byte> builder, ReadOnlySpan<char> c) => throw new NotSupportedException();
 
 }
