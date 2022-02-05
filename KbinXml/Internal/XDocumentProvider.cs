@@ -10,7 +10,7 @@ internal class XDocumentProvider : WriterProvider
     private readonly XDocument _xDocument;
     private readonly Stack<XContainer> _nodeStack = new();
 
-    private XAttribute? _currentAttribute;
+    private string? _holdAttrName;
 
     public XDocumentProvider(Encoding encoding) : base(encoding)
     {
@@ -30,7 +30,12 @@ internal class XDocumentProvider : WriterProvider
 
     public override void WriteAttributeValue(string? value)
     {
-        if (_currentAttribute != null) _currentAttribute.Value = value;
+        if (_holdAttrName != null)
+        {
+            var current = _nodeStack.Peek();
+            var attr = new XAttribute(XName.Get(_holdAttrName), value ?? "");
+            current.Add(attr);
+        }
         else throw new Exception("Current attribute is null!");
     }
 
@@ -50,14 +55,12 @@ internal class XDocumentProvider : WriterProvider
 
     public override void WriteStartAttribute(string value)
     {
-        var current = _nodeStack.Peek();
-        _currentAttribute = new XAttribute(XName.Get(value),"" );
-        current.Add(_currentAttribute);
+        _holdAttrName = value;
     }
 
     public override void WriteEndAttribute()
     {
-        _currentAttribute = null;
+        _holdAttrName = null;
     }
 
     public override object GetResult()
