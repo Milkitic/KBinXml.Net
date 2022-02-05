@@ -26,7 +26,12 @@ internal class XmlWriterProvider : WriterProvider
         _xmlWriter.WriteStartDocument();
     }
 
-    public override void WriteString(string? value)
+    public override void WriteElementValue(string? value)
+    {
+        _xmlWriter.WriteString(value);
+    }
+
+    public override void WriteAttributeValue(string? value)
     {
         _xmlWriter.WriteString(value);
     }

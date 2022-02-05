@@ -18,9 +18,8 @@ public static partial class KbinConverter
     /// <returns>Returns the XDocument.</returns>
     public static XDocument ReadLinq(Memory<byte> sourceBuffer)
     {
-        var bytes = ReadXmlByte(sourceBuffer);
-        using var memoryStream = new MemoryStream(bytes);
-        return XDocument.Load(memoryStream);
+        var bytes = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e));
+        return bytes;
     }
 
     public static byte[] ReadXmlByte(Memory<byte> sourceBuffer)
@@ -53,7 +52,7 @@ public static partial class KbinConverter
                     case ControlType.NodeStart:
                         if (holdValue != null)
                         {
-                            writerProvider.WriteString(holdValue);
+                            writerProvider.WriteElementValue(holdValue);
                             holdValue = null;
                         }
 
@@ -65,14 +64,14 @@ public static partial class KbinConverter
                         var attr = nodeReader.ReadString();
                         var value = dataReader.ReadString(dataReader.ReadS32());
                         writerProvider.WriteStartAttribute(attr);
-                        writerProvider.WriteString(value);
+                        writerProvider.WriteAttributeValue(value);
                         writerProvider.WriteEndAttribute();
                         break;
 
                     case ControlType.NodeEnd:
                         if (holdValue != null)
                         {
-                            writerProvider.WriteString(holdValue);
+                            writerProvider.WriteElementValue(holdValue);
                             holdValue = null;
                         }
 
@@ -89,7 +88,7 @@ public static partial class KbinConverter
             {
                 if (holdValue != null)
                 {
-                    writerProvider.WriteString(holdValue);
+                    writerProvider.WriteElementValue(holdValue);
                     holdValue = null;
                 }
 
@@ -97,7 +96,7 @@ public static partial class KbinConverter
                 writerProvider.WriteStartElement(elementName);
 
                 writerProvider.WriteStartAttribute("__type");
-                writerProvider.WriteString(propertyType.Name);
+                writerProvider.WriteAttributeValue(propertyType.Name);
                 writerProvider.WriteEndAttribute();
 
                 int arraySize;
@@ -111,7 +110,7 @@ public static partial class KbinConverter
                 else if (propertyType.Name == "bin")
                 {
                     writerProvider.WriteStartAttribute("__size");
-                    writerProvider.WriteString(arraySize.ToString());
+                    writerProvider.WriteAttributeValue(arraySize.ToString());
                     writerProvider.WriteEndAttribute();
                     holdValue = dataReader.ReadBinary(arraySize);
                 }
@@ -121,7 +120,7 @@ public static partial class KbinConverter
                     {
                         var size = (arraySize / (propertyType.Size * propertyType.Count)).ToString();
                         writerProvider.WriteStartAttribute("__count");
-                        writerProvider.WriteString(size);
+                        writerProvider.WriteAttributeValue(size);
                         writerProvider.WriteEndAttribute();
                     }
 

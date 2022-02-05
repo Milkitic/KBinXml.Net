@@ -13,7 +13,8 @@ internal abstract class WriterProvider : IDisposable
     }
 
     public abstract void WriteStartDocument();
-    public abstract void WriteString(string? value);
+    public abstract void WriteElementValue(string? value);
+    public abstract void WriteAttributeValue(string? value);
     public abstract void WriteStartElement(string elementName);
     public abstract void WriteEndElement();
     public abstract void WriteStartAttribute(string value);

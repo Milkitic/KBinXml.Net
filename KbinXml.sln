@@ -9,9 +9,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReadBenchmark", "Benchmarks\ReadBenchmark\ReadBenchmark.csproj", "{01F81CEF-7E95-4B59-9622-FB398DA5710F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ListBenchmark", "Benchmarks\ListBenchmark\ListBenchmark.csproj", "{B66990E3-310D-494D-8202-2BD97CE598E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ListBenchmark", "Benchmarks\ListBenchmark\ListBenchmark.csproj", "{B66990E3-310D-494D-8202-2BD97CE598E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteBenchmark", "Benchmarks\WriteBenchmark\WriteBenchmark.csproj", "{B8C46AF9-32EF-407D-81B1-5CD86A59AEC5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WriteBenchmark", "Benchmarks\WriteBenchmark\WriteBenchmark.csproj", "{B8C46AF9-32EF-407D-81B1-5CD86A59AEC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
