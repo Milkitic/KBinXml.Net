@@ -13,7 +13,7 @@ namespace KbinXml;
 
 public static partial class KbinConverter
 {
-    public static byte[] WriteRaw(string rawXml, Encoding encoding)
+    public static byte[] Write(string rawXml, Encoding encoding)
     {
         var context = new WriteContext(new NodeWriter(true, encoding), new DataWriter(encoding));
 

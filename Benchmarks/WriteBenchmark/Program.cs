@@ -16,7 +16,7 @@ namespace WriteBenchmark
         {
             var bytes = File.ReadAllBytes(@"data\test_case.bin");
             var str = KbinConverter.ReadLinq(bytes).ToString();
-            var backs = KbinConverter.WriteRaw(str, Encoding.UTF8);
+            var backs = KbinConverter.Write(str, Encoding.UTF8);
             //var sb = KbinConverter.ReadLinq(backs).ToString();
             Console.WriteLine("Hello World!");
 
@@ -64,7 +64,7 @@ namespace WriteBenchmark
         [Benchmark]
         public object? New_400KB()
         {
-            return KbinConverter.WriteRaw(_str, Encoding.UTF8);
+            return KbinConverter.Write(_str, Encoding.UTF8);
         }
 
         [Benchmark]
@@ -73,7 +73,7 @@ namespace WriteBenchmark
             return _target
                 .AsParallel()
                 .WithDegreeOfParallelism(32)
-                .Select(_ => KbinConverter.WriteRaw(_str, Encoding.UTF8))
+                .Select(_ => KbinConverter.Write(_str, Encoding.UTF8))
                 .ToArray();
         }
     }
