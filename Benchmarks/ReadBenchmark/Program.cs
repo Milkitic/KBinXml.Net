@@ -18,6 +18,7 @@ namespace ReadBenchmark
         {
             var bytes = File.ReadAllBytes(@"data\test_case.bin");
             KbinConverter.ReadXmlByte(bytes);
+            KbinConverter.ReadLinq(bytes);
 
             //new int[5000].AsParallel().ForAll((i) =>
             //{
@@ -31,7 +32,7 @@ namespace ReadBenchmark
 
     [MemoryDiagnoser]
     [SimpleJob(RuntimeMoniker.Net60)]
-    //[SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
     [SimpleJob(RuntimeMoniker.Net48)]
     public class ReadTask
     {
@@ -45,14 +46,14 @@ namespace ReadBenchmark
 #if NETCOREAPP3_1_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
-            _target = new int[160];
+            _target = new int[80];
         }
 
-        //[Benchmark]
-        //public object? NewLinq_400KB()
-        //{
-        //    return KbinConverter.ReadLinq(_bytes);
-        //}
+        [Benchmark]
+        public object? NewLinq_400KB()
+        {
+            return KbinConverter.ReadLinq(_bytes);
+        }
 
         [Benchmark]
         public object? NewRaw_400KB()
@@ -61,18 +62,18 @@ namespace ReadBenchmark
         }
 
 
-        //[Benchmark]
-        //public object? NewLinq_400KB_32ThreadsX160()
-        //{
-        //    return _target
-        //        .AsParallel()
-        //        .WithDegreeOfParallelism(32)
-        //        .Select(_ => KbinConverter.ReadLinq(_bytes))
-        //        .ToArray();
-        //}
+        [Benchmark]
+        public object? NewLinq_400KB_32ThreadsX80()
+        {
+            return _target
+                .AsParallel()
+                .WithDegreeOfParallelism(32)
+                .Select(_ => KbinConverter.ReadLinq(_bytes))
+                .ToArray();
+        }
 
         [Benchmark]
-        public object? NewRaw_400KB_32ThreadsX160()
+        public object? NewRaw_400KB_32ThreadsX80()
         {
             return _target
                 .AsParallel()

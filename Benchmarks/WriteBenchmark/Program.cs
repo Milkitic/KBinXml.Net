@@ -58,7 +58,7 @@ namespace WriteBenchmark
 #endif
             _str = KbinConverter.ReadLinq(_bytes).ToString();
 
-            _target = new int[160];
+            _target = new int[80];
         }
 
         [Benchmark]
@@ -68,7 +68,7 @@ namespace WriteBenchmark
         }
 
         [Benchmark]
-        public object? New_400KB_32ThreadsX160()
+        public object? New_400KB_32ThreadsX80()
         {
             return _target
                 .AsParallel()
