@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml.Linq;
 
-namespace KbinXml.Internal;
+namespace KbinXml.Internal.Providers;
 
 internal class XDocumentProvider : WriterProvider
 {

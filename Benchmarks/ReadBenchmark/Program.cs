@@ -17,8 +17,9 @@ namespace ReadBenchmark
         static void Main(string[] args)
         {
             var bytes = File.ReadAllBytes(@"data\test_case.bin");
-            KbinConverter.ReadXmlByte(bytes);
-            KbinConverter.ReadLinq(bytes);
+            KbinConverter.ReadXmlBytes(bytes);
+            KbinConverter.ReadXmlLinq(bytes);
+            var xml = KbinConverter.ReadXml(bytes);
 
             //new int[5000].AsParallel().ForAll((i) =>
             //{
@@ -52,13 +53,19 @@ namespace ReadBenchmark
         [Benchmark]
         public object? NewLinq_400KB()
         {
-            return KbinConverter.ReadLinq(_bytes);
+            return KbinConverter.ReadXmlLinq(_bytes);
+        }
+
+        [Benchmark]
+        public object? New_400KB()
+        {
+            return KbinConverter.ReadXml(_bytes);
         }
 
         [Benchmark]
         public object? NewRaw_400KB()
         {
-            return KbinConverter.ReadXmlByte(_bytes);
+            return KbinConverter.ReadXmlBytes(_bytes);
         }
 
 
@@ -68,7 +75,18 @@ namespace ReadBenchmark
             return _target
                 .AsParallel()
                 .WithDegreeOfParallelism(32)
-                .Select(_ => KbinConverter.ReadLinq(_bytes))
+                .Select(_ => KbinConverter.ReadXmlLinq(_bytes))
+                .ToArray();
+        }
+
+
+        [Benchmark]
+        public object? New_400KB_32ThreadsX80()
+        {
+            return _target
+                .AsParallel()
+                .WithDegreeOfParallelism(32)
+                .Select(_ => KbinConverter.ReadXml(_bytes))
                 .ToArray();
         }
 
@@ -78,7 +96,7 @@ namespace ReadBenchmark
             return _target
                 .AsParallel()
                 .WithDegreeOfParallelism(32)
-                .Select(_ => KbinConverter.ReadXmlByte(_bytes))
+                .Select(_ => KbinConverter.ReadXmlBytes(_bytes))
                 .ToArray();
         }
     }

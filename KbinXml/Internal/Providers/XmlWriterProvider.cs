@@ -2,7 +2,7 @@
 using System.Text;
 using System.Xml;
 
-namespace KbinXml.Internal;
+namespace KbinXml.Internal.Providers;
 
 internal class XmlWriterProvider : WriterProvider
 {

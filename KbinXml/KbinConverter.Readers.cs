@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using KbinXml.Internal;
+using KbinXml.Internal.Providers;
 using KbinXml.Readers;
 using KbinXml.Utils;
 
@@ -16,16 +17,22 @@ public static partial class KbinConverter
     /// Reads all nodes in the binary XML.
     /// </summary>
     /// <returns>Returns the XDocument.</returns>
-    public static XDocument ReadLinq(Memory<byte> sourceBuffer)
+    public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer)
     {
-        var bytes = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e));
-        return bytes;
+        var xDocument = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e));
+        return xDocument;
     }
 
-    public static byte[] ReadXmlByte(Memory<byte> sourceBuffer)
+    public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer)
     {
         var bytes = (byte[])Read(sourceBuffer, e => new XmlWriterProvider(e));
         return bytes;
+    }
+
+    public static XmlDocument ReadXml(Memory<byte> sourceBuffer)
+    {
+        var xmlDocument = (XmlDocument)Read(sourceBuffer, e => new XmlDocumentProvider(e));
+        return xmlDocument;
     }
 
     private static object Read(Memory<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider)

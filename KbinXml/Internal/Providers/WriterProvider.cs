@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace KbinXml.Internal;
+namespace KbinXml.Internal.Providers;
 
 internal abstract class WriterProvider : IDisposable
 {

@@ -15,7 +15,7 @@ namespace WriteBenchmark
         static void Main(string[] args)
         {
             var bytes = File.ReadAllBytes(@"data\test_case.bin");
-            var str = KbinConverter.ReadLinq(bytes).ToString();
+            var str = KbinConverter.ReadXmlLinq(bytes).ToString();
             var backs = KbinConverter.Write(str, Encoding.UTF8);
             //var sb = KbinConverter.ReadLinq(backs).ToString();
             Console.WriteLine("Hello World!");
@@ -56,7 +56,7 @@ namespace WriteBenchmark
 #if NETCOREAPP3_1_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
-            _str = KbinConverter.ReadLinq(_bytes).ToString();
+            _str = KbinConverter.ReadXmlLinq(_bytes).ToString();
 
             _target = new int[80];
         }
