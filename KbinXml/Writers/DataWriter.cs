@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using KbinXml.Internal;
 using KbinXml.Utils;
 
 namespace KbinXml.Writers
@@ -43,29 +43,21 @@ namespace KbinXml.Writers
             var bytes = _encoding.GetBytes(value);
 
             var length = bytes.Length + 1;
-            if (length <= 128)
+            byte[]? arr = null;
+            Span<byte> span = length <= Constants.MaxStackLength
+                ? stackalloc byte[length]
+                : arr = ArrayPool<byte>.Shared.Rent(length);
+            try
             {
-                Span<byte> span = stackalloc byte[length];
+                if (arr != null) span = span.Slice(0, length);
                 bytes.CopyTo(span);
 
-                WriteU32((uint)span.Length);
+                WriteU32((uint)length);
                 Write32BitAligned(span);
             }
-            else
+            finally
             {
-                var arr = ArrayPool<byte>.Shared.Rent(length);
-                try
-                {
-                    Span<byte> array = arr.AsSpan(0, length);
-                    bytes.CopyTo(array);
-
-                    WriteU32((uint)array.Length);
-                    Write32BitAligned(array);
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(arr);
-                }
+                if (arr != null) ArrayPool<byte>.Shared.Return(arr);
             }
         }
 

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using KbinXml.Internal;
 
 namespace KbinXml.Utils;
 
@@ -22,9 +24,13 @@ public static class SixbitHelper
 
     public static void EncodeAndWrite(Stream stream, string input)
     {
-        var buffer = input.Length <= 128
+        byte[]? arrIn = null;
+        var buffer = input.Length <= Constants.MaxStackLength
             ? stackalloc byte[input.Length]
-            : new byte[input.Length];
+            : arrIn = ArrayPool<byte>.Shared.Rent(input.Length);
+        try
+        {
+        if (arrIn != null) buffer = buffer.Slice(0, input.Length);
         for (var i = 0; i < input.Length; i++)
         {
             var c = input[i];
@@ -32,9 +38,14 @@ public static class SixbitHelper
         }
 
         var length = (int)Math.Ceiling(buffer.Length * 6.0 / 8);
-        var output = length <= 128
+
+        byte[]? arrOut = null;
+        var output = length <= Constants.MaxStackLength
             ? stackalloc byte[length]
-            : new byte[length];
+            : arrOut = ArrayPool<byte>.Shared.Rent(length);
+        try
+        {
+        if (arrOut != null) output = output.Slice(0, length);
 
         for (var i = 0; i < buffer.Length * 6; i++)
             output[i / 8] = (byte)(output[i / 8] |
@@ -42,21 +53,38 @@ public static class SixbitHelper
 
         var encode = output.Slice(0, output.Length);
         stream.WriteSpan(encode);
+        }
+        finally
+        {
+            if (arrOut != null) ArrayPool<byte>.Shared.Return(arrOut);
+        }
+        }
+        finally
+        {
+            if (arrIn != null) ArrayPool<byte>.Shared.Return(arrIn);
+        }
     }
 
     public static string Decode(ReadOnlySpan<byte> buffer, int length)
     {
-        var output = length <= 128
+        byte[]? arrOutput = null;
+        var output = length <= Constants.MaxStackLength
             ? stackalloc byte[length]
-            : new byte[length];
+            : arrOutput = ArrayPool<byte>.Shared.Rent(length);
+        try
+        {
+        if (arrOutput != null) output = output.Slice(0, length);
 
         for (var i = 0; i < length * 6; i++)
             output[i / 6] = (byte)(output[i / 6] |
                                    (((buffer[i / 8] >> (7 - (i % 8))) & 1) << (5 - (i % 6))));
-
-        var result = output.Length <= 128
+        char[]? arrResult = null;
+        var result = output.Length <= Constants.MaxStackLength
             ? stackalloc char[output.Length]
-            : new char[output.Length];
+            : arrResult = ArrayPool<char>.Shared.Rent(output.Length);
+        try
+        {
+        if (arrResult != null) result = result.Slice(0, output.Length);
 
         for (var i = 0; i < output.Length; i++)
         {
@@ -69,5 +97,15 @@ public static class SixbitHelper
 #elif NETSTANDARD2_0
         return new string(result.ToArray());
 #endif
+        }
+        finally
+        {
+            if (arrResult != null) ArrayPool<char>.Shared.Return(arrResult);
+        }
+        }
+        finally
+        {
+            if (arrOutput != null) ArrayPool<byte>.Shared.Return(arrOutput);
+        }
     }
 }

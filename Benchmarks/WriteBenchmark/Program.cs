@@ -52,7 +52,7 @@ namespace WriteBenchmark
         [GlobalSetup]
         public void Setup()
         {
-            _bytes = File.ReadAllBytes(@"data\test_case2.bin");
+            _bytes = File.ReadAllBytes(@"data\test_case.bin");
 #if NETCOREAPP3_1_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
