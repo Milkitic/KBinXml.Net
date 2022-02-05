@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers;
 using System.IO;
 
 namespace KbinXml.Utils;
@@ -24,7 +23,6 @@ public static class StreamExtensions
         stream.Position = pos;
         return copyMs.ToArray();
     }
-
 
     public static void WriteSpan(this Stream builder, ReadOnlySpan<byte> buffer)
     {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using KbinXml.Utils;
 using static KbinXml.Utils.ConvertHelper;
