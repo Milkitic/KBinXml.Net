@@ -24,17 +24,26 @@ namespace KbinXml.Writers
 
         public virtual void WriteS16(short value)
         {
-            BitConverterHelper.WriteBeBytes(Stream, value);
+            Span<byte> span = stackalloc byte[sizeof(short)];
+            var builder = new ValueListBuilder<byte>(span);
+            BitConverterHelper.WriteBeBytes(ref builder, value);
+            WriteBytes(builder.AsSpan());
         }
 
         public virtual void WriteS32(int value)
         {
-            BitConverterHelper.WriteBeBytes(Stream, value);
+            Span<byte> span = stackalloc byte[sizeof(int)];
+            var builder = new ValueListBuilder<byte>(span);
+            BitConverterHelper.WriteBeBytes(ref builder, value);
+            WriteBytes(builder.AsSpan());
         }
 
         public virtual void WriteS64(long value)
         {
-            BitConverterHelper.WriteBeBytes(Stream, value);
+            Span<byte> span = stackalloc byte[sizeof(long)];
+            var builder = new ValueListBuilder<byte>(span);
+            BitConverterHelper.WriteBeBytes(ref builder, value);
+            WriteBytes(builder.AsSpan());
         }
 
         public virtual void WriteU8(byte value)
@@ -44,17 +53,26 @@ namespace KbinXml.Writers
 
         public virtual void WriteU16(ushort value)
         {
-            BitConverterHelper.WriteBeBytes(Stream, value);
+            Span<byte> span = stackalloc byte[sizeof(ushort)];
+            var builder = new ValueListBuilder<byte>(span);
+            BitConverterHelper.WriteBeBytes(ref builder, value);
+            WriteBytes(builder.AsSpan());
         }
 
         public virtual void WriteU32(uint value)
         {
-            BitConverterHelper.WriteBeBytes(Stream, value);
+            Span<byte> span = stackalloc byte[sizeof(uint)];
+            var builder = new ValueListBuilder<byte>(span);
+            BitConverterHelper.WriteBeBytes(ref builder, value);
+            WriteBytes(builder.AsSpan());
         }
 
         public virtual void WriteU64(ulong value)
         {
-            BitConverterHelper.WriteBeBytes(Stream, value);
+            Span<byte> span = stackalloc byte[sizeof(ulong)];
+            var builder = new ValueListBuilder<byte>(span);
+            BitConverterHelper.WriteBeBytes(ref builder, value);
+            WriteBytes(builder.AsSpan());
         }
 
         internal void Pad()

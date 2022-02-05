@@ -32,17 +32,6 @@ public static class StreamExtensions
         builder.Write(buffer);
 #else
         foreach (var b in buffer) builder.WriteByte(b);
-        //builder.Write(buffer.ToArray(), 0, buffer.Length);
-        //byte[] sharedBuffer = ArrayPool<byte>.Shared.Rent(buffer.Length);
-        //try
-        //{
-        //    buffer.CopyTo(sharedBuffer);
-        //    builder.Write(sharedBuffer, 0, buffer.Length);
-        //}
-        //finally
-        //{
-        //    ArrayPool<byte>.Shared.Return(sharedBuffer);
-        //}
 #endif
     }
 }
