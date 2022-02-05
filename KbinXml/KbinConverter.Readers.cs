@@ -25,13 +25,18 @@ public static partial class KbinConverter
 
     public static byte[] ReadXmlByte(Memory<byte> sourceBuffer)
     {
-        using var readContext = GetReadContext(sourceBuffer);
-        var writerStream = readContext.WriterStream;
-        var xmlWriter = readContext.XmlWriter;
+        var bytes = (byte[])Read(sourceBuffer, e => new XmlWriterProvider(e));
+        return bytes;
+    }
+
+    private static object Read(Memory<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider)
+    {
+        using var readContext = GetReadContext(sourceBuffer, createWriterProvider);
+        var writerProvider = readContext.WriterProvider;
         var nodeReader = readContext.NodeReader;
         var dataReader = readContext.DataReader;
 
-        xmlWriter.WriteStartDocument();
+        writerProvider.WriteStartDocument();
 
         string? holdValue = null;
         while (true)
@@ -48,35 +53,34 @@ public static partial class KbinConverter
                     case ControlType.NodeStart:
                         if (holdValue != null)
                         {
-                            xmlWriter.WriteString(holdValue);
+                            writerProvider.WriteString(holdValue);
                             holdValue = null;
                         }
 
                         var elementName = nodeReader.ReadString();
-                        xmlWriter.WriteStartElement(elementName);
+                        writerProvider.WriteStartElement(elementName);
                         break;
 
                     case ControlType.Attribute:
                         var attr = nodeReader.ReadString();
                         var value = dataReader.ReadString(dataReader.ReadS32());
-                        xmlWriter.WriteStartAttribute(attr);
-                        xmlWriter.WriteString(value);
-                        xmlWriter.WriteEndAttribute();
+                        writerProvider.WriteStartAttribute(attr);
+                        writerProvider.WriteString(value);
+                        writerProvider.WriteEndAttribute();
                         break;
 
                     case ControlType.NodeEnd:
                         if (holdValue != null)
                         {
-                            xmlWriter.WriteString(holdValue);
+                            writerProvider.WriteString(holdValue);
                             holdValue = null;
                         }
 
-                        xmlWriter.WriteEndElement();
+                        writerProvider.WriteEndElement();
                         break;
 
                     case ControlType.FileEnd:
-                        xmlWriter.Flush();
-                        return writerStream.ToArray();
+                        return writerProvider.GetResult();
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -85,16 +89,16 @@ public static partial class KbinConverter
             {
                 if (holdValue != null)
                 {
-                    xmlWriter.WriteString(holdValue);
+                    writerProvider.WriteString(holdValue);
                     holdValue = null;
                 }
 
                 var elementName = nodeReader.ReadString();
-                xmlWriter.WriteStartElement(elementName);
+                writerProvider.WriteStartElement(elementName);
 
-                xmlWriter.WriteStartAttribute("__type");
-                xmlWriter.WriteString(propertyType.Name);
-                xmlWriter.WriteEndAttribute();
+                writerProvider.WriteStartAttribute("__type");
+                writerProvider.WriteString(propertyType.Name);
+                writerProvider.WriteEndAttribute();
 
                 int arraySize;
                 if (array || propertyType.Name is "str" or "bin")
@@ -106,9 +110,9 @@ public static partial class KbinConverter
                     holdValue = dataReader.ReadString(arraySize);
                 else if (propertyType.Name == "bin")
                 {
-                    xmlWriter.WriteStartAttribute("__size");
-                    xmlWriter.WriteString(arraySize.ToString());
-                    xmlWriter.WriteEndAttribute();
+                    writerProvider.WriteStartAttribute("__size");
+                    writerProvider.WriteString(arraySize.ToString());
+                    writerProvider.WriteEndAttribute();
                     holdValue = dataReader.ReadBinary(arraySize);
                 }
                 else
@@ -116,9 +120,9 @@ public static partial class KbinConverter
                     if (array)
                     {
                         var size = (arraySize / (propertyType.Size * propertyType.Count)).ToString();
-                        xmlWriter.WriteStartAttribute("__count");
-                        xmlWriter.WriteString(size);
-                        xmlWriter.WriteEndAttribute();
+                        writerProvider.WriteStartAttribute("__count");
+                        writerProvider.WriteString(size);
+                        writerProvider.WriteEndAttribute();
                     }
 
                     var span = dataReader.ReadBytes(arraySize);
@@ -148,7 +152,7 @@ public static partial class KbinConverter
         }
     }
 
-    private static ReadContext GetReadContext(Memory<byte> sourceBuffer)
+    private static ReadContext GetReadContext(Memory<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider)
     {
         //Read header section.
         var binaryBuffer = new BeBinaryReader(sourceBuffer);
@@ -175,38 +179,28 @@ public static partial class KbinConverter
         var dataLength = BitConverterHelper.ToBeInt32(sourceBuffer.Slice(nodeLength + 8, 4).Span);
         var dataReader = new DataReader(sourceBuffer.Slice(nodeLength + 12, dataLength), encoding);
 
-        var settings = new XmlWriterSettings
-        {
-            Async = false,
-            Encoding = encoding,
-            Indent = false
-        };
-        var writerStream = new MemoryStream();
-        var xmlWriter = XmlWriter.Create(writerStream, settings);
+        var readProvider = createWriterProvider(encoding);
 
-        var readContext = new ReadContext(nodeReader, dataReader, xmlWriter, writerStream);
+        var readContext = new ReadContext(nodeReader, dataReader, readProvider);
         return readContext;
     }
 
     private class ReadContext : IDisposable
     {
-        public ReadContext(NodeReader nodeReader, DataReader dataReader, XmlWriter xmlWriter, Stream writerStream)
+        public ReadContext(NodeReader nodeReader, DataReader dataReader, WriterProvider writerProvider)
         {
             NodeReader = nodeReader;
             DataReader = dataReader;
-            XmlWriter = xmlWriter;
-            WriterStream = writerStream;
+            WriterProvider = writerProvider;
         }
 
         public NodeReader NodeReader { get; set; }
         public DataReader DataReader { get; set; }
-        public XmlWriter XmlWriter { get; set; }
-        public Stream WriterStream { get; set; }
+        public WriterProvider WriterProvider { get; set; }
 
         public void Dispose()
         {
-            XmlWriter.Dispose();
-            WriterStream.Dispose();
+            WriterProvider.Dispose();
         }
     }
 }
