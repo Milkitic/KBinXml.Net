@@ -31,7 +31,8 @@ public static class StreamExtensions
 #if NETCOREAPP3_1_OR_GREATER
         builder.Write(buffer);
 #else
-        builder.Write(buffer.ToArray(), 0, buffer.Length);
+        foreach (var b in buffer) builder.WriteByte(b);
+        //builder.Write(buffer.ToArray(), 0, buffer.Length);
         //byte[] sharedBuffer = ArrayPool<byte>.Shared.Rent(buffer.Length);
         //try
         //{
