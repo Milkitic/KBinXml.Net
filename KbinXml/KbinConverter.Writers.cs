@@ -49,9 +49,14 @@ public static partial class KbinConverter
                             throw new KbinException("uint size is greater than int.MaxValue");
 
                         var iSize = (int)size;
-                        // todo: stackalloc
-                        var arr = ArrayPool<byte>.Shared.Rent(iSize);
-                        var builder = new ValueListBuilder<byte>(arr);
+                        byte[]? arr = null;
+                        var span = iSize <= Constants.MaxStackLength
+                            ? stackalloc byte[iSize]
+                            : arr = ArrayPool<byte>.Shared.Rent(iSize);
+
+                        if (arr != null) span = span.Slice(0, iSize);
+                        var builder = new ValueListBuilder<byte>(span);
+
                         try
                         {
                             int i = 0;
@@ -73,7 +78,7 @@ public static partial class KbinConverter
                         finally
                         {
                             builder.Dispose();
-                            ArrayPool<byte>.Shared.Return(arr);
+                            if (arr != null) ArrayPool<byte>.Shared.Return(arr);
                         }
                     }
 
