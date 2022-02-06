@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\KbinXml\KbinXml.Net.csproj" />
+    <ProjectReference Include="..\..\KbinXml.Net\KbinXml.Net.csproj" />
   </ItemGroup>
 
 </Project>
