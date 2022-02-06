@@ -16,7 +16,7 @@ namespace ReadBenchmark
     {
         static void Main(string[] args)
         {
-            var kbin = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), Encoding.UTF8);
+            var kbin = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), KnownEncodings.UTF8);
             //var bytes = File.ReadAllBytes(@"data\test_case.bin");
             var xmlBytes = KbinConverter.ReadXmlBytes(kbin);
             var linq = KbinConverter.ReadXmlLinq(kbin);
@@ -45,7 +45,7 @@ namespace ReadBenchmark
         public void Setup()
         {
             //_bytes = File.ReadAllBytes(@"data\test_case.bin");
-            _bytes = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), Encoding.UTF8);
+            _bytes = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), KnownEncodings.UTF8);
 #if NETCOREAPP3_1_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif

@@ -22,7 +22,7 @@ namespace WriteBenchmark
                 kbin = File.ReadAllBytes(@"d:\data\small.bin");
             else
             {
-                kbin = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), Encoding.UTF8);
+                kbin = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), KnownEncodings.UTF8);
                 File.WriteAllBytes(@"d:\data\small.bin", kbin);
             }
             //var kbin = File.ReadAllBytes(@"data\test_case.bin");
@@ -31,11 +31,11 @@ namespace WriteBenchmark
             var xml = KbinConverter.ReadXml(kbin);
             var xmlStr = linq.ToString();
 
-            var kbin11 = KbinConverter.Write(xmlBytes, Encoding.UTF8);
-            var kbin1 = KbinConverter.Write(xmlStr, Encoding.UTF8);
+            var kbin11 = KbinConverter.Write(xmlBytes, KnownEncodings.UTF8);
+            var kbin1 = KbinConverter.Write(xmlStr, KnownEncodings.UTF8);
             var linq2 = KbinConverter.ReadXmlLinq(kbin1);
             var xmlBytes2 = KbinConverter.ReadXmlBytes(kbin1);
-            var kbin2 = KbinConverter.Write(linq2, Encoding.UTF8);
+            var kbin2 = KbinConverter.Write(linq2, KnownEncodings.UTF8);
 
             //var obj = new object();
             //int i = 0;
@@ -75,7 +75,7 @@ namespace WriteBenchmark
 #if NETCOREAPP3_1_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
-            _kbin = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), Encoding.UTF8);
+            _kbin = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), KnownEncodings.UTF8);
             //_kbin = File.ReadAllBytes(@"data\test_case.bin");
             _xmlBytes = KbinConverter.ReadXmlBytes(_kbin);
             _linq = KbinConverter.ReadXmlLinq(_kbin);
@@ -88,13 +88,13 @@ namespace WriteBenchmark
         [Benchmark]
         public object? WriteRaw_400KB()
         {
-            return KbinConverter.Write(_xmlStr, Encoding.UTF8);
+            return KbinConverter.Write(_xmlStr, KnownEncodings.UTF8);
         }
 
         [Benchmark]
         public object? WriteNode_400KB()
         {
-            return KbinConverter.Write(_linq, Encoding.UTF8);
+            return KbinConverter.Write(_linq, KnownEncodings.UTF8);
         }
 
         [Benchmark]
@@ -103,7 +103,7 @@ namespace WriteBenchmark
             return _target
                 .AsParallel()
                 .WithDegreeOfParallelism(32)
-                .Select(_ => KbinConverter.Write(_xmlStr, Encoding.UTF8))
+                .Select(_ => KbinConverter.Write(_xmlStr, KnownEncodings.UTF8))
                 .ToArray();
         }
 
@@ -113,7 +113,7 @@ namespace WriteBenchmark
             return _target
                 .AsParallel()
                 .WithDegreeOfParallelism(32)
-                .Select(_ => KbinConverter.Write(_linq, Encoding.UTF8))
+                .Select(_ => KbinConverter.Write(_linq, KnownEncodings.UTF8))
                 .ToArray();
         }
     }

@@ -8,7 +8,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Running;
-using KbinXml;
+using KbinXml.Net.Utils;
 
 namespace ListBenchmark
 {
@@ -27,7 +27,6 @@ namespace ListBenchmark
     [SimpleJob(RuntimeMoniker.Net48)]
     public class GeneralTask
     {
-
         private byte[] _bytes;
 
         [GlobalSetup]
