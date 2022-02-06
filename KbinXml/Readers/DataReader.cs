@@ -76,8 +76,8 @@ internal class DataReader : BeBinaryReader
 #else
         unsafe
         {
-            fixed (byte* bytes = span)
-                return _encoding.GetString(bytes, span.Length);
+            fixed (byte* p = span)
+                return _encoding.GetString(p, span.Length);
         }
 #endif
     }

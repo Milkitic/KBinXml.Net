@@ -26,12 +26,15 @@ internal class NodeReader : BeBinaryReader
             return SixbitHelper.Decode(memory.Span, length);
         }
 
-#if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
         var mem = ReadBytes((length & 0xBF) + 1);
+#if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
         return _encoding.GetString(mem.Span);
 #elif NETSTANDARD2_0
-        var mem = ReadBytes((length & 0xBF) + 1);
-        return _encoding.GetString(mem.ToArray());
+        unsafe
+        {
+            fixed (byte* p = mem.Span)
+                return _encoding.GetString(p, mem.Length);
+        }
 #endif
     }
 }
