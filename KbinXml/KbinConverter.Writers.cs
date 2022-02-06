@@ -6,11 +6,11 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using KbinXml.Internal;
-using KbinXml.Utils;
-using KbinXml.Writers;
+using KbinXml.Net.Internal;
+using KbinXml.Net.Utils;
+using KbinXml.Net.Writers;
 
-namespace KbinXml;
+namespace KbinXml.Net;
 
 public static partial class KbinConverter
 {

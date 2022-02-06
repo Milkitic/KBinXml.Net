@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
-using KbinXml.Utils;
+using KbinXml.Net.Utils;
 
-namespace KbinXml.Readers;
+namespace KbinXml.Net.Readers;
 
 internal class NodeReader : BeBinaryReader
 {

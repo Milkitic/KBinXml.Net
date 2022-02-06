@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using KbinXml.Internal;
+using KbinXml.Net.Internal;
 
-namespace KbinXml;
+namespace KbinXml.Net;
 
 public static partial class KbinConverter
 {

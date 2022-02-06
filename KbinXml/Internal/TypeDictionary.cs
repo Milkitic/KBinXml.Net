@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using KbinXml.Utils;
-using static KbinXml.Utils.ConvertHelper;
+using KbinXml.Net.Utils;
+using static KbinXml.Net.Utils.ConvertHelper;
 
-namespace KbinXml.Internal;
+namespace KbinXml.Net.Internal;
 
 internal static class TypeDictionary
 {

@@ -8,6 +8,7 @@ using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using KbinXml;
+using KbinXml.Net;
 
 namespace ReadBenchmark
 {

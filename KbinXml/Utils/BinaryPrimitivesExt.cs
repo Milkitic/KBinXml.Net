@@ -2,7 +2,7 @@
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 
-namespace KbinXml.Utils;
+namespace KbinXml.Net.Utils;
 
 public static class BinaryPrimitivesExt
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KbinXml;
+namespace KbinXml.Net;
 
 public class KbinException : Exception
 {

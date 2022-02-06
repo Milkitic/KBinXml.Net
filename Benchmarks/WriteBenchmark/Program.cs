@@ -9,6 +9,7 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Running;
 using KbinXml;
+using KbinXml.Net;
 
 namespace WriteBenchmark
 {

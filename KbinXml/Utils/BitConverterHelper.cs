@@ -2,7 +2,7 @@
 using System.Buffers;
 using System.Buffers.Binary;
 
-namespace KbinXml.Utils;
+namespace KbinXml.Net.Utils;
 
 public static class BitConverterHelper
 {

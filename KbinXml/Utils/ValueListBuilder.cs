@@ -3,7 +3,7 @@ using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace KbinXml.Utils
+namespace KbinXml.Net.Utils
 {
     public ref struct ValueListBuilder<T>
     {

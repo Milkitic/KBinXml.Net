@@ -1,4 +1,4 @@
-﻿namespace KbinXml.Internal;
+﻿namespace KbinXml.Net.Internal;
 
 internal enum ControlType : byte
 {

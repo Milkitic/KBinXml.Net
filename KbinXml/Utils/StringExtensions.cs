@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KbinXml.Utils;
+namespace KbinXml.Net.Utils;
 
 public static class StringExtensions
 {

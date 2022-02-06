@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices;
 
-namespace KbinXml.Utils;
+namespace KbinXml.Net.Utils;
 
 public static class ConvertHelper
 {

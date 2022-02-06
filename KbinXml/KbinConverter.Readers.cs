@@ -1,15 +1,13 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
-using KbinXml.Internal;
-using KbinXml.Internal.Providers;
-using KbinXml.Readers;
-using KbinXml.Utils;
+using KbinXml.Net.Internal;
+using KbinXml.Net.Internal.Providers;
+using KbinXml.Net.Readers;
+using KbinXml.Net.Utils;
 
-namespace KbinXml;
+namespace KbinXml.Net;
 
 public static partial class KbinConverter
 {

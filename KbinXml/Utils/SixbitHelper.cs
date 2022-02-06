@@ -3,9 +3,9 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using KbinXml.Internal;
+using KbinXml.Net.Internal;
 
-namespace KbinXml.Utils;
+namespace KbinXml.Net.Utils;
 
 public static class SixbitHelper
 {

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace KbinXml.Internal;
+namespace KbinXml.Net.Internal;
 
 internal static class EncodingDictionary
 {

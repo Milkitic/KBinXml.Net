@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Buffers;
 using System.Text;
-using KbinXml.Internal;
+using KbinXml.Net.Internal;
 
-namespace KbinXml.Readers;
+namespace KbinXml.Net.Readers;
 
 internal class DataReader : BeBinaryReader
 {

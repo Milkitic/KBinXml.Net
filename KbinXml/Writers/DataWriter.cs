@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Buffers;
-using System.Globalization;
-using System.Linq;
 using System.Text;
-using KbinXml.Internal;
-using KbinXml.Utils;
+using KbinXml.Net.Internal;
+using KbinXml.Net.Utils;
 
-namespace KbinXml.Writers
+namespace KbinXml.Net.Writers
 {
     public class DataWriter : BeBinaryWriter
     {

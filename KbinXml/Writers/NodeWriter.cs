@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using KbinXml.Utils;
+using KbinXml.Net.Utils;
 
-namespace KbinXml.Writers
+namespace KbinXml.Net.Writers
 {
     public class NodeWriter : BeBinaryWriter
     {

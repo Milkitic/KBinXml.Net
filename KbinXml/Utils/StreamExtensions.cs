@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace KbinXml.Utils;
+namespace KbinXml.Net.Utils;
 
 public static class StreamExtensions
 {

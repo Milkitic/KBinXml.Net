@@ -1,7 +1,7 @@
 ﻿using System;
-using KbinXml.Utils;
+using KbinXml.Net.Utils;
 
-namespace KbinXml.Internal;
+namespace KbinXml.Net.Internal;
 
 internal delegate int WriteStringDelegate(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str);
 internal delegate string ByteToStringDelegate(ReadOnlySpan<byte> bytes);
