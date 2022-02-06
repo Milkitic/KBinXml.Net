@@ -8,7 +8,6 @@ using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Running;
 using KbinXml;
-using KbinXml.Utils;
 
 namespace ReadBenchmark
 {
@@ -16,12 +15,12 @@ namespace ReadBenchmark
     {
         static void Main(string[] args)
         {
-            var bytes = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), Encoding.UTF8);
+            var kbin = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), Encoding.UTF8);
             //var bytes = File.ReadAllBytes(@"data\test_case.bin");
-            KbinConverter.ReadXmlBytes(bytes);
-            KbinConverter.ReadXmlLinq(bytes);
-            var xml = KbinConverter.ReadXml(bytes);
-            BitConverter.ToString(bytes);
+            var xmlBytes = KbinConverter.ReadXmlBytes(kbin);
+            var linq = KbinConverter.ReadXmlLinq(kbin);
+            var xml = KbinConverter.ReadXml(kbin);
+            var xmlStr = linq.ToString();
             //new int[5000].AsParallel().ForAll((i) =>
             //{
             //    KbinConverter.ReadXmlByte(bytes);
@@ -58,17 +57,17 @@ namespace ReadBenchmark
             return KbinConverter.ReadXmlLinq(_bytes);
         }
 
-        //[Benchmark]
-        //public object? New_400KB()
-        //{
-        //    return KbinConverter.ReadXml(_bytes);
-        //}
+        [Benchmark]
+        public object? New_400KB()
+        {
+            return KbinConverter.ReadXml(_bytes);
+        }
 
-        //[Benchmark]
-        //public object? NewRaw_400KB()
-        //{
-        //    return KbinConverter.ReadXmlBytes(_bytes);
-        //}
+        [Benchmark]
+        public object? NewRaw_400KB()
+        {
+            return KbinConverter.ReadXmlBytes(_bytes);
+        }
 
 
         //[Benchmark]
