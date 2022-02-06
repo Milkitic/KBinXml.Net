@@ -64,25 +64,28 @@ internal class DataReader : BeBinaryReader
         };
     }
 
-    public unsafe string ReadString(int count)
+    public string ReadString(int count)
     {
         var memory = Read32BitAligned(count);
         var span = memory.Span.Slice(0, memory.Length - 1);
-        if (span.Length == 0) 
+        if (span.Length == 0)
             return string.Empty;
 
 #if NETCOREAPP3_1_OR_GREATER
         return _encoding.GetString(span);
 #else
-        fixed (byte* bytes = span)
-            return _encoding.GetString(bytes, span.Length);
+        unsafe
+        {
+            fixed (byte* bytes = span)
+                return _encoding.GetString(bytes, span.Length);
+        }
 #endif
     }
 
-    public unsafe string ReadBinary(int count)
+    public string ReadBinary(int count)
     {
         var bin = Read32BitAligned(count);
-        if (bin.Length == 0) 
+        if (bin.Length == 0)
             return string.Empty;
 #if NETCOREAPP3_1_OR_GREATER
         var str = string.Create(bin.Length * 2, bin, static (dst, state) =>
@@ -121,8 +124,11 @@ internal class DataReader : BeBinaryReader
                 dst[j++] = ToCharLower(b);
             }
 
-            fixed (char* p = dst)
-                return new string(p, 0, dstLen);
+            unsafe
+            {
+                fixed (char* p = dst)
+                    return new string(p, 0, dstLen);
+            }
         }
         finally
         {

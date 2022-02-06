@@ -95,7 +95,11 @@ public static class SixbitHelper
 #if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
                 return new string(result);
 #elif NETSTANDARD2_0
-                return new string(result.ToArray());
+                unsafe
+                {
+                    fixed (char* p = result)
+                        return new string(p, 0, result.Length);
+                }
 #endif
             }
             finally

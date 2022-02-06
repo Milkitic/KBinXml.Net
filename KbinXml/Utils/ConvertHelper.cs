@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
+using System.Runtime.InteropServices;
 
 namespace KbinXml.Utils;
 
@@ -117,5 +119,44 @@ public static class ConvertHelper
     public static string S64ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeInt64(bytes).ToString();
     public static string SingleToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeSingle(bytes).ToString("0.000000");
     public static string DoubleToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeDouble(bytes).ToString("0.000000");
-    public static string Ip4ToString(ReadOnlySpan<byte> bytes) => new IPAddress(bytes.ToArray()).ToString();
+    public static string Ip4ToString(ReadOnlySpan<byte> bytes)
+    {
+        var privateAddress = MemoryMarshal.Read<uint>(bytes);
+        Span<char> dst = stackalloc char[15];
+        int charsWritten = IPv4AddressToStringHelper(privateAddress, dst);
+        unsafe
+        {
+            fixed (char* p = dst)
+                return new string(p, 0, charsWritten);
+        }
+    }
+
+    private static int IPv4AddressToStringHelper(uint address, Span<char> dst)
+    {
+        int offset = 0;
+        address = (uint)IPAddress.NetworkToHostOrder(unchecked((int)address));
+
+        FormatIPv4AddressNumber((int)((address >> 24) & 0xFF), dst, ref offset);
+        dst[offset++] = '.';
+        FormatIPv4AddressNumber((int)((address >> 16) & 0xFF), dst, ref offset);
+        dst[offset++] = '.';
+        FormatIPv4AddressNumber((int)((address >> 8) & 0xFF), dst, ref offset);
+        dst[offset++] = '.';
+        FormatIPv4AddressNumber((int)(address & 0xFF), dst, ref offset);
+
+        return offset;
+    }
+
+    private static void FormatIPv4AddressNumber(int number, Span<char> dst, ref int offset)
+    {
+        offset += number > 99 ? 3 : number > 9 ? 2 : 1;
+
+        int i = offset;
+        do
+        {
+            number = Math.DivRem(number, 10, out int rem);
+            dst[--i] = (char)('0' + rem);
+        } while (number != 0);
+    }
 }
+
