@@ -64,7 +64,7 @@ internal class XmlWriterProvider : WriterProvider
 
     public override void Dispose()
     {
-        _writerStream.Dispose();
         _xmlWriter.Dispose();
+        _writerStream.Dispose();
     }
 }
