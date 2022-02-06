@@ -43,7 +43,7 @@ public static partial class KbinConverter
         var dataReader = readContext.DataReader;
 
         writerProvider.WriteStartDocument();
-
+        string? currentType = null;
         string? holdValue = null;
         while (true)
         {
@@ -54,7 +54,8 @@ public static partial class KbinConverter
             nodeType = (byte)(nodeType & ~0x40);
             if (ControlTypes.Contains(nodeType))
             {
-                switch ((ControlType)nodeType)
+                var controlType = (ControlType)nodeType;
+                switch (controlType)
                 {
                     case ControlType.NodeStart:
                         if (holdValue != null)
@@ -66,15 +67,18 @@ public static partial class KbinConverter
                         var elementName = nodeReader.ReadString();
                         writerProvider.WriteStartElement(elementName);
                         break;
-
                     case ControlType.Attribute:
                         var attr = nodeReader.ReadString();
                         var value = dataReader.ReadString(dataReader.ReadS32());
-                        writerProvider.WriteStartAttribute(attr);
-                        writerProvider.WriteAttributeValue(value);
-                        writerProvider.WriteEndAttribute();
-                        break;
+                        // Size has been written below
+                        if (currentType != "bin" || attr != "__size")
+                        {
+                            writerProvider.WriteStartAttribute(attr);
+                            writerProvider.WriteAttributeValue(value);
+                            writerProvider.WriteEndAttribute();
+                        }
 
+                        break;
                     case ControlType.NodeEnd:
                         if (holdValue != null)
                         {
@@ -84,7 +88,6 @@ public static partial class KbinConverter
 
                         writerProvider.WriteEndElement();
                         break;
-
                     case ControlType.FileEnd:
                         return writerProvider.GetResult();
                     default:
@@ -105,6 +108,8 @@ public static partial class KbinConverter
                 writerProvider.WriteStartAttribute("__type");
                 writerProvider.WriteAttributeValue(propertyType.Name);
                 writerProvider.WriteEndAttribute();
+
+                currentType = propertyType.Name;
 
                 int arraySize;
                 if (array || propertyType.Name is "str" or "bin")
