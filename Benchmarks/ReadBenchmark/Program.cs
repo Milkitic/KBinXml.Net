@@ -16,11 +16,12 @@ namespace ReadBenchmark
     {
         static void Main(string[] args)
         {
-            var bytes = File.ReadAllBytes(@"data\test_case.bin");
+            var bytes = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), Encoding.UTF8);
+            //var bytes = File.ReadAllBytes(@"data\test_case.bin");
             KbinConverter.ReadXmlBytes(bytes);
             KbinConverter.ReadXmlLinq(bytes);
             var xml = KbinConverter.ReadXml(bytes);
-
+            BitConverter.ToString(bytes);
             //new int[5000].AsParallel().ForAll((i) =>
             //{
             //    KbinConverter.ReadXmlByte(bytes);
@@ -56,48 +57,48 @@ namespace ReadBenchmark
             return KbinConverter.ReadXmlLinq(_bytes);
         }
 
-        [Benchmark]
-        public object? New_400KB()
-        {
-            return KbinConverter.ReadXml(_bytes);
-        }
+        //[Benchmark]
+        //public object? New_400KB()
+        //{
+        //    return KbinConverter.ReadXml(_bytes);
+        //}
 
-        [Benchmark]
-        public object? NewRaw_400KB()
-        {
-            return KbinConverter.ReadXmlBytes(_bytes);
-        }
-
-
-        [Benchmark]
-        public object? NewLinq_400KB_32ThreadsX80()
-        {
-            return _target
-                .AsParallel()
-                .WithDegreeOfParallelism(32)
-                .Select(_ => KbinConverter.ReadXmlLinq(_bytes))
-                .ToArray();
-        }
+        //[Benchmark]
+        //public object? NewRaw_400KB()
+        //{
+        //    return KbinConverter.ReadXmlBytes(_bytes);
+        //}
 
 
-        [Benchmark]
-        public object? New_400KB_32ThreadsX80()
-        {
-            return _target
-                .AsParallel()
-                .WithDegreeOfParallelism(32)
-                .Select(_ => KbinConverter.ReadXml(_bytes))
-                .ToArray();
-        }
+        //[Benchmark]
+        //public object? NewLinq_400KB_32ThreadsX80()
+        //{
+        //    return _target
+        //        .AsParallel()
+        //        .WithDegreeOfParallelism(32)
+        //        .Select(_ => KbinConverter.ReadXmlLinq(_bytes))
+        //        .ToArray();
+        //}
 
-        [Benchmark]
-        public object? NewRaw_400KB_32ThreadsX80()
-        {
-            return _target
-                .AsParallel()
-                .WithDegreeOfParallelism(32)
-                .Select(_ => KbinConverter.ReadXmlBytes(_bytes))
-                .ToArray();
-        }
+
+        //[Benchmark]
+        //public object? New_400KB_32ThreadsX80()
+        //{
+        //    return _target
+        //        .AsParallel()
+        //        .WithDegreeOfParallelism(32)
+        //        .Select(_ => KbinConverter.ReadXml(_bytes))
+        //        .ToArray();
+        //}
+
+        //[Benchmark]
+        //public object? NewRaw_400KB_32ThreadsX80()
+        //{
+        //    return _target
+        //        .AsParallel()
+        //        .WithDegreeOfParallelism(32)
+        //        .Select(_ => KbinConverter.ReadXmlBytes(_bytes))
+        //        .ToArray();
+        //}
     }
 }

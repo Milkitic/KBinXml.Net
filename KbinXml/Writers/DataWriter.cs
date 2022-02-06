@@ -64,7 +64,22 @@ namespace KbinXml.Writers
         public void WriteBinary(string value)
         {
             WriteU32((uint)value.Length / 2);
-            Write32BitAligned(ConvertHexString(value));
+
+            var length = value.Length >> 1;
+            byte[]? arr = null;
+            Span<byte> span = length <= Constants.MaxStackLength
+                ? stackalloc byte[length]
+                : arr = ArrayPool<byte>.Shared.Rent(length);
+            if (arr != null) span = span.Slice(0, length);
+            try
+            {
+                FillHexBuilder(ref span, value);
+                Write32BitAligned(span);
+            }
+            finally
+            {
+                if (arr != null) ArrayPool<byte>.Shared.Return(arr);
+            }
         }
 
         private void Write32BitAligned(ReadOnlySpan<byte> buffer)
@@ -141,9 +156,26 @@ namespace KbinXml.Writers
             }
         }
 
-        private static byte[] ConvertHexString(string hexString) => Enumerable.Range(0, hexString.Length)
-            .Where(x => x % 2 == 0)
-            .Select(x => byte.Parse(hexString.Substring(x, 2), NumberStyles.HexNumber))
-            .ToArray();
+        private static void FillHexBuilder(ref Span<byte> builder, string hex)
+        {
+            if (hex.Length % 2 == 1)
+                throw new Exception("The binary key cannot have an odd number of digits");
+
+            for (int i = 0; i < builder.Length; ++i)
+            {
+                builder[i] = ((byte)((GetHexVal(hex[i << 1]) << 4) + (GetHexVal(hex[(i << 1) + 1]))));
+            }
+        }
+
+        private static int GetHexVal(char hex)
+        {
+            int val = (int)hex;
+            //For uppercase A-F letters:
+            //return val - (val < 58 ? 48 : 55);
+            //For lowercase a-f letters:
+            //return val - (val < 58 ? 48 : 87);
+            //Or the two combined, but a bit slower:
+            return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
+        }
     }
 }
