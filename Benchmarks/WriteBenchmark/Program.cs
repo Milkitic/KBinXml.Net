@@ -31,6 +31,7 @@ namespace WriteBenchmark
             var xml = KbinConverter.ReadXml(kbin);
             var xmlStr = linq.ToString();
 
+            var kbin11 = KbinConverter.Write(xmlBytes, Encoding.UTF8);
             var kbin1 = KbinConverter.Write(xmlStr, Encoding.UTF8);
             var linq2 = KbinConverter.ReadXmlLinq(kbin1);
             var xmlBytes2 = KbinConverter.ReadXmlBytes(kbin1);

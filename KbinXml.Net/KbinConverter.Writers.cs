@@ -22,12 +22,21 @@ public static partial class KbinConverter
         return WriterImpl(encoding, context, reader);
     }
 
-    public static byte[] Write(string rawXml, Encoding encoding)
+    public static byte[] Write(string xmlText, Encoding encoding)
     {
         var context = new WriteContext(new NodeWriter(true, encoding), new DataWriter(encoding));
 
-        using var textReader = new StringReader(rawXml);
+        using var textReader = new StringReader(xmlText);
         using var reader = XmlReader.Create(textReader, new XmlReaderSettings { IgnoreWhitespace = true });
+
+        return WriterImpl(encoding, context, reader);
+    }
+
+    public static byte[] Write(byte[] xmlBytes, Encoding encoding)
+    {
+        var context = new WriteContext(new NodeWriter(true, encoding), new DataWriter(encoding));
+        using var ms = new MemoryStream(xmlBytes);
+        using var reader = XmlReader.Create(ms, new XmlReaderSettings { IgnoreWhitespace = true });
 
         return WriterImpl(encoding, context, reader);
     }
