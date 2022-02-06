@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 using KbinXml.Net.Internal;
@@ -14,17 +15,33 @@ namespace KbinXml.Net;
 
 public static partial class KbinConverter
 {
-    public static byte[] Write(XNode xml, Encoding encoding)
+    /// <summary>
+    /// Converts the provided XML to KBin bytes.
+    /// </summary>
+    /// <param name="xml">The XNode object to convert.</param>
+    /// <param name="knownEncodings">The encoding for target KBin.</param>
+    /// <param name="compress">Set whether to compress XML data.</param>
+    /// <returns>The bytes of KBin.</returns>
+    public static byte[] Write(XNode xml, KnownEncodings knownEncodings, bool compress = true)
     {
-        var context = new WriteContext(new NodeWriter(true, encoding), new DataWriter(encoding));
+        var encoding = knownEncodings.ToEncoding();
+        var context = new WriteContext(new NodeWriter(compress, encoding), new DataWriter(encoding));
 
         using var reader = xml.CreateReader();
         return WriterImpl(encoding, context, reader);
     }
 
-    public static byte[] Write(string xmlText, Encoding encoding)
+    /// <summary>
+    /// Converts the provided XML to KBin bytes.
+    /// </summary>
+    /// <param name="xmlText">The XML text to convert.</param>
+    /// <param name="knownEncodings">The encoding for target KBin.</param>
+    /// <param name="compress">Set whether to compress XML data.</param>
+    /// <returns>The bytes of KBin.</returns>
+    public static byte[] Write(string xmlText, KnownEncodings knownEncodings, bool compress = true)
     {
-        var context = new WriteContext(new NodeWriter(true, encoding), new DataWriter(encoding));
+        var encoding = knownEncodings.ToEncoding();
+        var context = new WriteContext(new NodeWriter(compress, encoding), new DataWriter(encoding));
 
         using var textReader = new StringReader(xmlText);
         using var reader = XmlReader.Create(textReader, new XmlReaderSettings { IgnoreWhitespace = true });
@@ -32,9 +49,17 @@ public static partial class KbinConverter
         return WriterImpl(encoding, context, reader);
     }
 
-    public static byte[] Write(byte[] xmlBytes, Encoding encoding)
+    /// <summary>
+    /// Converts the provided XML to KBin bytes.
+    /// </summary>
+    /// <param name="xmlBytes">The XML bytes to convert.</param>
+    /// <param name="knownEncodings">The encoding for target KBin.</param>
+    /// <param name="compress">Set whether to compress XML data.</param>
+    /// <returns>The bytes of KBin.</returns>
+    public static byte[] Write(byte[] xmlBytes, KnownEncodings knownEncodings, bool compress = true)
     {
-        var context = new WriteContext(new NodeWriter(true, encoding), new DataWriter(encoding));
+        var encoding = knownEncodings.ToEncoding();
+        var context = new WriteContext(new NodeWriter(compress, encoding), new DataWriter(encoding));
         using var ms = new MemoryStream(xmlBytes);
         using var reader = XmlReader.Create(ms, new XmlReaderSettings { IgnoreWhitespace = true });
 
@@ -43,6 +68,9 @@ public static partial class KbinConverter
 
     private static byte[] WriterImpl(Encoding encoding, WriteContext context, XmlReader reader)
     {
+        if (!EncodingDictionary.ReverseEncodingMap.ContainsKey(encoding))
+            throw new ArgumentOutOfRangeException(nameof(encoding), encoding, "Unsupported encoding for KBin");
+
         var holdingAttrs = new SortedDictionary<string, string>(StringComparer.Ordinal);
         string holdingValue = "";
         string? typeStr = null;

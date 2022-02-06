@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Text.Json;
 using System.Xml;
 using System.Xml.Linq;
 using KbinXml.Net.Internal;
@@ -12,21 +13,32 @@ namespace KbinXml.Net;
 public static partial class KbinConverter
 {
     /// <summary>
-    /// Reads all nodes in the binary XML.
+    /// Reads the KBin bytes into an XML <see cref="XDocument"/>.
     /// </summary>
-    /// <returns>Returns the XDocument.</returns>
+    /// <param name="sourceBuffer">The KBin bytes to convert.</param>
+    /// <returns>Returns the <see cref="XDocument"/>.</returns>
     public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer)
     {
         var xDocument = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e));
         return xDocument;
     }
 
+    /// <summary>
+    /// Reads the KBin bytes into an XML <see cref="XDocument"/>.
+    /// </summary>
+    /// <param name="sourceBuffer">The KBin bytes convert.</param>
+    /// <returns>Returns the <see cref="T:byte[]"/>.</returns>
     public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer)
     {
         var bytes = (byte[])Read(sourceBuffer, e => new XmlWriterProvider(e));
         return bytes;
     }
 
+    /// <summary>
+    /// Reads the KBin bytes into an XML <see cref="XmlDocument"/>.
+    /// </summary>
+    /// <param name="sourceBuffer">The KBin bytes convert.</param>
+    /// <returns>Returns the <see cref="XmlDocument"/>.</returns>
     public static XmlDocument ReadXml(Memory<byte> sourceBuffer)
     {
         var xmlDocument = (XmlDocument)Read(sourceBuffer, e => new XmlDocumentProvider(e));

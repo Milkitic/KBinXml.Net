@@ -5,6 +5,9 @@ using KbinXml.Net.Internal;
 
 namespace KbinXml.Net;
 
+/// <summary>
+/// Provides functionality to convert XML to KBin and to convert KBin into XML text, bytes or XElement.
+/// </summary>
 public static partial class KbinConverter
 {
     private static readonly Type ControlTypeT = typeof(ControlType);
