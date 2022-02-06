@@ -44,7 +44,8 @@ namespace ReadBenchmark
         [GlobalSetup]
         public void Setup()
         {
-            _bytes = File.ReadAllBytes(@"data\test_case.bin");
+            //_bytes = File.ReadAllBytes(@"data\test_case.bin");
+            _bytes = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), Encoding.UTF8);
 #if NETCOREAPP3_1_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
