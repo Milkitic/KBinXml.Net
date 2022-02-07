@@ -23,7 +23,7 @@ public static partial class KbinConverter
     }
 
     /// <summary>
-    /// Reads the KBin bytes into an XML <see cref="XDocument"/>.
+    /// Reads the KBin bytes into an XML <see cref="T:byte[]"/>.
     /// </summary>
     /// <param name="sourceBuffer">The KBin bytes convert.</param>
     /// <returns>Returns the <see cref="T:byte[]"/>.</returns>
