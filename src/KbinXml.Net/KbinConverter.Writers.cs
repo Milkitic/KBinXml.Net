@@ -17,6 +17,21 @@ public static partial class KbinConverter
     /// <summary>
     /// Converts the provided XML to KBin bytes.
     /// </summary>
+    /// <param name="xml">The XmlDocument object to convert.</param>
+    /// <param name="knownEncodings">The encoding for target KBin.</param>
+    /// <param name="compress">Set whether to compress XML data.</param>
+    /// <returns>The bytes of KBin.</returns>
+    public static byte[] Write(XmlDocument xml, KnownEncodings knownEncodings, bool compress = true)
+    {
+        var encoding = knownEncodings.ToEncoding();
+        var context = new WriteContext(new NodeWriter(compress, encoding), new DataWriter(encoding));
+        using XmlReader reader = new XmlNodeReader(xml);
+        return WriterImpl(encoding, context, reader);
+    }
+
+    /// <summary>
+    /// Converts the provided XML to KBin bytes.
+    /// </summary>
     /// <param name="xml">The XContainer object to convert.</param>
     /// <param name="knownEncodings">The encoding for target KBin.</param>
     /// <param name="compress">Set whether to compress XML data.</param>
