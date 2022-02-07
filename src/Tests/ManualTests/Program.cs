@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
 using KbinXml.Net;
@@ -28,5 +29,18 @@ public class Program
         Debug.Assert(newKbin2.SequenceEqual(newKbin3));
 
         Console.WriteLine(xmlStr);
+
+        //var obj = new object();
+        //int i = 0;
+        //new int[10000].AsParallel().ForAll(_ =>
+        //{
+        //    KbinConverter.WriteRaw(str, Encoding.UTF8);
+        //    lock (obj)
+        //    {
+        //        i++;
+        //        Console.WriteLine(i);
+        //    }
+        //});
+        //return;
     }
 }

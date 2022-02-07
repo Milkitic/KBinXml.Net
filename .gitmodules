@@ -1,0 +1,6 @@
+[submodule "dependencies/kbinxmlcs"]
+	path = dependencies/kbinxmlcs
+	url = https://github.com/FSH-B/kbinxmlcs.git
+[submodule "dependencies/KBinXML"]
+	path = dependencies/KBinXML
+	url = https://github.com/ItsNovaHere/KBinXML.git
