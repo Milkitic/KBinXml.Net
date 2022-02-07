@@ -5,6 +5,7 @@
     <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName Condition="'$(CI)'!='true'">local.KbinXml.Net</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Label="PackageSetting">
