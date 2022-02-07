@@ -25,6 +25,7 @@ jobs:
       run: |
         cd ./src/Benchmarks
         mkdir results
+        pwd
         ./ReadBenchmark-SingleThreadComparisonBetweenLibsTask-net6.0.ps1
         ./ReadBenchmark-SingleThreadComparisonBetweenLibsTask-net48.ps1
         ./WriteBenchmark-SingleThreadComparisonBetweenLibsTask-net6.0.ps1
