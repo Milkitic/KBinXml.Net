@@ -19,10 +19,11 @@ namespace WriteBenchmark;
 
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [MemoryDiagnoser]
-[SimpleJob(RuntimeMoniker.Net60)]
-[SimpleJob(RuntimeMoniker.NetCoreApp31)]
 #if !NETCOREAPP
 [SimpleJob(RuntimeMoniker.Net48)]
+#else
+[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.NetCoreApp31)]
 #endif
 public class MultiThreadComparisonBetweenLibsTask
 {
@@ -46,7 +47,10 @@ public class MultiThreadComparisonBetweenLibsTask
     [Benchmark(Baseline = true)]
     public object? WriteLinq_NKZsmos_32ThreadsX160()
     {
-        return MultiThreadUtils.DoMultiThreadWork(_ => KbinConverter.Write(_linq, KnownEncodings.UTF8), 32, 5);
+        return MultiThreadUtils.DoMultiThreadWork(_ =>
+        {
+            return KbinConverter.Write(_linq, KnownEncodings.UTF8);
+        }, 32, 5);
     }
 
     [Benchmark]
@@ -56,7 +60,7 @@ public class MultiThreadComparisonBetweenLibsTask
         {
             var kbinWriter = new KbinWriter(_linq, Encoding.UTF8);
             return kbinWriter.Write();
-        }, 16, 5);
+        }, 32, 5);
     }
 
 #if NETCOREAPP
@@ -69,7 +73,7 @@ public class MultiThreadComparisonBetweenLibsTask
             using var ms = new MemoryStream();
             kbinWriter.WriteTo(ms);
             return ms.ToArray();
-        }, 16, 5);
+        }, 32, 5);
     }
 #endif
 }

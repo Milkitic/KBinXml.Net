@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using BenchmarkDotNet.Running;
-
+﻿using BenchmarkDotNet.Running;
 
 namespace WriteBenchmark;
 

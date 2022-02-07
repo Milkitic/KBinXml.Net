@@ -1,28 +1,19 @@
 ﻿using System.IO;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using KbinXml.Net;
-using kbinxmlcs;
-
-#if NETCOREAPP
-using KBinXML;
-#endif
 
 namespace WriteBenchmark;
 
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [MemoryDiagnoser]
-#if !NETCOREAPP
-[SimpleJob(RuntimeMoniker.Net48)]
-#else
 [SimpleJob(RuntimeMoniker.Net60)]
 [SimpleJob(RuntimeMoniker.NetCoreApp31)]
-#endif
-public class SingleThreadComparisonBetweenLibsTask
+[SimpleJob(RuntimeMoniker.Net48)]
+public class MultiThreadComparison
 {
     private byte[] _kbin;
     private byte[] _xmlBytes;
@@ -42,26 +33,38 @@ public class SingleThreadComparisonBetweenLibsTask
     }
 
     [Benchmark(Baseline = true)]
-    public object? WriteLinq_NKZsmos()
+    public object? WriteRaw_32ThreadsX160()
     {
-        return KbinConverter.Write(_linq, KnownEncodings.UTF8);
+        return MultiThreadUtils.DoMultiThreadWork(_ =>
+        {
+            return KbinConverter.Write(_xmlBytes, KnownEncodings.UTF8);
+        }, 32, 5);
     }
 
     [Benchmark]
-    public object? WriteLinq_FSH_B()
+    public object? WriteRawStr_32ThreadsX160()
     {
-        var kbinWriter = new KbinWriter(_linq, Encoding.UTF8);
-        return kbinWriter.Write();
+        return MultiThreadUtils.DoMultiThreadWork(_ =>
+        {
+            return KbinConverter.Write(_xmlStr, KnownEncodings.UTF8);
+        }, 32, 5);
     }
 
-#if NETCOREAPP
     [Benchmark]
-    public object? WriteLinq_ItsNovaHere()
+    public object? WriteLinq_32ThreadsX160()
     {
-        var kbinWriter = new Writer(_linq, Compression.Compressed);
-        using var ms = new MemoryStream();
-        kbinWriter.WriteTo(ms);
-        return ms.ToArray();
+        return MultiThreadUtils.DoMultiThreadWork(_ =>
+        {
+            return KbinConverter.Write(_linq, KnownEncodings.UTF8);
+        }, 32, 5);
     }
-#endif
+
+    [Benchmark]
+    public object? WriteW3C_32ThreadsX160()
+    {
+        return MultiThreadUtils.DoMultiThreadWork(_ =>
+        {
+            return KbinConverter.Write(_xml, KnownEncodings.UTF8);
+        }, 32, 5);
+    }
 }
