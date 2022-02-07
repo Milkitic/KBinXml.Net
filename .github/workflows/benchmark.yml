@@ -46,6 +46,6 @@ jobs:
       uses: actions/upload-artifact@v2
       if: ${{ success() }}
       with:
-        name: Coosu.Storyboard.Storybrew-ILMerged.${{ steps.version.outputs.version }}
+        name: benchmark-results
         path: ./src/Benchmarks/results/
         if-no-files-found: error
