@@ -11,7 +11,12 @@
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
   </ItemGroup>
 
+  <ItemGroup Condition="$(TargetFramework) != 'net48'">
+    <ProjectReference Include="..\..\..\dependencies\KBinXML\KBinXML\KBinXML.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
+    <ProjectReference Include="..\..\..\dependencies\kbinxmlcs\kbinxmlcs\kbinxmlcs.csproj" />
     <ProjectReference Include="..\..\KbinXml.Net\KbinXml.Net.csproj" />
   </ItemGroup>
 
