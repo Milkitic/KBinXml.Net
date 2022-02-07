@@ -1,14 +1,14 @@
 ﻿using System.IO;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
-using KBinXML;
 using KbinXml.Net;
 using kbinxmlcs;
+
 #if NETCOREAPP
+using KBinXML;
 #endif
 
 namespace ReadBenchmark;
