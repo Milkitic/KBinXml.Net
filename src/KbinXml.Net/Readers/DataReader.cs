@@ -72,12 +72,14 @@ internal class DataReader : BeBinaryReader
 
 #if NETCOREAPP3_1_OR_GREATER
         return _encoding.GetString(span);
-#else
+#elif NETSTANDARD2_0 || NET46_OR_GREATER
         unsafe
         {
             fixed (byte* p = span)
                 return _encoding.GetString(p, span.Length);
         }
+#else
+        return _encoding.GetString(span.ToArray());
 #endif
     }
 

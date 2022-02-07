@@ -22,7 +22,7 @@ public static class BitConverterHelper
     {
 #if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
         return BinaryPrimitivesExt.ReadSingleBigEndian(value);
-#elif NETSTANDARD2_0
+#else
         var arr = ArrayPool<byte>.Shared.Rent(value.Length);
         try
         {
@@ -97,7 +97,7 @@ public static class BitConverterHelper
         Span<byte> span = stackalloc byte[sizeof(float)];
         BinaryPrimitivesExt.WriteSingleBigEndian(span, value);
         foreach (var b in span) builder.Append(b);
-#elif NETSTANDARD2_0
+#else
         var bytes = BitConverter.GetBytes(value);
         Span<byte> span = bytes;
         span.Reverse();

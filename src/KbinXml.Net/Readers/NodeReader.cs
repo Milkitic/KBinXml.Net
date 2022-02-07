@@ -29,12 +29,14 @@ internal class NodeReader : BeBinaryReader
         var mem = ReadBytes((length & 0xBF) + 1);
 #if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
         return _encoding.GetString(mem.Span);
-#elif NETSTANDARD2_0
+#elif NETSTANDARD2_0 || NET46_OR_GREATER
         unsafe
         {
             fixed (byte* p = mem.Span)
                 return _encoding.GetString(p, mem.Length);
         }
+#else
+        return _encoding.GetString(mem.ToArray());
 #endif
     }
 }

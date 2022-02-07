@@ -7,11 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\dependencies\kbinxmlcs\kbinxmlcs\kbinxmlcs.csproj" />
     <ProjectReference Include="..\..\KbinXml.Net\KbinXml.Net.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="test.bin">
+    <None Update="data\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

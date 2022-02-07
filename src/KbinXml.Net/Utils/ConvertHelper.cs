@@ -9,7 +9,7 @@ public static class ConvertHelper
     public static int WriteU8String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         builder.Append(byte.Parse(str
-#if NETSTANDARD2_0
+#if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
         ));
@@ -20,7 +20,7 @@ public static class ConvertHelper
     public static int WriteS8String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         builder.Append((byte)sbyte.Parse(str
-#if NETSTANDARD2_0
+#if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
         ));
@@ -31,7 +31,7 @@ public static class ConvertHelper
     public static int WriteU16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
         ushort.Parse(str
-#if NETSTANDARD2_0
+#if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
         ));
@@ -39,7 +39,7 @@ public static class ConvertHelper
     public static int WriteS16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
         short.Parse(str
-#if NETSTANDARD2_0
+#if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
         ));
@@ -47,7 +47,7 @@ public static class ConvertHelper
     public static int WriteU32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
         uint.Parse(str
-#if NETSTANDARD2_0
+#if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
         ));
@@ -55,7 +55,7 @@ public static class ConvertHelper
     public static int WriteS32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
         int.Parse(str
-#if NETSTANDARD2_0
+#if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
         ));
@@ -63,7 +63,7 @@ public static class ConvertHelper
     public static int WriteU64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
         ulong.Parse(str
-#if NETSTANDARD2_0
+#if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
         ));
@@ -71,7 +71,7 @@ public static class ConvertHelper
     public static int WriteS64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
         long.Parse(str
-#if NETSTANDARD2_0
+#if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
         ));
@@ -79,7 +79,7 @@ public static class ConvertHelper
     public static int WriteSingleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
         ref builder,
         float.Parse(input
-#if NETSTANDARD2_0
+#if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
         ));
@@ -87,7 +87,7 @@ public static class ConvertHelper
     public static int WriteDoubleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
         ref builder,
         double.Parse(input
-#if NETSTANDARD2_0
+#if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
         ));
@@ -95,7 +95,7 @@ public static class ConvertHelper
     public static int WriteIp4String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input)
     {
         var bytes = IPAddress.Parse(input
-#if NETSTANDARD2_0
+#if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
         ).GetAddressBytes();
