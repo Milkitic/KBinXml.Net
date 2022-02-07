@@ -1,0 +1,43 @@
+name: benchmark
+on:
+  push:
+    branches: [ 'develop' ]
+  
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
+        submodules: 'recursive'
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+      
+    - name: run benchmark
+      shell: pwsh
+      run: |
+        cd ./src/Benchmarks
+        mkdir results
+        ./ReadBenchmark-SingleThreadComparisonBetweenLibsTask-net6.0.ps1
+        ./ReadBenchmark-SingleThreadComparisonBetweenLibsTask-net48.ps1
+        ./WriteBenchmark-SingleThreadComparisonBetweenLibsTask-net6.0.ps1
+        ./WriteBenchmark-SingleThreadComparisonBetweenLibsTask-net48.ps1
+        copy WriteBenchmark/bin/Release/net48/BenchmarkDotNet.Artifacts/results/WriteBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md ./results/WriteBenchmark.MultiThreadComparisonBetweenLibsTask-net48-report-github.md
+        copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md ./results/WriteBenchmark.MultiThreadComparisonBetweenLibsTask-net6.0-report-github.md
+        copy ReadBenchmark/bin/Release/net48/BenchmarkDotNet.Artifacts/results/ReadBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md ./results/ReadBenchmark.MultiThreadComparisonBetweenLibsTask-net48-report-github.md
+        copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md ./results/ReadBenchmark.MultiThreadComparisonBetweenLibsTask-net6.0-report-github.md
+        cd ../../
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      if: ${{ success() }}
+      with:
+        name: Coosu.Storyboard.Storybrew-ILMerged.${{ steps.version.outputs.version }}
+        path: ./src/Benchmarks/results/
+        if-no-files-found: error
