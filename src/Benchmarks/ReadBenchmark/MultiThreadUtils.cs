@@ -6,7 +6,7 @@ namespace ReadBenchmark
 {
     internal static class MultiThreadUtils
     {
-        public static List<object?>[] DoMultiThreadWork(Func<int, object?> func, int threadCount, int iterPerThread = 1)
+        public static List<object?>[] DoMultiThreadWork(Func<int, object?> func, int threadCount, int iterPerThread = 1, bool log = false)
         {
             var events = new ManualResetEvent[threadCount];
             for (var i = 0; i < events.Length; i++) events[i] = new ManualResetEvent(false);
@@ -15,6 +15,7 @@ namespace ReadBenchmark
             for (var i = 0; i < objs.Length; i++) objs[i] = new List<object?>();
 
             var max = Environment.ProcessorCount;
+            ThreadPool.SetMinThreads(max, max);
             ThreadPool.SetMaxThreads(max, max);
 
             for (int i = 0; i < threadCount; i++)
@@ -22,13 +23,14 @@ namespace ReadBenchmark
                 var j = i;
                 ThreadPool.QueueUserWorkItem((_) =>
                 {
+                    if (log) Console.WriteLine($"#{j} started");
                     for (int k = 0; k < iterPerThread; k++)
                     {
                         objs[j].Add(func(j));
                     }
 
                     events[j].Set();
-                    //Console.WriteLine($"#{j} finished");
+                    if (log) Console.WriteLine($"#{j} finished");
                 });
             }
 

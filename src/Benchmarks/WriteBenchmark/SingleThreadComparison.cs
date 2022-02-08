@@ -24,7 +24,7 @@ public class SingleThreadComparison
     [GlobalSetup]
     public void Setup()
     {
-        _kbin = KbinConverter.Write(File.ReadAllText(@"data\small.xml"), KnownEncodings.UTF8);
+        _kbin = KbinConverter.Write(File.ReadAllText(@"data/small.xml"), KnownEncodings.UTF8);
         //_kbin = File.ReadAllBytes(@"data\test_case.bin");
         _xmlBytes = KbinConverter.ReadXmlBytes(_kbin);
         _linq = KbinConverter.ReadXmlLinq(_kbin);

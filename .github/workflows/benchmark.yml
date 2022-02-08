@@ -1,0 +1,51 @@
+name: benchmark
+on:
+  push:
+    branches: [ 'develop' ]
+  
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: '0'
+        submodules: 'recursive'
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+      
+    - name: run benchmark
+      shell: pwsh
+      run: |
+        cd ./src/Benchmarks
+        mkdir results
+        ./ReadBenchmark-MultiThreadComparisonBetweenLibsTask-net6.0.ps1
+        ./ReadBenchmark-SingleThreadComparisonBetweenLibsTask-net6.0.ps1
+        ./ReadBenchmark-MultiThreadComparison.ps1
+        ./ReadBenchmark-SingleThreadComparison.ps1
+        ./WriteBenchmark-MultiThreadComparisonBetweenLibsTask-net6.0.ps1
+        ./WriteBenchmark-SingleThreadComparisonBetweenLibsTask-net6.0.ps1
+        ./WriteBenchmark-MultiThreadComparison.ps1
+        ./WriteBenchmark-SingleThreadComparison.ps1
+        copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md ./results/WriteBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md
+        copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md ./results/WriteBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md
+        copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.MultiThreadComparison-report-github.md ./results/WriteBenchmark.MultiThreadComparison-report-github.md
+        copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.SingleThreadComparison-report-github.md ./results/WriteBenchmark.SingleThreadComparison-report-github.md
+        copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md ./results/ReadBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md
+        copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md ./results/ReadBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md
+        copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.MultiThreadComparison-report-github.md ./results/ReadBenchmark.MultiThreadComparison-report-github.md
+        copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.SingleThreadComparison-report-github.md ./results/ReadBenchmark.SingleThreadComparison-report-github.md
+        cd ../../
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      if: ${{ success() }}
+      with:
+        name: benchmark-results
+        path: ./src/Benchmarks/results/
+        if-no-files-found: error

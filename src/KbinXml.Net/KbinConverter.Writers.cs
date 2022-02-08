@@ -128,15 +128,22 @@ public static partial class KbinConverter
                         int i = 0;
                         foreach (var s in value)
                         {
-                            if (i == iSize) break;
-                            var add = type.WriteString(ref builder, s);
-                            if (add < type.Size)
+                            try
                             {
-                                var left = type.Size - add;
-                                for (var j = 0; j < left; j++) builder.Append(0);
-                            }
+                                if (i == iSize) break;
+                                var add = type.WriteString(ref builder, s);
+                                if (add < type.Size)
+                                {
+                                    var left = type.Size - add;
+                                    for (var j = 0; j < left; j++) builder.Append(0);
+                                }
 
-                            i += type.Size;
+                                i += type.Size;
+                            }
+                            catch (Exception e)
+                            {
+                                throw new KbinException($"Error while writing data '{s.ToString()}'. See InnerException for more information.", e);
+                            }
                         }
 
                         context.DataWriter.WriteBytes(builder.AsSpan());
