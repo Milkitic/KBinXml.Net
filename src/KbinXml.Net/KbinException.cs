@@ -16,4 +16,9 @@ public class KbinException : Exception
     {
 
     }
+
+    public KbinException(string message, Exception? innerException) : base(message, innerException)
+    {
+
+    }
 }
