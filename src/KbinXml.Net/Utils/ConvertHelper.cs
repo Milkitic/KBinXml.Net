@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Net;
 using System.Runtime.InteropServices;
 
@@ -8,11 +9,12 @@ public static class ConvertHelper
 {
     public static int WriteU8String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
+        var numberStyle = GetNumberStyle(str, out str);
         builder.Append(byte.Parse(str
 #if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
-        ));
+            , numberStyle));
 
         return 1;
     }
@@ -28,13 +30,17 @@ public static class ConvertHelper
         return 1;
     }
 
-    public static int WriteU16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        ref builder,
-        ushort.Parse(str
+    public static int WriteU16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
+    {
+        var numberStyle = GetNumberStyle(str, out str);
+        return BitConverterHelper.WriteBeBytes(
+            ref builder,
+            ushort.Parse(str
 #if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
-        ));
+                , numberStyle));
+    }
 
     public static int WriteS16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
@@ -42,15 +48,20 @@ public static class ConvertHelper
 #if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
-        ));
+       ));
 
-    public static int WriteU32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        ref builder,
-        uint.Parse(str
+    public static int WriteU32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
+    {
+        var numberStyle = GetNumberStyle(str, out str);
+        return BitConverterHelper.WriteBeBytes(
+            ref builder,
+            uint.Parse(str
 #if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
-        ));
+                , numberStyle));
+    }
+
 
     public static int WriteS32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
@@ -60,13 +71,17 @@ public static class ConvertHelper
 #endif
         ));
 
-    public static int WriteU64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        ref builder,
-        ulong.Parse(str
+    public static int WriteU64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
+    {
+        var numberStyle = GetNumberStyle(str, out str);
+        return BitConverterHelper.WriteBeBytes(
+            ref builder,
+            ulong.Parse(str
 #if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
-        ));
+                , numberStyle));
+    }
 
     public static int WriteS64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
@@ -156,6 +171,20 @@ public static class ConvertHelper
             number = Math.DivRem(number, 10, out int rem);
             dst[--i] = (char)('0' + rem);
         } while (number != 0);
+    }
+    private static NumberStyles GetNumberStyle(ReadOnlySpan<char> str, out ReadOnlySpan<char> hex)
+    {
+        var isSpanHex = str.Length > 2 &&
+                        (str[1] == 'x' && str[0] == '0' || str[1] == 'H' && str[0] == '&');
+
+        if (isSpanHex)
+        {
+            hex = str.Slice(2);
+            return NumberStyles.HexNumber;
+        }
+
+        hex = str;
+        return NumberStyles.Integer;
     }
 }
 
