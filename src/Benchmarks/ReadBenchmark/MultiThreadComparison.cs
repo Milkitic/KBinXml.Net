@@ -13,7 +13,7 @@ namespace ReadBenchmark;
 [SimpleJob(RuntimeMoniker.Net60)]
 [SimpleJob(RuntimeMoniker.NetCoreApp31)]
 [SimpleJob(RuntimeMoniker.Net48)]
-public class MultiThreadComparison
+public class MultiThreadComparison1
 {
     private byte[] _kbin;
     private byte[] _xmlBytes;
