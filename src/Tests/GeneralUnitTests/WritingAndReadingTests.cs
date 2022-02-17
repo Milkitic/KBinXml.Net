@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,13 +8,17 @@ using System.Xml.Linq;
 using KbinXml.Net;
 using KbinXml.Net.Utils;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace GeneralUnitTests
 {
-    public class WritingTests
+    public class WritingAndReadingTests
     {
-        public WritingTests()
+        private readonly ITestOutputHelper _outputHelper;
+
+        public WritingAndReadingTests(ITestOutputHelper outputHelper)
         {
+            _outputHelper = outputHelper;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
@@ -28,13 +33,9 @@ namespace GeneralUnitTests
     <limited __type=""s32"">-35721234</limited>
     <wtf_is_this __type=""s64"">-253178167252134</wtf_is_this>
 </root>")]
-        public void WriteNumbers(string value)
+        public void TestNumbers(string value)
         {
-            var xml = XElement.Parse(value);
-            var cvt = new kbinxmlcs.KbinWriter(xml, Encoding.UTF8);
-            var bytes = cvt.Write();
-            var bytes2 = KbinConverter.Write(xml, KnownEncodings.UTF8);
-            Assert.Equal(bytes, bytes2);
+            DoWorks(value);
         }
 
         [Theory]
@@ -54,11 +55,7 @@ namespace GeneralUnitTests
 </card>")]
         public void WriteString(string value)
         {
-            var xml = XElement.Parse(value);
-            var cvt = new kbinxmlcs.KbinWriter(xml, Encoding.UTF8);
-            var bytes = cvt.Write();
-            var bytes2 = KbinConverter.Write(xml, KnownEncodings.UTF8);
-            Assert.Equal(bytes, bytes2);
+            DoWorks(value);
         }
 
         [Theory]
@@ -68,13 +65,9 @@ namespace GeneralUnitTests
     <flag __type=""s32"" __count=""32"" sheet_type=""2"">-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1</flag>
     <flag __type=""s32"" __count=""32"" sheet_type=""3"">-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1</flag>
 </music_list>")]
-        public void WriteArray(string value)
+        public void TestArray(string value)
         {
-            var xml = XElement.Parse(value);
-            var cvt = new kbinxmlcs.KbinWriter(xml, Encoding.UTF8);
-            var bytes = cvt.Write();
-            var bytes2 = KbinConverter.Write(xml, KnownEncodings.UTF8);
-            Assert.Equal(bytes, bytes2);
+            DoWorks(value);
         }
 
         [Theory]
@@ -83,13 +76,25 @@ namespace GeneralUnitTests
     <qcf __type=""bin"" __size=""32"">AA4A965AA8C2C169D145E75B5DA93879CD8AD1A3F32185662DC54341263DBB03</qcf>
     <piece __type=""bin"" __size=""40"">1CE9481CA73F4B0AD6867EB0D51A0E1672946BE5B6D1B109F327348C9B7CBB2C15781A0482C3953C</piece>
 </kingdom>")]
-        public void WriteBinary(string value)
+        public void TestBinary(string value)
+        {
+            DoWorks(value);
+        }
+
+        private void DoWorks(string value)
         {
             var xml = XElement.Parse(value);
             var cvt = new kbinxmlcs.KbinWriter(xml, Encoding.UTF8);
             var bytes = cvt.Write();
             var bytes2 = KbinConverter.Write(xml, KnownEncodings.UTF8);
+
+            var cvt2 = new kbinxmlcs.KbinReader(bytes2);
+            var result = cvt2.ReadLinq().ToString();
+            var result2 = KbinConverter.ReadXmlLinq(bytes2).ToString();
+
+            _outputHelper.WriteLine(result2);
             Assert.Equal(bytes, bytes2);
+            Assert.Equal(result, result2);
         }
     }
 }
