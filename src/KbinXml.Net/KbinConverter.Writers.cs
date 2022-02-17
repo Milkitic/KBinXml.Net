@@ -89,7 +89,7 @@ public static partial class KbinConverter
         var holdingAttrs = new SortedDictionary<string, string>(StringComparer.Ordinal);
         string holdingValue = "";
         string? typeStr = null;
-        string? sizeStr = null;
+        string? arrayCountStr = null;
         byte typeid = 0;
 
         void EnsureHolding()
@@ -104,23 +104,23 @@ public static partial class KbinConverter
                 {
                     var type = TypeDictionary.TypeMap[typeid];
                     var value = holdingValue.SpanSplit(' ');
-                    var size = (uint)(type.Size * type.Count);
-                    if (sizeStr != null)
+                    var requiredBytes = (uint)(type.Size * type.Count);
+                    if (arrayCountStr != null)
                     {
-                        size *= uint.Parse(sizeStr);
-                        context.DataWriter.WriteU32(size);
+                        requiredBytes *= uint.Parse(arrayCountStr);
+                        context.DataWriter.WriteU32(requiredBytes);
                     }
 
-                    if (size > int.MaxValue)
+                    if (requiredBytes > int.MaxValue)
                         throw new KbinException("uint size is greater than int.MaxValue");
 
-                    var iSize = (int)size;
+                    var iRequiredBytes = (int)requiredBytes;
                     byte[]? arr = null;
-                    var span = iSize <= Constants.MaxStackLength
-                        ? stackalloc byte[iSize]
-                        : arr = ArrayPool<byte>.Shared.Rent(iSize);
+                    var span = iRequiredBytes <= Constants.MaxStackLength
+                        ? stackalloc byte[iRequiredBytes]
+                        : arr = ArrayPool<byte>.Shared.Rent(iRequiredBytes);
 
-                    if (arr != null) span = span.Slice(0, iSize);
+                    if (arr != null) span = span.Slice(0, iRequiredBytes);
                     var builder = new ValueListBuilder<byte>(span);
 
                     try
@@ -130,7 +130,7 @@ public static partial class KbinConverter
                         {
                             try
                             {
-                                if (i == iSize) break;
+                                if (i == iRequiredBytes) break;
                                 var add = type.WriteString(ref builder, s);
                                 if (add < type.Size)
                                 {
@@ -156,7 +156,7 @@ public static partial class KbinConverter
                 }
 
                 typeStr = null;
-                sizeStr = null;
+                arrayCountStr = null;
                 holdingValue = "";
                 typeid = 0;
             }
@@ -165,8 +165,6 @@ public static partial class KbinConverter
             {
                 foreach (var attribute in holdingAttrs)
                 {
-                    if (attribute.Key == "__size") continue;
-
                     context.NodeWriter.WriteU8(0x2E);
                     context.NodeWriter.WriteString(attribute.Key);
                     context.DataWriter.WriteString(attribute.Value);
@@ -194,7 +192,11 @@ public static partial class KbinConverter
                             }
                             else if (reader.Name == "__count")
                             {
-                                sizeStr = reader.Value;
+                                arrayCountStr = reader.Value;
+                            }
+                            else if (reader.Name == "__size")
+                            {
+                                // ignore
                             }
                             else
                             {
@@ -213,7 +215,7 @@ public static partial class KbinConverter
                     else
                     {
                         typeid = TypeDictionary.ReverseTypeMap[typeStr];
-                        if (sizeStr != null)
+                        if (arrayCountStr != null)
                             context.NodeWriter.WriteU8((byte)(typeid | 0x40));
                         else
                             context.NodeWriter.WriteU8(typeid);
@@ -250,10 +252,11 @@ public static partial class KbinConverter
 
         //Write header data
         var output = new BeBinaryWriter();
-        output.WriteU8(0xA0); //Magic
-        output.WriteU8(0x42); //Compression flag
-        output.WriteU8(EncodingDictionary.ReverseEncodingMap[encoding]);
-        output.WriteU8((byte)~EncodingDictionary.ReverseEncodingMap[encoding]);
+        output.WriteU8(0xA0); // Signature
+        output.WriteU8((byte)(context.NodeWriter.Compressed ? 0x42 : 0x45)); // Compression flag
+        var encodingBytes = EncodingDictionary.ReverseEncodingMap[encoding];
+        output.WriteU8(encodingBytes);
+        output.WriteU8((byte)~encodingBytes);
 
         //Write node buffer length and contents.
         var nodeStream = context.NodeWriter.Stream;

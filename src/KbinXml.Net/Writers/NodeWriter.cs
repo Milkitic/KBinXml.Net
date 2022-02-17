@@ -5,18 +5,18 @@ namespace KbinXml.Net.Writers
 {
     public class NodeWriter : BeBinaryWriter
     {
-        private readonly bool _compressed;
+        public bool Compressed { get; }
         private readonly Encoding _encoding;
 
         public NodeWriter(bool compressed, Encoding encoding)
         {
-            _compressed = compressed;
+            Compressed = compressed;
             _encoding = encoding;
         }
 
         public void WriteString(string value)
         {
-            if (_compressed)
+            if (Compressed)
             {
                 WriteU8((byte)value.Length);
                 SixbitHelper.EncodeAndWrite(Stream, value);

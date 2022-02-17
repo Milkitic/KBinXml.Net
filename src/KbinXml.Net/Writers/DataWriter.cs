@@ -70,7 +70,7 @@ namespace KbinXml.Net.Writers
             if (arr != null) span = span.Slice(0, length);
             try
             {
-                FillHexBuilder(ref span, value);
+                HexConverter.TryDecodeFromUtf16(value.AsSpan(), span);
                 Write32BitAligned(span);
             }
             finally
@@ -151,28 +151,6 @@ namespace KbinXml.Net.Writers
             {
                 Stream.WriteByte(0);
             }
-        }
-
-        private static void FillHexBuilder(ref Span<byte> builder, string hex)
-        {
-            if (hex.Length % 2 == 1)
-                throw new Exception("The binary key cannot have an odd number of digits");
-
-            for (int i = 0; i < builder.Length; ++i)
-            {
-                builder[i] = ((byte)((GetHexVal(hex[i << 1]) << 4) + (GetHexVal(hex[(i << 1) + 1]))));
-            }
-        }
-
-        private static int GetHexVal(char hex)
-        {
-            int val = (int)hex;
-            //For uppercase A-F letters:
-            //return val - (val < 58 ? 48 : 55);
-            //For lowercase a-f letters:
-            //return val - (val < 58 ? 48 : 87);
-            //Or the two combined, but a bit slower:
-            return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
         }
     }
 }
