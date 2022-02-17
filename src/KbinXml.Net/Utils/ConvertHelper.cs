@@ -145,6 +145,16 @@ public static class ConvertHelper
         }
     }
 
+    public static string ToHexString(ReadOnlySpan<byte> bytes)
+    {
+        if (bytes.Length == 0)
+            return string.Empty;
+        if (bytes.Length > int.MaxValue / 2)
+            throw new ArgumentOutOfRangeException(nameof(bytes));
+
+        return HexConverter.ToString(bytes, HexConverter.Casing.Lower);
+    }
+
     private static int IPv4AddressToStringHelper(uint address, Span<char> dst)
     {
         int offset = 0;

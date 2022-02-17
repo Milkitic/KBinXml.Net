@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Text;
 using KbinXml.Net.Internal;
+using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Readers;
 
@@ -88,54 +89,7 @@ internal class DataReader : BeBinaryReader
         var bin = Read32BitAligned(count);
         if (bin.Length == 0)
             return string.Empty;
-#if NETCOREAPP3_1_OR_GREATER
-        var str = string.Create(bin.Length * 2, bin, static (dst, state) =>
-        {
-            var src = state.Span;
-
-            int i = 0;
-            int j = 0;
-
-            while (i < src.Length)
-            {
-                var b = src[i++];
-                dst[j++] = ToCharLower(b >> 4);
-                dst[j++] = ToCharLower(b);
-            }
-        });
-        return str;
-#else
-        var src = bin.Span;
-        var dstLen = bin.Length * 2;
-
-        char[]? arr = null;
-        Span<char> dst = dstLen <= Constants.MaxStackLength
-            ? stackalloc char[dstLen]
-            : arr = ArrayPool<char>.Shared.Rent(dstLen);
-        if (arr != null) dst = dst.Slice(0, dstLen);
-        try
-        {
-            int i = 0;
-            int j = 0;
-
-            while (i < bin.Length)
-            {
-                var b = src[i++];
-                dst[j++] = ToCharLower(b >> 4);
-                dst[j++] = ToCharLower(b);
-            }
-
-            unsafe
-            {
-                fixed (char* p = dst)
-                    return new string(p, 0, dstLen);
-            }
-        }
-        finally
-        {
-            if (arr != null) ArrayPool<char>.Shared.Return(arr);
-        }
-#endif
+        return ConvertHelper.ToHexString(bin.Span);
     }
 
     private Memory<byte> ReadBytes(int offset, int count)
