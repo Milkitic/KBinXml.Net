@@ -60,6 +60,16 @@ namespace GeneralUnitTests
 
         [Theory]
         [InlineData(@"<music_list>
+    <flag __type=""s32"" __count=""16"" sheet_type=""0"">21 52 11 53 43 134 21 -43 -12 -61 -13 -52 -47 -114 21 52 11 53 43 134 21 -43 -12 -61 -13 -52 -47 -114 134 21 -43 -12</flag>
+
+</music_list>")]
+        public void TestArrayNotValid(string value)
+        {
+            DoWorks(value);
+        }
+
+        [Theory]
+        [InlineData(@"<music_list>
     <flag __type=""s32"" __count=""32"" sheet_type=""0"">-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1</flag>
     <flag __type=""s32"" __count=""32"" sheet_type=""1"">-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1</flag>
     <flag __type=""s32"" __count=""32"" sheet_type=""2"">-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1</flag>
