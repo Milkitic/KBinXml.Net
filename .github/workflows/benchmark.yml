@@ -35,12 +35,12 @@ jobs:
         ./WriteBenchmark-SingleThreadComparison.ps1
         copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md ./results/WriteBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md
         copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md ./results/WriteBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md
-        copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.MultiThreadComparison-report-github.md ./results/WriteBenchmark.MultiThreadComparison-report-github.md
-        copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.SingleThreadComparison-report-github.md ./results/WriteBenchmark.SingleThreadComparison-report-github.md
+        copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.MultiThreadComparison1-report-github.md ./results/WriteBenchmark.MultiThreadComparison-report-github.md
+        copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.SingleThreadComparison1-report-github.md ./results/WriteBenchmark.SingleThreadComparison-report-github.md
         copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md ./results/ReadBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md
         copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md ./results/ReadBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md
-        copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.MultiThreadComparison-report-github.md ./results/ReadBenchmark.MultiThreadComparison-report-github.md
-        copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.SingleThreadComparison-report-github.md ./results/ReadBenchmark.SingleThreadComparison-report-github.md
+        copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.MultiThreadComparison1-report-github.md ./results/ReadBenchmark.MultiThreadComparison-report-github.md
+        copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.SingleThreadComparison1-report-github.md ./results/ReadBenchmark.SingleThreadComparison-report-github.md
         cd ../../
     - name: Upload artifact
       uses: actions/upload-artifact@v2

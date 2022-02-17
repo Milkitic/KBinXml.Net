@@ -165,6 +165,8 @@ public static partial class KbinConverter
             {
                 foreach (var attribute in holdingAttrs)
                 {
+                    if (attribute.Key == "__size") continue;
+
                     context.NodeWriter.WriteU8(0x2E);
                     context.NodeWriter.WriteString(attribute.Key);
                     context.DataWriter.WriteString(attribute.Value);

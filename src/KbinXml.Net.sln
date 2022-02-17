@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "kbinxmlcs", "..\dependencie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KBinXML", "..\dependencies\KBinXML\KBinXML\KBinXML.csproj", "{4FE97B73-6A79-4BF7-89BD-60D9ADBAE853}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneralUnitTests", "Tests\GeneralUnitTests\GeneralUnitTests.csproj", "{9AE3341B-952B-49BC-9474-3D5EE9A35885}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{4FE97B73-6A79-4BF7-89BD-60D9ADBAE853}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FE97B73-6A79-4BF7-89BD-60D9ADBAE853}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FE97B73-6A79-4BF7-89BD-60D9ADBAE853}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AE3341B-952B-49BC-9474-3D5EE9A35885}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AE3341B-952B-49BC-9474-3D5EE9A35885}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AE3341B-952B-49BC-9474-3D5EE9A35885}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AE3341B-952B-49BC-9474-3D5EE9A35885}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,6 +74,7 @@ Global
 		{7A17B69D-18AE-4CAD-AE0C-560F3DAF83AB} = {0832D5CD-AFD9-440D-8925-29142DD9166C}
 		{73D31F40-FDF1-41EF-BBC6-646855297E80} = {AC32AAE2-F696-460F-AAC4-CEB082FC760A}
 		{4FE97B73-6A79-4BF7-89BD-60D9ADBAE853} = {AC32AAE2-F696-460F-AAC4-CEB082FC760A}
+		{9AE3341B-952B-49BC-9474-3D5EE9A35885} = {0832D5CD-AFD9-440D-8925-29142DD9166C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E1113C82-4EE9-4805-A9F1-26E8E8950B58}
