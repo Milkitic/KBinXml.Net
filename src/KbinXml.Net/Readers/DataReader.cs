@@ -106,13 +106,4 @@ internal class DataReader : BeBinaryReader
         if (_pos16 % 4 == 0)
             _pos16 = _pos32;
     }
-
-    private static char ToCharLower(int value)
-    {
-        value &= 0xF;
-        value += '0';
-
-        if (value > '9') value += ('a' - ('9' + 1));
-        return (char)value;
-    }
 }
