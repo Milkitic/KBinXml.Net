@@ -61,9 +61,8 @@ namespace KbinXml.Net.Writers
 
         public void WriteBinary(string value)
         {
-            WriteU32((uint)value.Length / 2);
-
             var length = value.Length >> 1;
+            WriteU32((uint)length);
             byte[]? arr = null;
             Span<byte> span = length <= Constants.MaxStackLength
                 ? stackalloc byte[length]
