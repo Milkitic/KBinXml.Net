@@ -91,17 +91,39 @@ namespace GeneralUnitTests
             DoWorks(value);
         }
 
+        [Fact]
+        public void ErrorCaseMid()
+        {
+            var text = GetMidText();
+            DoWorks(text);
+        }
+
+        private string GetMidText()
+        {
+            return @"<response status=""0"" fault=""0"" dstid=""218D0B63818DD551C2BE"">
+    <game status=""0"" fault=""0"">
+        <param>
+            <info>
+                <param __type=""s32"" __count=""7"">1 1 1 1 1 1 </param>
+            </info>
+        </param>
+    </game>
+</response>";
+        }
+
         private void DoWorks(string value)
         {
             var xml = XElement.Parse(value);
-            var cvt = new kbinxmlcs.KbinWriter(xml, Encoding.UTF8);
+
+            var bytes2 = KbinConverter.Write(xml, KnownEncodings.UTF8, new WriteOptions() { StrictMode = false });
+            var cvt = new StableKbin.XmlWriter(xml, Encoding.UTF8);
             var bytes = cvt.Write();
-            var bytes2 = KbinConverter.Write(xml, KnownEncodings.UTF8);
 
-            var cvt2 = new kbinxmlcs.KbinReader(bytes2);
+            var result2 = KbinConverter.ReadXmlLinq(bytes).ToString();
+            var cvt2 = new StableKbin.XmlReader(bytes);
             var result = cvt2.ReadLinq().ToString();
-            var result2 = KbinConverter.ReadXmlLinq(bytes2).ToString();
 
+            _outputHelper.WriteLine(result);
             _outputHelper.WriteLine(result2);
             Assert.Equal(bytes, bytes2);
             Assert.Equal(result, result2);

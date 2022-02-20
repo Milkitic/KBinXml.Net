@@ -6,7 +6,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using KbinXml.Net;
-using kbinxmlcs;
+using StableKbin;
 
 #if NETCOREAPP
 using KBinXML;

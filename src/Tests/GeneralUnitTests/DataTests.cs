@@ -11,8 +11,8 @@ namespace GeneralUnitTests
         [ClassData(typeof(ByteTestData))]
         public void ByteTest(byte value)
         {
-            DoWorks(value, kbinxmlcs.Converters.U8ToBytes,
-                kbinxmlcs.Converters.U8ToString,
+            DoWorks(value, x => StableKbin.Converters.U8ToBytes(x).ToArray(),
+                x => StableKbin.Converters.U8ToString(x),
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
@@ -25,8 +25,8 @@ namespace GeneralUnitTests
         [ClassData(typeof(SbyteTestData))]
         public void SbyteTest(sbyte value)
         {
-            DoWorks(value, kbinxmlcs.Converters.S8ToBytes,
-                kbinxmlcs.Converters.S8ToString,
+            DoWorks(value, x => StableKbin.Converters.S8ToBytes(x).ToArray(),
+                x => StableKbin.Converters.S8ToString(x),
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
@@ -39,8 +39,8 @@ namespace GeneralUnitTests
         [ClassData(typeof(Int16TestData))]
         public void Int16Test(short value)
         {
-            DoWorks(value, kbinxmlcs.Converters.S16ToBytes,
-                kbinxmlcs.Converters.S16ToString,
+            DoWorks(value, x => StableKbin.Converters.S16ToBytes(x).ToArray(),
+                x => StableKbin.Converters.S16ToString(x),
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
@@ -53,8 +53,8 @@ namespace GeneralUnitTests
         [ClassData(typeof(Int32TestData))]
         public void Int32Test(int value)
         {
-            DoWorks(value, kbinxmlcs.Converters.S32ToBytes,
-                kbinxmlcs.Converters.S32ToString,
+            DoWorks(value, x => StableKbin.Converters.S32ToBytes(x).ToArray(),
+                x => StableKbin.Converters.S32ToString(x),
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
@@ -67,8 +67,8 @@ namespace GeneralUnitTests
         [ClassData(typeof(Int64TestData))]
         public void Int64Test(long value)
         {
-            DoWorks(value, kbinxmlcs.Converters.S64ToBytes,
-                kbinxmlcs.Converters.S64ToString,
+            DoWorks(value, x => StableKbin.Converters.S64ToBytes(x).ToArray(),
+                x => StableKbin.Converters.S64ToString(x),
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
@@ -81,8 +81,8 @@ namespace GeneralUnitTests
         [ClassData(typeof(UInt16TestData))]
         public void UInt16Test(ushort value)
         {
-            DoWorks(value, kbinxmlcs.Converters.U16ToBytes,
-                kbinxmlcs.Converters.U16ToString,
+            DoWorks(value, x => StableKbin.Converters.U16ToBytes(x).ToArray(),
+                x => StableKbin.Converters.U16ToString(x),
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
@@ -95,8 +95,8 @@ namespace GeneralUnitTests
         [ClassData(typeof(UInt32TestData))]
         public void UInt32Test(uint value)
         {
-            DoWorks(value, kbinxmlcs.Converters.U32ToBytes,
-                kbinxmlcs.Converters.U32ToString,
+            DoWorks(value, x => StableKbin.Converters.U32ToBytes(x).ToArray(),
+                x => StableKbin.Converters.U32ToString(x),
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
@@ -109,8 +109,8 @@ namespace GeneralUnitTests
         [ClassData(typeof(UInt64TestData))]
         public void UInt64Test(ulong value)
         {
-            DoWorks(value, kbinxmlcs.Converters.U64ToBytes,
-                kbinxmlcs.Converters.U64ToString,
+            DoWorks(value, x => StableKbin.Converters.U64ToBytes(x).ToArray(),
+                x => StableKbin.Converters.U64ToString(x),
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
@@ -123,8 +123,8 @@ namespace GeneralUnitTests
         [ClassData(typeof(SingleTestData))]
         public void SingleTest(float value)
         {
-            DoWorks(value, kbinxmlcs.Converters.SingleToBytes,
-                kbinxmlcs.Converters.SingleToString,
+            DoWorks(value, x => StableKbin.Converters.SingleToBytes(x).ToArray(),
+                x => StableKbin.Converters.SingleToString(x),
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
@@ -137,8 +137,8 @@ namespace GeneralUnitTests
         [ClassData(typeof(DoubleTestData))]
         public void DoubleTest(double value)
         {
-            DoWorks(value, kbinxmlcs.Converters.DoubleToBytes,
-                kbinxmlcs.Converters.DoubleToString,
+            DoWorks(value, x => StableKbin.Converters.DoubleToBytes(x).ToArray(),
+                x => StableKbin.Converters.DoubleToString(x),
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
@@ -151,8 +151,8 @@ namespace GeneralUnitTests
         [ClassData(typeof(Ip4TestData))]
         public void Ip4Test(string value)
         {
-            DoWorks(value, kbinxmlcs.Converters.Ip4ToBytes,
-                kbinxmlcs.Converters.Ip4ToString,
+            DoWorks(value, x => StableKbin.Converters.Ip4ToBytes(x).ToArray(),
+                x => StableKbin.Converters.Ip4ToString(x),
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);

@@ -19,14 +19,15 @@ public static partial class KbinConverter
     /// </summary>
     /// <param name="xml">The XmlDocument object to convert.</param>
     /// <param name="knownEncodings">The encoding for target KBin.</param>
-    /// <param name="compress">Set whether to compress XML data.</param>
+    /// <param name="writeOptions">Set the write options while writing.</param>
     /// <returns>The bytes of KBin.</returns>
-    public static byte[] Write(XmlDocument xml, KnownEncodings knownEncodings, bool compress = true)
+    public static byte[] Write(XmlDocument xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
         var encoding = knownEncodings.ToEncoding();
-        var context = new WriteContext(new NodeWriter(compress, encoding), new DataWriter(encoding));
+        writeOptions ??= new WriteOptions();
+        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding));
         using XmlReader reader = new XmlNodeReader(xml);
-        return WriterImpl(encoding, context, reader);
+        return WriterImpl(encoding, context, reader, writeOptions);
     }
 
     /// <summary>
@@ -34,15 +35,16 @@ public static partial class KbinConverter
     /// </summary>
     /// <param name="xml">The XContainer object to convert.</param>
     /// <param name="knownEncodings">The encoding for target KBin.</param>
-    /// <param name="compress">Set whether to compress XML data.</param>
+    /// <param name="writeOptions">Set the write options while writing.</param>
     /// <returns>The bytes of KBin.</returns>
-    public static byte[] Write(XContainer xml, KnownEncodings knownEncodings, bool compress = true)
+    public static byte[] Write(XContainer xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
         var encoding = knownEncodings.ToEncoding();
-        var context = new WriteContext(new NodeWriter(compress, encoding), new DataWriter(encoding));
+        writeOptions ??= new WriteOptions();
+        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding));
 
         using var reader = xml.CreateReader();
-        return WriterImpl(encoding, context, reader);
+        return WriterImpl(encoding, context, reader, writeOptions);
     }
 
     /// <summary>
@@ -50,17 +52,18 @@ public static partial class KbinConverter
     /// </summary>
     /// <param name="xmlText">The XML text to convert.</param>
     /// <param name="knownEncodings">The encoding for target KBin.</param>
-    /// <param name="compress">Set whether to compress XML data.</param>
+    /// <param name="writeOptions">Set the write options while writing.</param>
     /// <returns>The bytes of KBin.</returns>
-    public static byte[] Write(string xmlText, KnownEncodings knownEncodings, bool compress = true)
+    public static byte[] Write(string xmlText, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
         var encoding = knownEncodings.ToEncoding();
-        var context = new WriteContext(new NodeWriter(compress, encoding), new DataWriter(encoding));
+        writeOptions ??= new WriteOptions();
+        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding));
 
         using var textReader = new StringReader(xmlText);
         using var reader = XmlReader.Create(textReader, new XmlReaderSettings { IgnoreWhitespace = true });
 
-        return WriterImpl(encoding, context, reader);
+        return WriterImpl(encoding, context, reader, writeOptions);
     }
 
     /// <summary>
@@ -68,20 +71,22 @@ public static partial class KbinConverter
     /// </summary>
     /// <param name="xmlBytes">The XML bytes to convert.</param>
     /// <param name="knownEncodings">The encoding for target KBin.</param>
-    /// <param name="compress">Set whether to compress XML data.</param>
+    /// <param name="writeOptions">Set the write options while writing.</param>
     /// <returns>The bytes of KBin.</returns>
-    public static byte[] Write(byte[] xmlBytes, KnownEncodings knownEncodings, bool compress = true)
+    public static byte[] Write(byte[] xmlBytes, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
         var encoding = knownEncodings.ToEncoding();
-        var context = new WriteContext(new NodeWriter(compress, encoding), new DataWriter(encoding));
+        writeOptions ??= new WriteOptions();
+        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding));
 
         using var ms = new MemoryStream(xmlBytes);
         using var reader = XmlReader.Create(ms, new XmlReaderSettings { IgnoreWhitespace = true });
 
-        return WriterImpl(encoding, context, reader);
+        return WriterImpl(encoding, context, reader, writeOptions);
     }
 
-    private static byte[] WriterImpl(Encoding encoding, WriteContext context, XmlReader reader)
+    private static byte[] WriterImpl(Encoding encoding, WriteContext context, XmlReader reader,
+        WriteOptions writeOptions)
     {
         if (!EncodingDictionary.ReverseEncodingMap.ContainsKey(encoding))
             throw new ArgumentOutOfRangeException(nameof(encoding), encoding, "Unsupported encoding for KBin");
@@ -130,7 +135,14 @@ public static partial class KbinConverter
                         {
                             try
                             {
-                                if (i == iRequiredBytes) break;
+                                if (i == iRequiredBytes)
+                                {
+                                    if (writeOptions.StrictMode)
+                                        throw new ArgumentOutOfRangeException("Length", holdingValue.Split(' ').Length,
+                                            "The array length doesn't match the \"__count\" attribute. Expect: " +
+                                            arrayCountStr);
+                                    break;
+                                }
                                 var add = type.WriteString(ref builder, s);
                                 if (add < type.Size)
                                 {
@@ -143,6 +155,18 @@ public static partial class KbinConverter
                             catch (Exception e)
                             {
                                 throw new KbinException($"Error while writing data '{s.ToString()}'. See InnerException for more information.", e);
+                            }
+                        }
+
+                        if (i != requiredBytes)
+                        {
+                            if (writeOptions.StrictMode)
+                                throw new ArgumentOutOfRangeException("Length", builder.Length / type.Size, "The array length doesn't match the \"__count\" attribute. Expect: " + arrayCountStr);
+                      
+                            while (i != requiredBytes)
+                            {
+                                builder.Append(0);
+                                i++;
                             }
                         }
 

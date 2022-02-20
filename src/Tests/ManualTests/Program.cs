@@ -7,7 +7,7 @@ using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
 using KbinXml.Net;
-using kbinxmlcs;
+using StableKbin;
 
 namespace ManualTests;
 
