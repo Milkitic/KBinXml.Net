@@ -185,6 +185,7 @@ public static partial class KbinConverter
                         writerProvider.WriteEndAttribute();
                     }
 
+                    // force to read as 32bit if is array
                     var span = array
                         ? dataReader.Read32BitAligned(arraySize, out pos, out var flag)
                         : dataReader.ReadBytes(arraySize, out pos, out flag);

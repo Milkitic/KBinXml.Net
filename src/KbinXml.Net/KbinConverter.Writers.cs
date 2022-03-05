@@ -162,7 +162,7 @@ public static partial class KbinConverter
                         {
                             if (writeOptions.StrictMode)
                                 throw new ArgumentOutOfRangeException("Length", builder.Length / type.Size, "The array length doesn't match the \"__count\" attribute. Expect: " + arrayCountStr);
-                      
+
                             while (i != requiredBytes)
                             {
                                 builder.Append(0);
@@ -170,7 +170,11 @@ public static partial class KbinConverter
                             }
                         }
 
-                        context.DataWriter.WriteBytes(builder.AsSpan());
+                        // force to write as 32bit if is array
+                        if (arrayCountStr != null)
+                            context.DataWriter.Write32BitAligned(builder.AsSpan());
+                        else
+                            context.DataWriter.WriteBytes(builder.AsSpan());
                     }
                     finally
                     {

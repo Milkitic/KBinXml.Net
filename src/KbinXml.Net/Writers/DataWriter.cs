@@ -79,7 +79,7 @@ namespace KbinXml.Net.Writers
             }
         }
 
-        private void Write32BitAligned(ReadOnlySpan<byte> buffer)
+        public void Write32BitAligned(ReadOnlySpan<byte> buffer)
         {
             Pad(_pos32);
 
@@ -90,7 +90,7 @@ namespace KbinXml.Net.Writers
             Realign16_8();
         }
 
-        private void Write16BitAligned(ReadOnlySpan<byte> buffer)
+        public void Write16BitAligned(ReadOnlySpan<byte> buffer)
         {
             Pad(_pos16);
 
@@ -101,7 +101,7 @@ namespace KbinXml.Net.Writers
             Realign16_8();
         }
 
-        private void Write8BitAligned(byte value)
+        public void Write8BitAligned(byte value)
         {
             Pad(_pos8);
 
