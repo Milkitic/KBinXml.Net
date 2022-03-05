@@ -7,7 +7,7 @@ using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
 using KbinXml.Net;
-using StableKbin;
+using kbinxmlcs;
 
 namespace ManualTests;
 
@@ -15,6 +15,7 @@ public class Program
 {
     static void Main(string[] args)
     {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         byte[] kbin = File.ReadAllBytes("data/test_case2.bin");
 
         byte[] xmlBytes = KbinConverter.ReadXmlBytes(kbin);

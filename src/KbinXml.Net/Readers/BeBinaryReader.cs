@@ -6,27 +6,42 @@ namespace KbinXml.Net.Readers;
 internal class BeBinaryReader
 {
     protected readonly Memory<byte> Buffer;
-    private int _position = 0;
+    protected readonly int Offset;
 
-    public BeBinaryReader(Memory<byte> buffer)
+    // ReSharper disable once InconsistentNaming
+    protected int _position;
+
+    public BeBinaryReader(Memory<byte> buffer, int offset = 0)
     {
         Buffer = buffer;
+        Offset = offset;
     }
 
-    public virtual Memory<byte> ReadBytes(int count)
+    public int Position => _position + Offset;
+
+    public virtual Memory<byte> ReadBytes(int count, out int position, out string? flag)
     {
+        position = _position + Offset;
         var slice = Buffer.Slice(_position, count);
         _position += count;
+        flag = null;
         return slice;
     }
 
-    public virtual sbyte ReadS8() => (sbyte)ReadBytes(sizeof(byte)).Span[0];
-    public virtual short ReadS16() => BitConverterHelper.ToBeInt16(ReadBytes(sizeof(short)).Span);
-    public virtual int ReadS32() => BitConverterHelper.ToBeInt32(ReadBytes(sizeof(int)).Span);
-    public virtual long ReadS64() => BitConverterHelper.ToBeInt64(ReadBytes(sizeof(short)).Span);
-    public virtual byte ReadU8() => ReadBytes(sizeof(byte)).Span[0];
-    public virtual ushort ReadU16() => BitConverterHelper.ToBeUInt16(ReadBytes(sizeof(short)).Span);
-    public virtual uint ReadU32() => BitConverterHelper.ToBeUInt32(ReadBytes(sizeof(int)).Span);
-    public virtual ulong ReadU64() => BitConverterHelper.ToBeUInt64(ReadBytes(sizeof(long)).Span);
-
+    public virtual sbyte ReadS8(out int position, out string? flag) =>
+        (sbyte)ReadBytes(sizeof(byte), out position, out flag).Span[0];
+    public virtual short ReadS16(out int position, out string? flag) =>
+        BitConverterHelper.ToBeInt16(ReadBytes(sizeof(short), out position, out flag).Span);
+    public virtual int ReadS32(out int position, out string? flag) =>
+        BitConverterHelper.ToBeInt32(ReadBytes(sizeof(int), out position, out flag).Span);
+    public virtual long ReadS64(out int position, out string? flag) =>
+        BitConverterHelper.ToBeInt64(ReadBytes(sizeof(short), out position, out flag).Span);
+    public virtual byte ReadU8(out int position, out string? flag) =>
+        ReadBytes(sizeof(byte), out position, out flag).Span[0];
+    public virtual ushort ReadU16(out int position, out string? flag) =>
+        BitConverterHelper.ToBeUInt16(ReadBytes(sizeof(short), out position, out flag).Span);
+    public virtual uint ReadU32(out int position, out string? flag) =>
+        BitConverterHelper.ToBeUInt32(ReadBytes(sizeof(int), out position, out flag).Span);
+    public virtual ulong ReadU64(out int position, out string? flag) =>
+        BitConverterHelper.ToBeUInt64(ReadBytes(sizeof(long), out position, out flag).Span);
 }

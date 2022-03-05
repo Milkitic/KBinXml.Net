@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
@@ -35,6 +36,11 @@ internal class XDocumentProvider : WriterProvider
             var current = _nodeStack.Peek();
             var attr = new XAttribute(XName.Get(_holdAttrName), value ?? "");
             current.Add(attr);
+#if DEBUG
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine($"{"linq",4}{"",12}   Attribute: {_holdAttrName}={value}");
+            Console.ResetColor();
+#endif
         }
         else throw new Exception("Current attribute is null!");
     }
@@ -46,10 +52,20 @@ internal class XDocumentProvider : WriterProvider
         var node = new XElement(elementName);
         current.Add(node);
         _nodeStack.Push(node);
+#if DEBUG
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.WriteLine($"{"linq",4}{"",12}   NodeStart: {GetNodePath()}");
+        Console.ResetColor();
+#endif
     }
 
     public override void WriteEndElement()
     {
+#if DEBUG
+        Console.ForegroundColor = ConsoleColor.DarkGray;
+        Console.WriteLine($"{"linq",4}{"",12}   NodeEnd: {GetNodePath()}");
+        Console.ResetColor();
+#endif
         _nodeStack.Pop();
     }
 
@@ -66,5 +82,24 @@ internal class XDocumentProvider : WriterProvider
     public override object GetResult()
     {
         return _xDocument;
+    }
+
+    private string GetNodePath()
+    {
+        var e = string.Join(".", _nodeStack.ToArray().Reverse().Select(k =>
+        {
+            if (k == null) throw new ArgumentNullException(nameof(k));
+            if (k is XElement xe)
+            {
+                return xe.Name.ToString();
+            }
+            else if (k is XDocument xd)
+            {
+                return null;
+            }
+
+            throw new ArgumentOutOfRangeException();
+        }).Where(k => k != null));
+        return e;
     }
 }

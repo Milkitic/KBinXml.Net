@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\dependencies\kbinxmlcs\kbinxmlcs\kbinxmlcs.csproj" />
+    <ProjectReference Include="..\..\..\dependencies\KBinXML\KBinXML\KBinXML.csproj" />
     <ProjectReference Include="..\..\KbinXml.Net\KbinXml.Net.csproj" />
   </ItemGroup>
 

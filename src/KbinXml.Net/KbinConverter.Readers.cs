@@ -56,13 +56,19 @@ public static partial class KbinConverter
         string? holdValue = null;
         while (true)
         {
-            var nodeType = nodeReader.ReadU8();
+            var nodeType = nodeReader.ReadU8(out var pos, out _);
 
             //Array flag is on the second bit
             var array = (nodeType & 0x40) > 0;
             nodeType = (byte)(nodeType & ~0x40);
             if (ControlTypes.Contains(nodeType))
             {
+#if DEBUG
+                var str = $"node(0x{pos:X8})   NodeControlType: {(ControlType)nodeType}(0x{nodeType:X2})";
+                if (array) str += ", With array flag";
+                Console.WriteLine(str);
+#endif
+
                 var controlType = (ControlType)nodeType;
                 switch (controlType)
                 {
@@ -73,12 +79,25 @@ public static partial class KbinConverter
                             holdValue = null;
                         }
 
-                        var elementName = nodeReader.ReadString();
+                        var elementName = nodeReader.ReadString(out pos);
+#if DEBUG
+                        Console.WriteLine($"node(0x{pos:X8})   StructElement: \"{elementName}\"");
+#endif
                         writerProvider.WriteStartElement(elementName);
                         break;
                     case ControlType.Attribute:
-                        var attr = nodeReader.ReadString();
-                        var value = dataReader.ReadString(dataReader.ReadS32());
+                        var attr = nodeReader.ReadString(out pos);
+#if DEBUG
+                        Console.WriteLine($"node(0x{pos:X8})   AttrName: \"{attr}\"");
+#endif
+                        var strLen = dataReader.ReadS32(out pos, out var flag);
+#if DEBUG
+                        Console.WriteLine($"{flag,4}(0x{pos:X8})   AttrLen: \"{strLen}\"");
+#endif
+                        var value = dataReader.ReadString(strLen, out pos, out flag);
+#if DEBUG
+                        Console.WriteLine($"{flag,4}(0x{pos:X8}) o AttrValue: \"{value}\"");
+#endif
                         // Size has been written below
                         if (currentType != "bin" || attr != "__size")
                         {
@@ -105,13 +124,21 @@ public static partial class KbinConverter
             }
             else if (TypeDictionary.TypeMap.TryGetValue(nodeType, out var propertyType))
             {
+#if DEBUG
+                var str = $"node(0x{pos:X8})   NodeDataType: {propertyType.Name} (Size={propertyType.Size}, Count={propertyType.Count})";
+                if (array) str += ", With array flag";
+                Console.WriteLine(str);
+#endif
                 if (holdValue != null)
                 {
                     writerProvider.WriteElementValue(holdValue);
                     holdValue = null;
                 }
 
-                var elementName = nodeReader.ReadString();
+                var elementName = nodeReader.ReadString(out pos);
+#if DEBUG
+                Console.WriteLine($"node(0x{pos:X8})   DataElement: \"{elementName}\"");
+#endif
                 writerProvider.WriteStartElement(elementName);
 
                 writerProvider.WriteStartAttribute("__type");
@@ -122,18 +149,31 @@ public static partial class KbinConverter
 
                 int arraySize;
                 if (array || propertyType.Name is "str" or "bin")
-                    arraySize = dataReader.ReadS32(); //Total size.
+                {
+                    arraySize = dataReader.ReadS32(out pos, out var flag); // Total size.
+#if DEBUG
+                    Console.WriteLine($"{flag,4}(0x{pos:X8})   ArraySize: {arraySize}");
+#endif
+                }
                 else
                     arraySize = propertyType.Size * propertyType.Count;
 
                 if (propertyType.Name == "str")
-                    holdValue = dataReader.ReadString(arraySize);
+                {
+                    holdValue = dataReader.ReadString(arraySize, out pos, out var flag);
+#if DEBUG
+                    Console.WriteLine($"{flag,4}(0x{pos:X8}) o ValString: \"{holdValue}\"");
+#endif
+                }
                 else if (propertyType.Name == "bin")
                 {
                     writerProvider.WriteStartAttribute("__size");
                     writerProvider.WriteAttributeValue(arraySize.ToString());
                     writerProvider.WriteEndAttribute();
-                    holdValue = dataReader.ReadBinary(arraySize);
+                    holdValue = dataReader.ReadBinary(arraySize, out pos, out var flag);
+#if DEBUG
+                    Console.WriteLine($"{flag,4}(0x{pos:X8}) o ValBinary: \"{holdValue}\"");
+#endif
                 }
                 else
                 {
@@ -163,6 +203,9 @@ public static partial class KbinConverter
                     }
 
                     holdValue = stringBuilder.ToString();
+#if DEBUG
+                    Console.WriteLine($"{flag,4}(0x{pos:X8}) o ValArray: \"{holdValue}\"");
+#endif
                 }
             }
             else
@@ -175,11 +218,26 @@ public static partial class KbinConverter
     private static ReadContext GetReadContext(Memory<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider)
     {
         //Read header section.
+        int pos;
         var binaryBuffer = new BeBinaryReader(sourceBuffer);
-        var signature = binaryBuffer.ReadU8();
-        var compressionFlag = binaryBuffer.ReadU8();
-        var encodingFlag = binaryBuffer.ReadU8();
-        var encodingFlagNot = binaryBuffer.ReadU8();
+        var signature = binaryBuffer.ReadU8(out pos, out _);
+#if DEBUG
+        Console.WriteLine($"0x{pos:X8}   Signature: 0x{signature:X2}");
+#endif
+
+        var compressionFlag = binaryBuffer.ReadU8(out pos, out _);
+#if DEBUG
+        Console.WriteLine($"0x{pos:X8}   Compression: 0x{compressionFlag:X2}");
+#endif
+
+        var encodingFlag = binaryBuffer.ReadU8(out pos, out _);
+#if DEBUG
+        Console.WriteLine($"0x{pos:X8}   Encoding: 0x{encodingFlag:X2}");
+#endif
+        var encodingFlagNot = binaryBuffer.ReadU8(out pos, out _);
+#if DEBUG
+        Console.WriteLine($"0x{pos:X8}   Encoding~: 0x{encodingFlagNot:X2}");
+#endif
 
         //Verify magic.
         if (signature != 0xA0)
@@ -193,11 +251,17 @@ public static partial class KbinConverter
         var encoding = EncodingDictionary.EncodingMap[encodingFlag];
 
         //Get buffer lengths and load.
-        var nodeLength = binaryBuffer.ReadS32();
-        var nodeReader = new NodeReader(sourceBuffer.Slice(8, nodeLength), compressed, encoding);
+        var nodeLength = binaryBuffer.ReadS32(out pos, out _);
+#if DEBUG
+        Console.WriteLine($"0x{pos:X8}   NodeLength: {nodeLength}");
+#endif
+        var nodeReader = new NodeReader(sourceBuffer.Slice(8, nodeLength), 8, compressed, encoding);
 
         var dataLength = BitConverterHelper.ToBeInt32(sourceBuffer.Slice(nodeLength + 8, 4).Span);
-        var dataReader = new DataReader(sourceBuffer.Slice(nodeLength + 12, dataLength), encoding);
+#if DEBUG
+        Console.WriteLine($"0x{pos:X8}   DataLength: {dataLength}");
+#endif
+        var dataReader = new DataReader(sourceBuffer.Slice(nodeLength + 12, dataLength), nodeLength + 12, encoding);
 
         var readProvider = createWriterProvider(encoding);
 
