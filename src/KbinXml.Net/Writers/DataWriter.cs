@@ -84,7 +84,7 @@ namespace KbinXml.Net.Writers
             Pad(_pos32);
 
             SetRange(buffer, ref _pos32);
-            while (_pos32 % 4 != 0)
+            while ((_pos32 & 3) != 0)
                 _pos32++;
 
             Realign16_8();
@@ -94,7 +94,7 @@ namespace KbinXml.Net.Writers
         {
             Pad(_pos16);
 
-            if (_pos16 % 4 == 0)
+            if ((_pos16 & 3) == 0)
                 _pos32 += 4;
 
             SetRange(buffer, ref _pos16);
@@ -105,7 +105,7 @@ namespace KbinXml.Net.Writers
         {
             Pad(_pos8);
 
-            if (_pos8 % 4 == 0)
+            if ((_pos8 & 3) == 0)
                 _pos32 += 4;
 
             SetRange(new[] { value }, ref _pos8);
@@ -136,10 +136,10 @@ namespace KbinXml.Net.Writers
 
         private void Realign16_8()
         {
-            if (_pos8 % 4 == 0)
+            if ((_pos8 & 3) == 0)
                 _pos8 = _pos32;
 
-            if (_pos16 % 4 == 0)
+            if ((_pos16 & 3) == 0)
                 _pos16 = _pos32;
         }
 

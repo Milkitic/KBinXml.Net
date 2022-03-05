@@ -77,7 +77,7 @@ namespace KbinXml.Net.Writers
 
         internal void Pad()
         {
-            while (Stream.Length % 4 != 0)
+            while ((Stream.Length & 3) != 0)
                 Stream.WriteByte(0);
         }
 

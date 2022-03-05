@@ -28,7 +28,7 @@ internal class DataReader : BeBinaryReader
 #endif
         flag = "p32";
         var result = ReadBytes(_position, count);
-        while (count % 4 != 0)
+        while ((count & 3) != 0)
             count++;
         _position += count;
 
@@ -39,7 +39,7 @@ internal class DataReader : BeBinaryReader
     {
         // Realign before read.
         // If need to, align pos16 to next 4-bytes chunk, and move the generic position to next chunk
-        if (_pos16 % 4 == 0)
+        if ((_pos16 & 3) == 0)
         {
 #if DEBUG
             if (_pos16 != _position)
@@ -72,7 +72,7 @@ internal class DataReader : BeBinaryReader
     {
         // Realign before read.
         // If need to, align pos8 to next 4-bytes chunk, and move the generic position to next chunk
-        if (_pos8 % 4 == 0)
+        if ((_pos8 & 3) == 0)
         {
 #if DEBUG
             if (_pos8 != _position)
