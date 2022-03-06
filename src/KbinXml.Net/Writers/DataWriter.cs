@@ -12,10 +12,21 @@ namespace KbinXml.Net.Writers
         private int _pos16;
         private int _pos8;
         private readonly Encoding _encoding;
+        private readonly int _shiftVal;
 
         public DataWriter(Encoding encoding)
         {
             _encoding = encoding;
+            _shiftVal = EncodingDictionary.ReverseEncodingMap[encoding] switch
+            {
+                0x00 => 1,
+                0x20 => 1,
+                0x40 => 1,
+                0x60 => 2,
+                0x80 => 2,
+                0xA0 => 2,
+                _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, null)
+            };
         }
 
         public override void WriteBytes(ReadOnlySpan<byte> buffer)
@@ -38,6 +49,42 @@ namespace KbinXml.Net.Writers
 
         public void WriteString(string value)
         {
+#if NETCOREAPP3_1_OR_GREATER
+            var maxLen = (value.Length << _shiftVal) + 1;
+            bool useStack = maxLen <= Constants.MaxStackLength;
+            if (!useStack)
+            {
+                maxLen = _encoding.GetByteCount(value) + 1;
+                useStack = maxLen <= Constants.MaxStackLength;
+            }
+
+            if (useStack)
+            {
+                Span<byte> buffer = stackalloc byte[maxLen];
+                var count = _encoding.GetBytes(value.AsSpan(), buffer);
+                var fullCount = count + 1;
+                var fullBytes = buffer.Slice(0, fullCount);
+                WriteU32((uint)fullCount);
+                Write32BitAligned(fullBytes);
+                return;
+            }
+
+            var bytes = _encoding.GetBytes(value);
+            var length = bytes.Length + 1;
+            var arr = ArrayPool<byte>.Shared.Rent(length);
+            try
+            {
+                var span = arr.AsSpan(0, length);
+                bytes.CopyTo(span);
+
+                WriteU32((uint)length);
+                Write32BitAligned(span);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(arr);
+            }
+#else
             var bytes = _encoding.GetBytes(value);
 
             var length = bytes.Length + 1;
@@ -57,6 +104,7 @@ namespace KbinXml.Net.Writers
             {
                 if (arr != null) ArrayPool<byte>.Shared.Return(arr);
             }
+#endif
         }
 
         public void WriteBinary(string value)
@@ -83,7 +131,7 @@ namespace KbinXml.Net.Writers
         {
             Pad(_pos32);
 
-            SetRange(buffer, ref _pos32);
+            WriteBytes(buffer, ref _pos32);
             while ((_pos32 & 3) != 0)
                 _pos32++;
 
@@ -97,7 +145,7 @@ namespace KbinXml.Net.Writers
             if ((_pos16 & 3) == 0)
                 _pos32 += 4;
 
-            SetRange(buffer, ref _pos16);
+            WriteBytes(buffer, ref _pos16);
             Realign16_8();
         }
 
@@ -108,11 +156,11 @@ namespace KbinXml.Net.Writers
             if ((_pos8 & 3) == 0)
                 _pos32 += 4;
 
-            SetRange(new[] { value }, ref _pos8);
+            WriteBytes(stackalloc[] { value }, ref _pos8);
             Realign16_8();
         }
 
-        private void SetRange(ReadOnlySpan<byte> buffer, ref int offset)
+        private void WriteBytes(ReadOnlySpan<byte> buffer, ref int offset)
         {
             if (offset == Stream.Length)
             {
@@ -129,8 +177,9 @@ namespace KbinXml.Net.Writers
                 offset += buffer.Length;
 
                 // fix the problem if the buffer length is greater than list count
-                if (offset <= Stream.Length)
-                    Stream.Position = pos;
+                // but looks safe for kbin algorithm
+                //if (offset <= Stream.Length)
+                Stream.Position = pos;
             }
         }
 
@@ -145,12 +194,32 @@ namespace KbinXml.Net.Writers
 
         private void Pad(int target)
         {
-            var left = target - Stream.Length;
+            int left = (int)(target - Stream.Length);
             if (left <= 0) return;
-            for (int i = 0; i < left; i++)
+#if NETCOREAPP3_1_OR_GREATER
+            if (left == 1) Stream.WriteByte(0);
+            else
             {
-                Stream.WriteByte(0);
+                // looks safe for kbin algorithm
+                Stream.Write(stackalloc byte[left]);
+                //byte[]? arr = null;
+                //Span<byte> span = left <= Constants.MaxStackLength
+                //    ? stackalloc byte[left]
+                //    : arr = ArrayPool<byte>.Shared.Rent(left);
+                //if (arr != null) span = span.Slice(0, left);
+                //try
+                //{
+                //    Stream.Write(span);
+                //}
+                //finally
+                //{
+                //    if (arr != null) ArrayPool<byte>.Shared.Return(arr);
+                //}
             }
+#else
+            for (int i = 0; i < left; i++)
+                Stream.WriteByte(0);
+#endif
         }
     }
 }

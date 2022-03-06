@@ -4,9 +4,10 @@ using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Writers
 {
-    public class BeBinaryWriter
+    public class BeBinaryWriter : IDisposable
     {
         protected internal readonly MemoryStream Stream;
+
         public BeBinaryWriter()
         {
             Stream = new MemoryStream(0);
@@ -84,6 +85,11 @@ namespace KbinXml.Net.Writers
         public byte[] ToArray()
         {
             return Stream.ToArray();
+        }
+
+        public void Dispose()
+        {
+            Stream.Dispose();
         }
     }
 }

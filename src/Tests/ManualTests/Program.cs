@@ -16,6 +16,10 @@ public class Program
     static void Main(string[] args)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+        var all = File.ReadAllText("data/test_case2.xml");
+        byte[] all1 = KbinConverter.Write(all, KnownEncodings.UTF8);
+
         byte[] kbin = File.ReadAllBytes("data/test_case2.bin");
 
         byte[] xmlBytes = KbinConverter.ReadXmlBytes(kbin);

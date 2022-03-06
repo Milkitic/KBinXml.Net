@@ -11,11 +11,11 @@ namespace KbinXml.Net.Utils
         private T[]? _arrayFromPool;
         private int _pos;
 
-        public ValueListBuilder(Span<T> initialSpan)
+        public ValueListBuilder(Span<T> initialSpan, int pos = 0)
         {
             _span = initialSpan;
             _arrayFromPool = null;
-            _pos = 0;
+            _pos = pos;
         }
 
         public int Length

@@ -26,8 +26,18 @@ public static partial class KbinConverter
         var encoding = knownEncodings.ToEncoding();
         writeOptions ??= new WriteOptions();
         var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding));
-        using XmlReader reader = new XmlNodeReader(xml);
-        return WriterImpl(encoding, context, reader, writeOptions);
+
+        using XmlReader reader = new XmlNodeReader(xml); 
+
+        try
+        {
+            return WriterImpl(encoding, context, reader, writeOptions);
+        }
+        finally
+        {
+            context.DataWriter.Dispose();
+            context.NodeWriter.Dispose();
+        }
     }
 
     /// <summary>
@@ -44,7 +54,16 @@ public static partial class KbinConverter
         var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding));
 
         using var reader = xml.CreateReader();
-        return WriterImpl(encoding, context, reader, writeOptions);
+
+        try
+        {
+            return WriterImpl(encoding, context, reader, writeOptions);
+        }
+        finally
+        {
+            context.DataWriter.Dispose();
+            context.NodeWriter.Dispose();
+        }
     }
 
     /// <summary>
@@ -63,7 +82,15 @@ public static partial class KbinConverter
         using var textReader = new StringReader(xmlText);
         using var reader = XmlReader.Create(textReader, new XmlReaderSettings { IgnoreWhitespace = true });
 
-        return WriterImpl(encoding, context, reader, writeOptions);
+        try
+        {
+            return WriterImpl(encoding, context, reader, writeOptions);
+        }
+        finally
+        {
+            context.DataWriter.Dispose();
+            context.NodeWriter.Dispose();
+        }
     }
 
     /// <summary>
@@ -82,7 +109,15 @@ public static partial class KbinConverter
         using var ms = new MemoryStream(xmlBytes);
         using var reader = XmlReader.Create(ms, new XmlReaderSettings { IgnoreWhitespace = true });
 
-        return WriterImpl(encoding, context, reader, writeOptions);
+        try
+        {
+            return WriterImpl(encoding, context, reader, writeOptions);
+        }
+        finally
+        {
+            context.DataWriter.Dispose();
+            context.NodeWriter.Dispose();
+        }
     }
 
     private static byte[] WriterImpl(Encoding encoding, WriteContext context, XmlReader reader,
@@ -278,8 +313,8 @@ public static partial class KbinConverter
         context.NodeWriter.Pad();
         context.DataWriter.Pad();
 
+        using var output = new BeBinaryWriter();
         //Write header data
-        var output = new BeBinaryWriter();
         output.WriteU8(0xA0); // Signature
         output.WriteU8((byte)(context.NodeWriter.Compressed ? 0x42 : 0x45)); // Compression flag
         var encodingBytes = EncodingDictionary.ReverseEncodingMap[encoding];
@@ -287,62 +322,14 @@ public static partial class KbinConverter
         output.WriteU8((byte)~encodingBytes);
 
         //Write node buffer length and contents.
-        var nodeStream = context.NodeWriter.Stream;
-        if (nodeStream.Length <= int.MaxValue)
-        {
-            nodeStream.Position = 0;
-
-            var length = (int)nodeStream.Length;
-            var arr = ArrayPool<byte>.Shared.Rent(length);
-            try
-            {
-                var read = nodeStream.Read(arr, 0, length);
-
-                Debug.Assert(length == read);
-
-                output.WriteS32(length);
-                output.WriteBytes(arr.AsSpan(0, length));
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(arr);
-            }
-        }
-        else
-        {
-            var buffer = context.NodeWriter.ToArray();
-            output.WriteS32(buffer.Length);
-            output.WriteBytes(buffer);
-        }
+        var nodeLength = context.NodeWriter.Stream.Length;
+        output.WriteS32((int)nodeLength);
+        context.NodeWriter.Stream.WriteTo(output.Stream);
 
         //Write data buffer length and contents.
-        var dataStream = context.DataWriter.Stream;
-        if (dataStream.Length <= int.MaxValue)
-        {
-            dataStream.Position = 0;
-
-            var length = (int)dataStream.Length;
-            var arr = ArrayPool<byte>.Shared.Rent(length);
-            try
-            {
-                var read = dataStream.Read(arr, 0, length);
-
-                Debug.Assert(length == read);
-
-                output.WriteS32(length);
-                output.WriteBytes(arr.AsSpan(0, length));
-            }
-            finally
-            {
-                ArrayPool<byte>.Shared.Return(arr);
-            }
-        }
-        else
-        {
-            var array = context.DataWriter.ToArray();
-            output.WriteS32(array.Length);
-            output.WriteBytes(array);
-        }
+        var dataLength = context.DataWriter.Stream.Length;
+        output.WriteS32((int)dataLength);
+        context.DataWriter.Stream.WriteTo(output.Stream);
 
         return output.ToArray();
     }
