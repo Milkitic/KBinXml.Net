@@ -24,92 +24,115 @@ public static class SixbitHelper
 
     public static void EncodeAndWrite(Stream stream, string input)
     {
-        byte[]? arrIn = null;
-        var buffer = input.Length <= Constants.MaxStackLength
-            ? stackalloc byte[input.Length]
-            : arrIn = ArrayPool<byte>.Shared.Rent(input.Length);
-        try
+        bool useStack = input.Length <= Constants.MaxStackLength;
+        if (useStack)
         {
-            if (arrIn != null) buffer = buffer.Slice(0, input.Length);
-            for (var i = 0; i < input.Length; i++)
-            {
-                var c = input[i];
-                buffer[i] = CharsetMapping[c];
-            }
+            Span<byte> buffer = stackalloc byte[input.Length];
+            EncodeFillInput(input, ref buffer);
 
-            var length = (int)Math.Ceiling(buffer.Length * 6.0 / 8);
+            var length = (int)Math.Ceiling(buffer.Length * 6 / 8d);
 
+            Span<byte> output = stackalloc byte[length];
+            EncodeFillOutput(buffer, ref output);
+
+            stream.WriteSpan(output);
+        }
+        else
+        {
+            byte[]? arrIn = null;
             byte[]? arrOut = null;
-            var output = length <= Constants.MaxStackLength
-                ? stackalloc byte[length]
-                : arrOut = ArrayPool<byte>.Shared.Rent(length);
+
             try
             {
-                if (arrOut != null) output = output.Slice(0, length);
+                arrIn = ArrayPool<byte>.Shared.Rent(input.Length);
+                var buffer = arrIn.AsSpan(0, input.Length);
+                EncodeFillInput(input, ref buffer);
 
-                for (var i = 0; i < buffer.Length * 6; i++)
-                    output[i / 8] = (byte)(output[i / 8] |
-                                           ((buffer[i / 6] >> (5 - (i % 6)) & 1) << (7 - (i % 8))));
+                var length = (int)Math.Ceiling(buffer.Length * 6 / 8d);
 
-                var encode = output.Slice(0, output.Length);
-                stream.WriteSpan(encode);
+                arrOut = ArrayPool<byte>.Shared.Rent(length);
+                var output = arrOut.AsSpan(0, length);
+                EncodeFillOutput(buffer, ref output);
+
+                stream.WriteSpan(output);
             }
             finally
             {
+                if (arrIn != null) ArrayPool<byte>.Shared.Return(arrIn);
                 if (arrOut != null) ArrayPool<byte>.Shared.Return(arrOut);
             }
-        }
-        finally
-        {
-            if (arrIn != null) ArrayPool<byte>.Shared.Return(arrIn);
         }
     }
 
     public static string Decode(ReadOnlySpan<byte> buffer, int length)
     {
+        bool useStack = length <= Constants.MaxStackLength;
+        if (useStack)
+        {
+            Span<byte> input = stackalloc byte[length];
+            DecodeFillInput(buffer, length, ref input);
+
+            Span<char> result = stackalloc char[input.Length];
+            return DecodeGetString(input, result);
+        }
+
         byte[]? arrOutput = null;
-        var output = length <= Constants.MaxStackLength
-            ? stackalloc byte[length]
-            : arrOutput = ArrayPool<byte>.Shared.Rent(length);
+        char[]? arrResult = null;
         try
         {
-            if (arrOutput != null) output = output.Slice(0, length);
+            arrOutput = ArrayPool<byte>.Shared.Rent(length);
+            var input = arrOutput.AsSpan(0, length);
+            DecodeFillInput(buffer, length, ref input);
 
-            for (var i = 0; i < length * 6; i++)
-                output[i / 6] = (byte)(output[i / 6] |
-                                       (((buffer[i / 8] >> (7 - (i % 8))) & 1) << (5 - (i % 6))));
-            char[]? arrResult = null;
-            var result = output.Length <= Constants.MaxStackLength
-                ? stackalloc char[output.Length]
-                : arrResult = ArrayPool<char>.Shared.Rent(output.Length);
-            try
-            {
-                if (arrResult != null) result = result.Slice(0, output.Length);
-
-                for (var i = 0; i < output.Length; i++)
-                {
-                    var c = output[i];
-                    result[i] = Charset[c];
-                }
-
-#if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
-                return new string(result);
-#else
-                unsafe
-                {
-                    fixed (char* p = result)
-                        return new string(p, 0, result.Length);
-                }
-#endif
-            }
-            finally
-            {
-                if (arrResult != null) ArrayPool<char>.Shared.Return(arrResult);
-            }
+            arrResult = ArrayPool<char>.Shared.Rent(input.Length);
+            var result = arrResult.AsSpan(0, input.Length);
+            return DecodeGetString(input, result);
         }
         finally
         {
             if (arrOutput != null) ArrayPool<byte>.Shared.Return(arrOutput);
+            if (arrResult != null) ArrayPool<char>.Shared.Return(arrResult);
         }
+    }
+
+    private static void EncodeFillInput(string content, ref Span<byte> input)
+    {
+        for (var i = 0; i < content.Length; i++)
+        {
+            var c = content[i];
+            input[i] = CharsetMapping[c];
+        }
+    }
+
+    private static void EncodeFillOutput(Span<byte> buffer, ref Span<byte> output)
+    {
+        for (var i = 0; i < buffer.Length * 6; i++)
+            output[i >> 3] = (byte)(output[i >> 3] |
+                                    ((buffer[i / 6] >> (5 - (i % 6)) & 1) << (7 - (i & 7))));
+    }
+
+    private static void DecodeFillInput(ReadOnlySpan<byte> buffer, int length, ref Span<byte> input)
+    {
+        for (var i = 0; i < length * 6; i++)
+            input[i / 6] = (byte)(input[i / 6] |
+                                  (((buffer[i >> 3] >> (7 - (i & 7))) & 1) << (5 - (i % 6))));
+    }
+
+    private static string DecodeGetString(Span<byte> input, Span<char> result)
+    {
+        for (var i = 0; i < input.Length; i++)
+        {
+            var c = input[i];
+            result[i] = Charset[c];
+        }
+#if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
+        return new string(result);
+#else
+        unsafe
+        {
+            fixed (char* p = result)
+                return new string(p, 0, result.Length);
+        }
+#endif
     }
 }
