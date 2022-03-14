@@ -56,7 +56,7 @@ jobs:
         dotnet nuget push "./ci-pack/KbinXml.Net.${{ steps.version.outputs.version }}.nupkg"  --api-key ${{secrets.MILKI_TOKEN}} --source "github"
         
     - name: Nuget Publish KbinXml.Net
-      uses: Rebel028/publish-nuget@v2.6.3
+      uses: Rebel028/publish-nuget@v2.7.0
       with:
         PROJECT_FILE_PATH: src/KbinXml.Net/KbinXml.Net.csproj
         VERSION_STATIC: ${{ steps.version.outputs.version }}
