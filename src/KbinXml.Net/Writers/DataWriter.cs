@@ -76,6 +76,7 @@ namespace KbinXml.Net.Writers
             {
                 var span = arr.AsSpan(0, length);
                 bytes.CopyTo(span);
+                span[bytes.Length] = 0;
 
                 WriteU32((uint)length);
                 Write32BitAligned(span);
