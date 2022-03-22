@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -27,7 +26,7 @@ public static partial class KbinConverter
         writeOptions ??= new WriteOptions();
         var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding));
 
-        using XmlReader reader = new XmlNodeReader(xml); 
+        using XmlReader reader = new XmlNodeReader(xml);
 
         try
         {

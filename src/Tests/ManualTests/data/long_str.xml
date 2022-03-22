@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="shift_jis"?>
+<response status="0" fault="0" dstid="4A657DB61E2F8660FB20">
+  <playerdata>
+    <result __type="s32">0</result>
+    <player>
+      <record_num __type="u32">4</record_num>
+      <record>
+        <d __type="str">MSwwLDM1MzE3NjZjLDk1MmYsMywzLDEsZmZmZmZmZmYsMSwyMzdlZjQ1LDQ3ZjRkLDgwMDAwMDAwMDAwMDAwMDEsODAwMDAwMDAwMDAwMDAwMSw4MDAwMDAwMDAwMDAwMDAxLDAsNjIzNWYzOTUsMCwwLjAwMDAwMCwwLjAwMDAwMCwwLjAwMDAwMCwwLjAwMDAwMCwwLjAwMDAwMCwwLjAwMDAwMCwwLjAwMDAwMCwwLjAwMDAwMCwsLCwsLCws</d>
+      </record>
+    </player>
+  </playerdata>
+</response>

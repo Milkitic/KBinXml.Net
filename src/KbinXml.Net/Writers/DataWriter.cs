@@ -56,6 +56,14 @@ namespace KbinXml.Net.Writers
             {
                 maxLen = _encoding.GetByteCount(value) + 1;
                 useStack = maxLen <= Constants.MaxStackLength;
+                if (useStack)
+                {
+                    Span<byte> buffer = stackalloc byte[maxLen];
+                    _encoding.GetBytes(value.AsSpan(), buffer);
+                    WriteU32((uint)maxLen);
+                    Write32BitAligned(buffer);
+                    return;
+                }
             }
 
             if (useStack)

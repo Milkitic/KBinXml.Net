@@ -2,6 +2,6 @@
 {
     internal static class Constants
     {
-        internal const int MaxStackLength = 256;
+        internal const int MaxStackLength = 257;
     }
 }
