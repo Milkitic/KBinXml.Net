@@ -20,7 +20,17 @@ public static partial class KbinConverter
     /// <returns>Returns the <see cref="XDocument"/>.</returns>
     public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer)
     {
-        var xDocument = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e));
+        var xDocument = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e), out var knownEncoding);
+        return xDocument;
+    }
+    /// <summary>
+    /// Reads the KBin bytes into an XML <see cref="XDocument"/>.
+    /// </summary>
+    /// <param name="sourceBuffer">The KBin bytes to convert.</param>
+    /// <returns>Returns the <see cref="XDocument"/>.</returns>
+    public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer, out KnownEncodings knownEncoding)
+    {
+        var xDocument = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e), out knownEncoding);
         return xDocument;
     }
 
@@ -31,7 +41,18 @@ public static partial class KbinConverter
     /// <returns>Returns the <see cref="T:byte[]"/>.</returns>
     public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer)
     {
-        var bytes = (byte[])Read(sourceBuffer, e => new XmlWriterProvider(e));
+        var bytes = (byte[])Read(sourceBuffer, e => new XmlWriterProvider(e), out var knownEncoding);
+        return bytes;
+    }
+
+    /// <summary>
+    /// Reads the KBin bytes into an XML <see cref="T:byte[]"/>.
+    /// </summary>
+    /// <param name="sourceBuffer">The KBin bytes convert.</param>
+    /// <returns>Returns the <see cref="T:byte[]"/>.</returns>
+    public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer, out KnownEncodings knownEncoding)
+    {
+        var bytes = (byte[])Read(sourceBuffer, e => new XmlWriterProvider(e), out knownEncoding);
         return bytes;
     }
 
@@ -42,13 +63,25 @@ public static partial class KbinConverter
     /// <returns>Returns the <see cref="XmlDocument"/>.</returns>
     public static XmlDocument ReadXml(Memory<byte> sourceBuffer)
     {
-        var xmlDocument = (XmlDocument)Read(sourceBuffer, e => new XmlDocumentProvider(e));
+        var xmlDocument = (XmlDocument)Read(sourceBuffer, e => new XmlDocumentProvider(e), out var knownEncoding);
         return xmlDocument;
     }
 
-    private static object Read(Memory<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider)
+    /// <summary>
+    /// Reads the KBin bytes into an XML <see cref="XmlDocument"/>.
+    /// </summary>
+    /// <param name="sourceBuffer">The KBin bytes convert.</param>
+    /// <returns>Returns the <see cref="XmlDocument"/>.</returns>
+    public static XmlDocument ReadXml(Memory<byte> sourceBuffer, out KnownEncodings knownEncoding)
+    {
+        var xmlDocument = (XmlDocument)Read(sourceBuffer, e => new XmlDocumentProvider(e), out knownEncoding);
+        return xmlDocument;
+    }
+
+    private static object Read(Memory<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider, out KnownEncodings knownEncoding)
     {
         using var readContext = GetReadContext(sourceBuffer, createWriterProvider);
+        knownEncoding = readContext.KnownEncoding;
         var writerProvider = readContext.WriterProvider;
         var nodeReader = readContext.NodeReader;
         var dataReader = readContext.DataReader;
@@ -272,7 +305,7 @@ public static partial class KbinConverter
 
         var readProvider = createWriterProvider(encoding);
 
-        var readContext = new ReadContext(nodeReader, dataReader, readProvider);
+        var readContext = new ReadContext(nodeReader, dataReader, readProvider, encoding.ToKnownEncoding());
         return readContext;
     }
 
@@ -324,16 +357,19 @@ public static partial class KbinConverter
 
     private class ReadContext : IDisposable
     {
-        public ReadContext(NodeReader nodeReader, DataReader dataReader, WriterProvider writerProvider)
+        public ReadContext(NodeReader nodeReader, DataReader dataReader, WriterProvider writerProvider,
+            KnownEncodings knownEncoding)
         {
             NodeReader = nodeReader;
             DataReader = dataReader;
             WriterProvider = writerProvider;
+            KnownEncoding = knownEncoding;
         }
 
         public NodeReader NodeReader { get; set; }
         public DataReader DataReader { get; set; }
         public WriterProvider WriterProvider { get; set; }
+        public KnownEncodings KnownEncoding { get; }
 
         public void Dispose()
         {
