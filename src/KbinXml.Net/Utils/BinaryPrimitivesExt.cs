@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace KbinXml.Net.Utils;
@@ -8,6 +9,7 @@ public static class BinaryPrimitivesExt
 {
 
 #if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteSingleBigEndian(Span<byte> destination, float value)
     {
         if (BitConverter.IsLittleEndian)
@@ -20,7 +22,8 @@ public static class BinaryPrimitivesExt
             MemoryMarshal.Write(destination, ref value);
         }
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float ReadSingleBigEndian(ReadOnlySpan<byte> source)
     {
         return BitConverter.IsLittleEndian
@@ -29,6 +32,7 @@ public static class BinaryPrimitivesExt
     }
 #endif
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteDoubleBigEndian(Span<byte> destination, double value)
     {
         if (BitConverter.IsLittleEndian)
@@ -42,6 +46,7 @@ public static class BinaryPrimitivesExt
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double ReadDoubleBigEndian(ReadOnlySpan<byte> source)
     {
         return BitConverter.IsLittleEndian

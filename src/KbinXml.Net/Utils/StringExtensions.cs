@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
@@ -24,8 +25,10 @@ public static class StringExtensions
         }
 
         // Needed to be compatible with the foreach operator
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SpaceSplitEnumerator GetEnumerator() => this;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool MoveNext()
         {
             var span = _str;

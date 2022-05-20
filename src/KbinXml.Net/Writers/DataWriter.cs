@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using KbinXml.Net.Internal;
 using KbinXml.Net.Utils;
@@ -29,6 +30,7 @@ namespace KbinXml.Net.Writers
             };
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override void WriteBytes(ReadOnlySpan<byte> buffer)
         {
             switch (buffer.Length)
@@ -136,6 +138,7 @@ namespace KbinXml.Net.Writers
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write32BitAligned(ReadOnlySpan<byte> buffer)
         {
             Pad(_pos32);
@@ -147,6 +150,7 @@ namespace KbinXml.Net.Writers
             Realign16_8();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write16BitAligned(ReadOnlySpan<byte> buffer)
         {
             Pad(_pos16);
@@ -158,6 +162,7 @@ namespace KbinXml.Net.Writers
             Realign16_8();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write8BitAligned(byte value)
         {
             Pad(_pos8);
@@ -169,6 +174,7 @@ namespace KbinXml.Net.Writers
             Realign16_8();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void WriteBytes(ReadOnlySpan<byte> buffer, ref int offset)
         {
             if (offset == Stream.Length)
@@ -192,6 +198,7 @@ namespace KbinXml.Net.Writers
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Realign16_8()
         {
             if ((_pos8 & 3) == 0)
@@ -201,6 +208,9 @@ namespace KbinXml.Net.Writers
                 _pos16 = _pos32;
         }
 
+#if NETCOREAPP3_1_OR_GREATER
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         private void Pad(int target)
         {
             int left = (int)(target - Stream.Length);

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Globalization;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace KbinXml.Net.Utils;
 
 public static class ConvertHelper
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteU8String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var numberStyle = GetNumberStyle(str, out str);
@@ -19,6 +21,7 @@ public static class ConvertHelper
         return 1;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteS8String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         builder.Append((byte)sbyte.Parse(str
@@ -30,6 +33,7 @@ public static class ConvertHelper
         return 1;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteU16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var numberStyle = GetNumberStyle(str, out str);
@@ -42,6 +46,7 @@ public static class ConvertHelper
                 , numberStyle));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteS16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
         short.Parse(str
@@ -50,6 +55,7 @@ public static class ConvertHelper
 #endif
        ));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteU32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var numberStyle = GetNumberStyle(str, out str);
@@ -62,7 +68,7 @@ public static class ConvertHelper
                 , numberStyle));
     }
 
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteS32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
         int.Parse(str
@@ -71,6 +77,7 @@ public static class ConvertHelper
 #endif
         ));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteU64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var numberStyle = GetNumberStyle(str, out str);
@@ -83,6 +90,7 @@ public static class ConvertHelper
                 , numberStyle));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteS64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
         ref builder,
         long.Parse(str
@@ -91,6 +99,7 @@ public static class ConvertHelper
 #endif
         ));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteSingleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
         ref builder,
         float.Parse(input
@@ -99,6 +108,7 @@ public static class ConvertHelper
 #endif
         ));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteDoubleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
         ref builder,
         double.Parse(input
@@ -107,6 +117,7 @@ public static class ConvertHelper
 #endif
         ));
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteIp4String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input)
     {
         var bytes = IPAddress.Parse(input
@@ -123,15 +134,25 @@ public static class ConvertHelper
         return bytes.Length;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string U8ToString(ReadOnlySpan<byte> bytes) => bytes[0].ToString();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string S8ToString(ReadOnlySpan<byte> bytes) => ((sbyte)bytes[0]).ToString();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string U16ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeUInt16(bytes).ToString();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string S16ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeInt16(bytes).ToString();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string U32ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeUInt32(bytes).ToString();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string S32ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeInt32(bytes).ToString();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string U64ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeUInt64(bytes).ToString();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string S64ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeInt64(bytes).ToString();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string SingleToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeSingle(bytes).ToString("0.000000");
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string DoubleToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeDouble(bytes).ToString("0.000000");
     public static string Ip4ToString(ReadOnlySpan<byte> bytes)
     {
@@ -145,6 +166,7 @@ public static class ConvertHelper
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ToHexString(ReadOnlySpan<byte> bytes)
     {
         if (bytes.Length == 0)
@@ -155,6 +177,7 @@ public static class ConvertHelper
         return HexConverter.ToString(bytes, HexConverter.Casing.Lower);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int IPv4AddressToStringHelper(uint address, Span<char> dst)
     {
         int offset = 0;
@@ -182,6 +205,8 @@ public static class ConvertHelper
             dst[--i] = (char)('0' + rem);
         } while (number != 0);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static NumberStyles GetNumberStyle(ReadOnlySpan<char> str, out ReadOnlySpan<char> hex)
     {
         var isSpanHex = str.Length > 2 &&
