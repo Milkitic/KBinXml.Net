@@ -117,7 +117,8 @@ public class DataWriter : BeBinaryWriter
             }
 #endif
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteBinary(string value)
     {
         var length = value.Length >> 1;
@@ -144,9 +145,10 @@ public class DataWriter : BeBinaryWriter
         Pad(_pos32);
 
         WriteBytes(buffer, ref _pos32);
-        while ((_pos32 & 3) != 0)
+        var left = _pos32 & 3;
+        if (left != 0)
         {
-            _pos32++;
+            _pos32 += (4 - left);
         }
 
         Realign16_8();

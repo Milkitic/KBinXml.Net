@@ -30,8 +30,12 @@ internal class DataReader : BeBinaryReader
 #endif
         flag = "p32";
         var result = ReadBytes(_position, count);
-        while ((count & 3) != 0)
-            count++;
+        var left = count & 3;
+        if (left != 0)
+        {
+            count += (4 - left);
+        }
+
         _position += count;
 
         return result;

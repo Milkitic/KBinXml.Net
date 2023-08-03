@@ -75,7 +75,8 @@ public static class ConvertHelper
     {
         return BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseDouble(input, USNumberFormat));
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] // todo: loop here
     public static int WriteIp4String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input)
     {
         var bytes = IPAddress.Parse(input
@@ -182,7 +183,8 @@ public static class ConvertHelper
 
         return HexConverter.ToString(bytes, HexConverter.Casing.Lower);
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int IPv4AddressToStringHelper(uint address, Span<char> dst)
     {
         int offset = 0;
@@ -210,7 +212,8 @@ public static class ConvertHelper
             dst[--i] = (char)('0' + rem);
         } while (number != 0);
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static NumberStyles GetNumberStyle(ReadOnlySpan<char> str, out ReadOnlySpan<char> hex)
     {
         var isSpanHex = str.Length > 2 &&
