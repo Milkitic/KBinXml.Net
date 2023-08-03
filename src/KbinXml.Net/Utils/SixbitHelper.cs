@@ -13,7 +13,11 @@ public static class SixbitHelper
 
     private static readonly Dictionary<char, byte> CharsetMapping = Charset
         .Select((k, i) => (i, k))
-        .ToDictionary(k => k.k, k => (byte)k.i);
+        .ToDictionary(k => k.k, k => (byte)k.i)
+#if NET8_0_OR_GREATER
+        .ToFrozenDictionary(optimizeForReads: true);
+#endif
+        ;
 
     public static byte[] Encode(string input)
     {
