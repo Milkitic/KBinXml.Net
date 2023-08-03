@@ -58,7 +58,7 @@ public static class BitConverterHelper
         return BinaryPrimitivesExt.ReadDoubleBigEndian(value);
     }
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] // todo: `foreach` statements?
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, ushort value)
     {
         Span<byte> span = stackalloc byte[sizeof(ushort)];
