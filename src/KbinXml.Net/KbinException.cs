@@ -9,16 +9,13 @@ public class KbinException : Exception
 {
     public KbinException() : base()
     {
-
     }
 
     public KbinException(string message) : base(message)
     {
-
     }
 
     public KbinException(string message, Exception? innerException) : base(message, innerException)
     {
-
     }
 }

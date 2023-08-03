@@ -1,7 +1,6 @@
-﻿namespace KbinXml.Net.Internal
+﻿namespace KbinXml.Net.Internal;
+
+internal static class Constants
 {
-    internal static class Constants
-    {
-        internal const int MaxStackLength = 257;
-    }
+    internal const int MaxStackLength = 257;
 }

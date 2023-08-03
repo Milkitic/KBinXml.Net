@@ -6,7 +6,6 @@ namespace KbinXml.Net.Utils;
 
 public static class BinaryPrimitivesExt
 {
-
 #if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
     public static void WriteSingleBigEndian(Span<byte> destination, float value)
     {
@@ -48,5 +47,4 @@ public static class BinaryPrimitivesExt
             ? BitConverter.Int64BitsToDouble(BinaryPrimitives.ReverseEndianness(MemoryMarshal.Read<long>(source)))
             : MemoryMarshal.Read<double>(source);
     }
-
 }

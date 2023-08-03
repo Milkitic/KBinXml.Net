@@ -42,13 +42,14 @@ public static class ConvertHelper
                 , numberStyle));
     }
 
-    public static int WriteS16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        ref builder,
-        short.Parse(str
+    public static int WriteS16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) =>
+        BitConverterHelper.WriteBeBytes(
+            ref builder,
+            short.Parse(str
 #if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
-       ));
+            ));
 
     public static int WriteU32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
@@ -63,13 +64,14 @@ public static class ConvertHelper
     }
 
 
-    public static int WriteS32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        ref builder,
-        int.Parse(str
+    public static int WriteS32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) =>
+        BitConverterHelper.WriteBeBytes(
+            ref builder,
+            int.Parse(str
 #if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
-        ));
+            ));
 
     public static int WriteU64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
@@ -83,29 +85,32 @@ public static class ConvertHelper
                 , numberStyle));
     }
 
-    public static int WriteS64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) => BitConverterHelper.WriteBeBytes(
-        ref builder,
-        long.Parse(str
+    public static int WriteS64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) =>
+        BitConverterHelper.WriteBeBytes(
+            ref builder,
+            long.Parse(str
 #if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
-        ));
+            ));
 
-    public static int WriteSingleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
-        ref builder,
-        float.Parse(input
+    public static int WriteSingleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) =>
+        BitConverterHelper.WriteBeBytes(
+            ref builder,
+            float.Parse(input
 #if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
-        ));
+            ));
 
-    public static int WriteDoubleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) => BitConverterHelper.WriteBeBytes(
-        ref builder,
-        double.Parse(input
+    public static int WriteDoubleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) =>
+        BitConverterHelper.WriteBeBytes(
+            ref builder,
+            double.Parse(input
 #if !NETCOREAPP3_1_OR_GREATER
                 .ToString()
 #endif
-        ));
+            ));
 
     public static int WriteIp4String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input)
     {
@@ -131,8 +136,13 @@ public static class ConvertHelper
     public static string S32ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeInt32(bytes).ToString();
     public static string U64ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeUInt64(bytes).ToString();
     public static string S64ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeInt64(bytes).ToString();
-    public static string SingleToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeSingle(bytes).ToString("0.000000");
-    public static string DoubleToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeDouble(bytes).ToString("0.000000");
+
+    public static string SingleToString(ReadOnlySpan<byte> bytes) =>
+        BitConverterHelper.ToBeSingle(bytes).ToString("0.000000");
+
+    public static string DoubleToString(ReadOnlySpan<byte> bytes) =>
+        BitConverterHelper.ToBeDouble(bytes).ToString("0.000000");
+
     public static string Ip4ToString(ReadOnlySpan<byte> bytes)
     {
         var privateAddress = MemoryMarshal.Read<uint>(bytes);
@@ -182,6 +192,7 @@ public static class ConvertHelper
             dst[--i] = (char)('0' + rem);
         } while (number != 0);
     }
+
     private static NumberStyles GetNumberStyle(ReadOnlySpan<char> str, out ReadOnlySpan<char> hex)
     {
         var isSpanHex = str.Length > 2 &&
@@ -197,4 +208,3 @@ public static class ConvertHelper
         return NumberStyles.Integer;
     }
 }
-

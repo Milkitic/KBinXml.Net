@@ -18,6 +18,7 @@ public static class KnownEncodingsExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(knownEncodings), knownEncodings, null)
         };
     }
+
     public static KnownEncodings ToKnownEncoding(this Encoding knownEncodings)
     {
         if (knownEncodings.EncodingName == EncodingDictionary.EncodingMap[0x80].EncodingName)

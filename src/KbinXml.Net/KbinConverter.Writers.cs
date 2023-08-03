@@ -177,6 +177,7 @@ public static partial class KbinConverter
                                             arrayCountStr);
                                     break;
                                 }
+
                                 var add = type.WriteString(ref builder, s);
                                 if (add < type.Size)
                                 {
@@ -188,14 +189,18 @@ public static partial class KbinConverter
                             }
                             catch (Exception e)
                             {
-                                throw new KbinException($"Error while writing data '{s.ToString()}'. See InnerException for more information.", e);
+                                throw new KbinException(
+                                    $"Error while writing data '{s.ToString()}'. See InnerException for more information.",
+                                    e);
                             }
                         }
 
                         if (i != requiredBytes)
                         {
                             if (writeOptions.StrictMode)
-                                throw new ArgumentOutOfRangeException("Length", builder.Length / type.Size, "The array length doesn't match the \"__count\" attribute. Expect: " + arrayCountStr);
+                                throw new ArgumentOutOfRangeException("Length", builder.Length / type.Size,
+                                    "The array length doesn't match the \"__count\" attribute. Expect: " +
+                                    arrayCountStr);
 
                             while (i != requiredBytes)
                             {

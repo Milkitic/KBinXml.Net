@@ -23,14 +23,16 @@ public static partial class KbinConverter
         var xDocument = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e), out var knownEncoding);
         return xDocument;
     }
+
     /// <summary>
     /// Reads the KBin bytes into an XML <see cref="XDocument"/>.
     /// </summary>
     /// <param name="sourceBuffer">The KBin bytes to convert.</param>
+    /// <param name="knownEncodings">The declared encoding of this KBin.</param>
     /// <returns>Returns the <see cref="XDocument"/>.</returns>
-    public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer, out KnownEncodings knownEncoding)
+    public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings)
     {
-        var xDocument = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e), out knownEncoding);
+        var xDocument = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e), out knownEncodings);
         return xDocument;
     }
 
@@ -49,10 +51,11 @@ public static partial class KbinConverter
     /// Reads the KBin bytes into an XML <see cref="T:byte[]"/>.
     /// </summary>
     /// <param name="sourceBuffer">The KBin bytes convert.</param>
+    /// <param name="knownEncodings">The declared encoding of this KBin.</param>
     /// <returns>Returns the <see cref="T:byte[]"/>.</returns>
-    public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer, out KnownEncodings knownEncoding)
+    public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings)
     {
-        var bytes = (byte[])Read(sourceBuffer, e => new XmlWriterProvider(e), out knownEncoding);
+        var bytes = (byte[])Read(sourceBuffer, e => new XmlWriterProvider(e), out knownEncodings);
         return bytes;
     }
 
@@ -71,14 +74,16 @@ public static partial class KbinConverter
     /// Reads the KBin bytes into an XML <see cref="XmlDocument"/>.
     /// </summary>
     /// <param name="sourceBuffer">The KBin bytes convert.</param>
+    /// <param name="knownEncodings">The declared encoding of this KBin.</param>
     /// <returns>Returns the <see cref="XmlDocument"/>.</returns>
-    public static XmlDocument ReadXml(Memory<byte> sourceBuffer, out KnownEncodings knownEncoding)
+    public static XmlDocument ReadXml(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings)
     {
-        var xmlDocument = (XmlDocument)Read(sourceBuffer, e => new XmlDocumentProvider(e), out knownEncoding);
+        var xmlDocument = (XmlDocument)Read(sourceBuffer, e => new XmlDocumentProvider(e), out knownEncodings);
         return xmlDocument;
     }
 
-    private static object Read(Memory<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider, out KnownEncodings knownEncoding)
+    private static object Read(Memory<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider,
+        out KnownEncodings knownEncoding)
     {
         using var readContext = GetReadContext(sourceBuffer, createWriterProvider);
         knownEncoding = readContext.KnownEncoding;
@@ -162,7 +167,8 @@ public static partial class KbinConverter
             else if (TypeDictionary.TypeMap.TryGetValue(nodeType, out var propertyType))
             {
 #if DEBUG
-                var str = $"node(0x{pos:X8})   NodeDataType: {propertyType.Name} (Size={propertyType.Size}, Count={propertyType.Count})";
+                var str =
+                    $"node(0x{pos:X8})   NodeDataType: {propertyType.Name} (Size={propertyType.Size}, Count={propertyType.Count})";
                 if (array) str += ", With array flag";
                 Console.WriteLine(str);
 #endif
@@ -255,7 +261,8 @@ public static partial class KbinConverter
         }
     }
 
-    private static ReadContext GetReadContext(Memory<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider)
+    private static ReadContext GetReadContext(Memory<byte> sourceBuffer,
+        Func<Encoding, WriterProvider> createWriterProvider)
     {
         //Read header section.
         int pos;
@@ -285,7 +292,8 @@ public static partial class KbinConverter
 
         //Encoding flag should be an inverse of the fourth byte.
         if ((byte)~encodingFlag != encodingFlagNot)
-            throw new KbinException($"Third byte was not an inverse of the fourth. {~encodingFlag} != {encodingFlagNot}");
+            throw new KbinException(
+                $"Third byte was not an inverse of the fourth. {~encodingFlag} != {encodingFlagNot}");
 
         var compressed = compressionFlag == 0x42;
         var encoding = EncodingDictionary.EncodingMap[encodingFlag];
@@ -313,7 +321,10 @@ public static partial class KbinConverter
     private static string GetDisplayable(char c)
     {
         if (NonPrintDict.TryGetValue(c, out var value))
+        {
             return $"[\\{value}]";
+        }
+
         return $"[\\{(int)c}]";
     }
 

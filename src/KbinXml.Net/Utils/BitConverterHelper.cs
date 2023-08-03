@@ -8,16 +8,22 @@ public static class BitConverterHelper
 {
     public static ushort ToBeUInt16(ReadOnlySpan<byte> readBytes) =>
         BinaryPrimitives.ReadUInt16BigEndian(readBytes);
+
     public static short ToBeInt16(ReadOnlySpan<byte> readBytes) =>
         BinaryPrimitives.ReadInt16BigEndian(readBytes);
+
     public static uint ToBeUInt32(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadUInt32BigEndian(value);
+
     public static int ToBeInt32(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadInt32BigEndian(value);
+
     public static ulong ToBeUInt64(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadUInt64BigEndian(value);
+
     public static long ToBeInt64(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadInt64BigEndian(value);
+
     public static float ToBeSingle(ReadOnlySpan<byte> value)
     {
 #if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER

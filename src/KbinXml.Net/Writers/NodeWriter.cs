@@ -1,31 +1,30 @@
 ﻿using System.Text;
 using KbinXml.Net.Utils;
 
-namespace KbinXml.Net.Writers
+namespace KbinXml.Net.Writers;
+
+public class NodeWriter : BeBinaryWriter
 {
-    public class NodeWriter : BeBinaryWriter
+    public bool Compressed { get; }
+    private readonly Encoding _encoding;
+
+    public NodeWriter(bool compressed, Encoding encoding)
     {
-        public bool Compressed { get; }
-        private readonly Encoding _encoding;
+        Compressed = compressed;
+        _encoding = encoding;
+    }
 
-        public NodeWriter(bool compressed, Encoding encoding)
+    public void WriteString(string value)
+    {
+        if (Compressed)
         {
-            Compressed = compressed;
-            _encoding = encoding;
+            WriteU8((byte)value.Length);
+            SixbitHelper.EncodeAndWrite(Stream, value);
         }
-
-        public void WriteString(string value)
+        else
         {
-            if (Compressed)
-            {
-                WriteU8((byte)value.Length);
-                SixbitHelper.EncodeAndWrite(Stream, value);
-            }
-            else
-            {
-                WriteU8((byte)((value.Length - 1) | (1 << 6)));
-                WriteBytes(_encoding.GetBytes(value));
-            }
+            WriteU8((byte)((value.Length - 1) | (1 << 6)));
+            WriteBytes(_encoding.GetBytes(value));
         }
     }
 }
