@@ -328,7 +328,7 @@ public static partial class KbinConverter
         return $"[\\{(int)c}]";
     }
 
-    private static readonly Dictionary<int, string> NonPrintDict = new()
+    private static readonly IReadOnlyDictionary<int, string> NonPrintDict = new Dictionary<int, string>
     {
         [00] = "NULL",
         [01] = "SOH",
@@ -363,7 +363,11 @@ public static partial class KbinConverter
         [30] = "RS",
         [31] = "US",
         [127] = "DEL",
-    };
+    }
+#if NET8_0_OR_GREATER
+        .ToFrozenDictionary(optimizeForReads: true);
+#endif
+        ;
 #endif
 
     private class ReadContext : IDisposable
