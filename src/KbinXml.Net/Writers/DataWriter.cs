@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using KbinXml.Net.Internal;
 using KbinXml.Net.Utils;
@@ -28,7 +29,8 @@ public class DataWriter : BeBinaryWriter
             _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, null)
         };
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteBytes(ReadOnlySpan<byte> buffer)
     {
         switch (buffer.Length)
@@ -135,40 +137,50 @@ public class DataWriter : BeBinaryWriter
             if (arr != null) ArrayPool<byte>.Shared.Return(arr);
         }
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write32BitAligned(ReadOnlySpan<byte> buffer)
     {
         Pad(_pos32);
 
         WriteBytes(buffer, ref _pos32);
         while ((_pos32 & 3) != 0)
+        {
             _pos32++;
+        }
 
         Realign16_8();
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write16BitAligned(ReadOnlySpan<byte> buffer)
     {
         Pad(_pos16);
 
         if ((_pos16 & 3) == 0)
+        {
             _pos32 += 4;
+        }
 
         WriteBytes(buffer, ref _pos16);
         Realign16_8();
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write8BitAligned(byte value)
     {
         Pad(_pos8);
 
         if ((_pos8 & 3) == 0)
+        {
             _pos32 += 4;
+        }
 
         WriteBytes(stackalloc[] { value }, ref _pos8);
         Realign16_8();
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void WriteBytes(ReadOnlySpan<byte> buffer, ref int offset)
     {
         if (offset == Stream.Length)
@@ -191,16 +203,22 @@ public class DataWriter : BeBinaryWriter
             Stream.Position = pos;
         }
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Realign16_8()
     {
         if ((_pos8 & 3) == 0)
+        {
             _pos8 = _pos32;
+        }
 
         if ((_pos16 & 3) == 0)
+        {
             _pos16 = _pos32;
+        }
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Pad(int target)
     {
         int left = (int)(target - Stream.Length);

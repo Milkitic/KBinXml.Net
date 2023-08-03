@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using KbinXml.Net.Utils;
 
@@ -18,7 +19,8 @@ internal class DataReader : BeBinaryReader
     public int Position32 => _position + Offset;
     public int Position16 => _pos16 + Offset;
     public int Position8 => _pos8 + Offset;
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Memory<byte> Read32BitAligned(int count, out int position, out string flag)
     {
 #if DEBUG
@@ -34,7 +36,8 @@ internal class DataReader : BeBinaryReader
 
         return result;
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Memory<byte> Read16BitAligned(out int position, out string flag)
     {
         // Realign before read.
@@ -67,7 +70,8 @@ internal class DataReader : BeBinaryReader
 
         return result;
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Memory<byte> Read8BitAligned(out int position, out string flag)
     {
         // Realign before read.
@@ -100,7 +104,8 @@ internal class DataReader : BeBinaryReader
 
         return result;
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Memory<byte> ReadBytes(int count, out int position, out string flag)
     {
         return count switch
@@ -110,7 +115,8 @@ internal class DataReader : BeBinaryReader
             _ => Read32BitAligned(count, out position, out flag)
         };
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadString(int count, out int position, out string flag)
     {
         var memory = Read32BitAligned(count, out position, out flag);
@@ -130,7 +136,8 @@ internal class DataReader : BeBinaryReader
         return _encoding.GetString(span.ToArray());
 #endif
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadBinary(int count, out int position, out string flag)
     {
         var bin = Read32BitAligned(count, out position, out flag);
@@ -138,7 +145,8 @@ internal class DataReader : BeBinaryReader
             return string.Empty;
         return ConvertHelper.ToHexString(bin.Span);
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Memory<byte> ReadBytes(int offset, int count)
     {
         int actualCount;

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
 public static class StringExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static SpaceSplitEnumerator SpanSplit(this string str, char c)
     {
         // SpaceSplitEnumerator is a struct so there is no allocation here
@@ -25,7 +27,8 @@ public static class StringExtensions
 
         // Needed to be compatible with the foreach operator
         public SpaceSplitEnumerator GetEnumerator() => this;
-
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool MoveNext()
         {
             var span = _str;

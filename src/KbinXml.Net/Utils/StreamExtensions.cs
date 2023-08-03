@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
@@ -23,7 +24,8 @@ public static class StreamExtensions
         stream.Position = pos;
         return copyMs.ToArray();
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteSpan(this Stream builder, ReadOnlySpan<byte> buffer)
     {
 #if NETCOREAPP3_1_OR_GREATER
