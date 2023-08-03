@@ -7,110 +7,61 @@ namespace KbinXml.Net.Utils;
 
 public static class ConvertHelper
 {
+    private static readonly NumberFormatInfo USNumberFormat = new CultureInfo("en-US", false).NumberFormat;
+
     public static int WriteU8String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var numberStyle = GetNumberStyle(str, out str);
-        builder.Append(byte.Parse(str
-#if !NETCOREAPP3_1_OR_GREATER
-                .ToString()
-#endif
-            , numberStyle));
-
+        builder.Append(ParseHelper.ParseByte(str, numberStyle));
         return 1;
     }
 
     public static int WriteS8String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
-        builder.Append((byte)sbyte.Parse(str
-#if !NETCOREAPP3_1_OR_GREATER
-                .ToString()
-#endif
-        ));
-
+        builder.Append((byte)ParseHelper.ParseSByte(str));
         return 1;
     }
 
     public static int WriteU16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var numberStyle = GetNumberStyle(str, out str);
-        return BitConverterHelper.WriteBeBytes(
-            ref builder,
-            ushort.Parse(str
-#if !NETCOREAPP3_1_OR_GREATER
-                .ToString()
-#endif
-                , numberStyle));
+        return BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseUInt16(str, numberStyle));
     }
 
     public static int WriteS16String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) =>
-        BitConverterHelper.WriteBeBytes(
-            ref builder,
-            short.Parse(str
-#if !NETCOREAPP3_1_OR_GREATER
-                .ToString()
-#endif
-            ));
+        BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseInt16(str));
 
     public static int WriteU32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var numberStyle = GetNumberStyle(str, out str);
-        return BitConverterHelper.WriteBeBytes(
-            ref builder,
-            uint.Parse(str
-#if !NETCOREAPP3_1_OR_GREATER
-                .ToString()
-#endif
-                , numberStyle));
+        return BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseUInt32(str, numberStyle));
     }
 
-
-    public static int WriteS32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) =>
-        BitConverterHelper.WriteBeBytes(
-            ref builder,
-            int.Parse(str
-#if !NETCOREAPP3_1_OR_GREATER
-                .ToString()
-#endif
-            ));
+    public static int WriteS32String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
+    {
+        return BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseInt32(str));
+    }
 
     public static int WriteU64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var numberStyle = GetNumberStyle(str, out str);
-        return BitConverterHelper.WriteBeBytes(
-            ref builder,
-            ulong.Parse(str
-#if !NETCOREAPP3_1_OR_GREATER
-                .ToString()
-#endif
-                , numberStyle));
+        return BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseUInt64(str, numberStyle));
     }
 
-    public static int WriteS64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str) =>
-        BitConverterHelper.WriteBeBytes(
-            ref builder,
-            long.Parse(str
-#if !NETCOREAPP3_1_OR_GREATER
-                .ToString()
-#endif
-            ));
+    public static int WriteS64String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
+    {
+        return BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseInt64(str));
+    }
 
-    public static int WriteSingleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) =>
-        BitConverterHelper.WriteBeBytes(
-            ref builder,
-            float.Parse(input
-#if !NETCOREAPP3_1_OR_GREATER
-                .ToString()
-#endif
-            ));
+    public static int WriteSingleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input)
+    {
+        return BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseSingle(input, USNumberFormat));
+    }
 
-    public static int WriteDoubleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input) =>
-        BitConverterHelper.WriteBeBytes(
-            ref builder,
-            double.Parse(input
-#if !NETCOREAPP3_1_OR_GREATER
-                .ToString()
-#endif
-            ));
+    public static int WriteDoubleString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input)
+    {
+        return BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseDouble(input, USNumberFormat));
+    }
 
     public static int WriteIp4String(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> input)
     {
@@ -128,20 +79,55 @@ public static class ConvertHelper
         return bytes.Length;
     }
 
-    public static string U8ToString(ReadOnlySpan<byte> bytes) => bytes[0].ToString();
-    public static string S8ToString(ReadOnlySpan<byte> bytes) => ((sbyte)bytes[0]).ToString();
-    public static string U16ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeUInt16(bytes).ToString();
-    public static string S16ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeInt16(bytes).ToString();
-    public static string U32ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeUInt32(bytes).ToString();
-    public static string S32ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeInt32(bytes).ToString();
-    public static string U64ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeUInt64(bytes).ToString();
-    public static string S64ToString(ReadOnlySpan<byte> bytes) => BitConverterHelper.ToBeInt64(bytes).ToString();
+    public static string U8ToString(ReadOnlySpan<byte> bytes)
+    {
+        return bytes[0].ToString();
+    }
 
-    public static string SingleToString(ReadOnlySpan<byte> bytes) =>
-        BitConverterHelper.ToBeSingle(bytes).ToString("0.000000");
+    public static string S8ToString(ReadOnlySpan<byte> bytes)
+    {
+        return ((sbyte)bytes[0]).ToString();
+    }
 
-    public static string DoubleToString(ReadOnlySpan<byte> bytes) =>
-        BitConverterHelper.ToBeDouble(bytes).ToString("0.000000");
+    public static string U16ToString(ReadOnlySpan<byte> bytes)
+    {
+        return BitConverterHelper.ToBeUInt16(bytes).ToString();
+    }
+
+    public static string S16ToString(ReadOnlySpan<byte> bytes)
+    {
+        return BitConverterHelper.ToBeInt16(bytes).ToString();
+    }
+
+    public static string U32ToString(ReadOnlySpan<byte> bytes)
+    {
+        return BitConverterHelper.ToBeUInt32(bytes).ToString();
+    }
+
+    public static string S32ToString(ReadOnlySpan<byte> bytes)
+    {
+        return BitConverterHelper.ToBeInt32(bytes).ToString();
+    }
+
+    public static string U64ToString(ReadOnlySpan<byte> bytes)
+    {
+        return BitConverterHelper.ToBeUInt64(bytes).ToString();
+    }
+
+    public static string S64ToString(ReadOnlySpan<byte> bytes)
+    {
+        return BitConverterHelper.ToBeInt64(bytes).ToString();
+    }
+
+    public static string SingleToString(ReadOnlySpan<byte> bytes)
+    {
+        return BitConverterHelper.ToBeSingle(bytes).ToString("0.000000");
+    }
+
+    public static string DoubleToString(ReadOnlySpan<byte> bytes)
+    {
+        return BitConverterHelper.ToBeDouble(bytes).ToString("0.000000");
+    }
 
     public static string Ip4ToString(ReadOnlySpan<byte> bytes)
     {
