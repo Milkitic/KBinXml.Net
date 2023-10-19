@@ -16,10 +16,9 @@ public class Program
     static void Main(string[] args)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        SmallTest();
+        InvalidTest();
 
-        var all = File.ReadAllText("data/small.xml");
-        byte[] all1 = KbinConverter.Write(all, KnownEncodings.UTF8);
-        var sb = KbinConverter.ReadXmlBytes(all1);
         byte[] kbin = File.ReadAllBytes("data/test_case2.bin");
 
         byte[] xmlBytes = KbinConverter.ReadXmlBytes(kbin);
@@ -58,5 +57,37 @@ public class Program
         //    }
         //});
         //return;
+    }
+
+    private static void SmallTest()
+    {
+        var smallText = File.ReadAllText("data/small.xml");
+        byte[] smallKbin = KbinConverter.Write(smallText, KnownEncodings.UTF8);
+        var smallXmlRead = KbinConverter.ReadXmlBytes(smallKbin);
+    }
+
+    private static void InvalidTest()
+    {
+        var invalidXml = File.ReadAllText("data/konmaiquality.xml");
+        byte[] kbin = KbinConverter.Write(invalidXml, KnownEncodings.UTF8, new WriteOptions { RepairedPrefix = "KBIN_PREFIX_FIX_" });
+
+        var bytesRead = KbinConverter.ReadXmlBytes(kbin, new ReadOptions { RepairedPrefix = "KBIN_PREFIX_FIX_" });
+        XElement bytesReadLinq;
+        using (var ms = new MemoryStream(bytesRead))
+        {
+            bytesReadLinq = XElement.Load(ms);
+        }
+
+
+        var linqRead = KbinConverter.ReadXmlLinq(kbin, new ReadOptions { RepairedPrefix = "KBIN_PREFIX_FIX_" });
+
+
+        var w3cRead = KbinConverter.ReadXml(kbin, new ReadOptions { RepairedPrefix = "KBIN_PREFIX_FIX_" });
+        XDocument w3cReadLinq;
+        using (var nodeReader = new XmlNodeReader(w3cRead))
+        {
+            nodeReader.MoveToContent();
+            w3cReadLinq = XDocument.Load(nodeReader);
+        }
     }
 }
