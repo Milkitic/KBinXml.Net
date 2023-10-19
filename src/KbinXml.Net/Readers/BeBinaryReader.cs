@@ -3,7 +3,7 @@ using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Readers;
 
-internal class BeBinaryReader
+public class BeBinaryReader
 {
     protected readonly Memory<byte> Buffer;
     protected readonly int Offset;

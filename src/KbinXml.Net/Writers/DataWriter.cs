@@ -94,25 +94,25 @@ public class DataWriter : BeBinaryWriter
             ArrayPool<byte>.Shared.Return(arr);
         }
 #else
-            var bytes = _encoding.GetBytes(value);
+        var bytes = _encoding.GetBytes(value);
 
-            var length = bytes.Length + 1;
-            byte[]? arr = null;
-            Span<byte> span = length <= Constants.MaxStackLength
-                ? stackalloc byte[length]
-                : arr = ArrayPool<byte>.Shared.Rent(length);
-            try
-            {
-                if (arr != null) span = span.Slice(0, length);
-                bytes.CopyTo(span);
+        var length = bytes.Length + 1;
+        byte[]? arr = null;
+        Span<byte> span = length <= Constants.MaxStackLength
+            ? stackalloc byte[length]
+            : arr = ArrayPool<byte>.Shared.Rent(length);
+        try
+        {
+            if (arr != null) span = span.Slice(0, length);
+            bytes.CopyTo(span);
 
-                WriteU32((uint)length);
-                Write32BitAligned(span);
-            }
-            finally
-            {
-                if (arr != null) ArrayPool<byte>.Shared.Return(arr);
-            }
+            WriteU32((uint)length);
+            Write32BitAligned(span);
+        }
+        finally
+        {
+            if (arr != null) ArrayPool<byte>.Shared.Return(arr);
+        }
 #endif
     }
 
@@ -169,6 +169,7 @@ public class DataWriter : BeBinaryWriter
         Realign16_8();
     }
 
+    [InlineMethod.Inline]
     private void WriteBytes(ReadOnlySpan<byte> buffer, ref int offset)
     {
         if (offset == Stream.Length)
@@ -192,6 +193,7 @@ public class DataWriter : BeBinaryWriter
         }
     }
 
+    [InlineMethod.Inline]
     private void Realign16_8()
     {
         if ((_pos8 & 3) == 0)
@@ -201,6 +203,7 @@ public class DataWriter : BeBinaryWriter
             _pos16 = _pos32;
     }
 
+    [InlineMethod.Inline]
     private void Pad(int target)
     {
         int left = (int)(target - Stream.Length);
@@ -226,8 +229,8 @@ public class DataWriter : BeBinaryWriter
             //}
         }
 #else
-            for (int i = 0; i < left; i++)
-                Stream.WriteByte(0);
+        for (int i = 0; i < left; i++)
+            Stream.WriteByte(0);
 #endif
     }
 }

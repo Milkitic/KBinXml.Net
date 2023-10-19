@@ -4,7 +4,7 @@ using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Readers;
 
-internal class DataReader : BeBinaryReader
+public class DataReader : BeBinaryReader
 {
     private readonly Encoding _encoding;
     private int _pos16;
@@ -138,7 +138,8 @@ internal class DataReader : BeBinaryReader
             return string.Empty;
         return ConvertHelper.ToHexString(bin.Span);
     }
-
+    
+    [InlineMethod.Inline]
     private Memory<byte> ReadBytes(int offset, int count)
     {
         int actualCount;
