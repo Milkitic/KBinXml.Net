@@ -95,6 +95,7 @@ public static class SixbitHelper
         }
     }
 
+    [InlineMethod.Inline]
     private static void EncodeFillInput(string content, ref Span<byte> input)
     {
         for (var i = 0; i < content.Length; i++)
@@ -104,6 +105,7 @@ public static class SixbitHelper
         }
     }
 
+    [InlineMethod.Inline]
     private static void EncodeFillOutput(Span<byte> buffer, ref Span<byte> output)
     {
         for (var i = 0; i < buffer.Length * 6; i++)
@@ -111,6 +113,7 @@ public static class SixbitHelper
                                     ((buffer[i / 6] >> (5 - (i % 6)) & 1) << (7 - (i & 7))));
     }
 
+    [InlineMethod.Inline]
     private static void DecodeFillInput(ReadOnlySpan<byte> buffer, int length, ref Span<byte> input)
     {
         for (var i = 0; i < length * 6; i++)
@@ -118,6 +121,7 @@ public static class SixbitHelper
                                   (((buffer[i >> 3] >> (7 - (i & 7))) & 1) << (5 - (i % 6))));
     }
 
+    [InlineMethod.Inline]
     private static string DecodeGetString(Span<byte> input, Span<char> result)
     {
         for (var i = 0; i < input.Length; i++)

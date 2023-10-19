@@ -272,7 +272,8 @@ public static partial class KbinConverter
             }
         }
     }
-
+    
+    [InlineMethod.Inline]
     private static ReadContext GetReadContext(Memory<byte> sourceBuffer,
         Func<Encoding, WriterProvider> createWriterProvider)
     {
