@@ -20,8 +20,7 @@ public static partial class KbinConverter
 
     internal static string GetActualName(string name, string? repairedPrefix)
     {
-        if (
-            repairedPrefix is not null && name.StartsWith(repairedPrefix, StringComparison.Ordinal))
+        if (repairedPrefix is not null && name.StartsWith(repairedPrefix, StringComparison.Ordinal))
         {
             return name.Substring(repairedPrefix.Length);
         }
