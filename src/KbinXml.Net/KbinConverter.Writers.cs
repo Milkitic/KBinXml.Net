@@ -18,7 +18,7 @@ public static partial class KbinConverter
     /// </summary>
     /// <param name="xml">The XmlDocument object to convert.</param>
     /// <param name="knownEncodings">The encoding for target KBin.</param>
-    /// <param name="writeOptions">Set the write options while writing.</param>
+    /// <param name="writeOptions">Set the write options for writing.</param>
     /// <returns>The bytes of KBin.</returns>
     public static byte[] Write(XmlDocument xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
@@ -44,7 +44,7 @@ public static partial class KbinConverter
     /// </summary>
     /// <param name="xml">The XContainer object to convert.</param>
     /// <param name="knownEncodings">The encoding for target KBin.</param>
-    /// <param name="writeOptions">Set the write options while writing.</param>
+    /// <param name="writeOptions">Set the write options for writing.</param>
     /// <returns>The bytes of KBin.</returns>
     public static byte[] Write(XContainer xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
@@ -70,7 +70,7 @@ public static partial class KbinConverter
     /// </summary>
     /// <param name="xmlText">The XML text to convert.</param>
     /// <param name="knownEncodings">The encoding for target KBin.</param>
-    /// <param name="writeOptions">Set the write options while writing.</param>
+    /// <param name="writeOptions">Set the write options for writing.</param>
     /// <returns>The bytes of KBin.</returns>
     public static byte[] Write(string xmlText, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
@@ -267,7 +267,7 @@ public static partial class KbinConverter
                             }
                             else
                             {
-                                holdingAttrs.Add(reader.Name, reader.Value);
+                                holdingAttrs.Add(GetActualName(reader.Name, writeOptions.RepairedPrefix), reader.Value);
                             }
                         }
 
@@ -277,7 +277,7 @@ public static partial class KbinConverter
                     if (typeStr == null)
                     {
                         context.NodeWriter.WriteU8(1);
-                        context.NodeWriter.WriteString(reader.Name);
+                        context.NodeWriter.WriteString(GetActualName(reader.Name, writeOptions.RepairedPrefix));
                     }
                     else
                     {
@@ -287,7 +287,7 @@ public static partial class KbinConverter
                         else
                             context.NodeWriter.WriteU8(typeid);
 
-                        context.NodeWriter.WriteString(reader.Name);
+                        context.NodeWriter.WriteString(GetActualName(reader.Name, writeOptions.RepairedPrefix));
                     }
 
                     if (reader.IsEmptyElement)

@@ -7,13 +7,15 @@ namespace KbinXml.Net.Internal.Providers;
 
 internal class XmlDocumentProvider : WriterProvider
 {
+    private readonly ReadOptions _readOptions;
     private readonly XmlDocument _xmlDocument;
     private readonly Stack<XmlNode> _nodeStack = new();
 
     private string? _holdAttrName;
 
-    public XmlDocumentProvider(Encoding encoding) : base(encoding)
+    public XmlDocumentProvider(Encoding encoding, ReadOptions readOptions) : base(encoding)
     {
+        _readOptions = readOptions;
         _xmlDocument = new XmlDocument();
         _xmlDocument.InsertBefore(_xmlDocument.CreateXmlDeclaration("1.0", Encoding.WebName, null),
             _xmlDocument.DocumentElement);
@@ -45,7 +47,7 @@ internal class XmlDocumentProvider : WriterProvider
     public override void WriteStartElement(string elementName)
     {
         var current = _nodeStack.Peek();
-        var node = _xmlDocument.CreateElement(elementName);
+        var node = _xmlDocument.CreateElement(KbinConverter.GetRepairedName(elementName, _readOptions.RepairedPrefix));
         current.AppendChild(node);
         _nodeStack.Push(node);
     }
@@ -57,7 +59,7 @@ internal class XmlDocumentProvider : WriterProvider
 
     public override void WriteStartAttribute(string value)
     {
-        _holdAttrName = value;
+        _holdAttrName = KbinConverter.GetRepairedName(value, _readOptions.RepairedPrefix);
     }
 
     public override void WriteEndAttribute()
