@@ -23,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "kbinxmlcs", "..\dependencie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KBinXML", "..\dependencies\KBinXML\KBinXML\KBinXML.csproj", "{4FE97B73-6A79-4BF7-89BD-60D9ADBAE853}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneralUnitTests", "Tests\GeneralUnitTests\GeneralUnitTests.csproj", "{9AE3341B-952B-49BC-9474-3D5EE9A35885}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeneralUnitTests", "Tests\GeneralUnitTests\GeneralUnitTests.csproj", "{9AE3341B-952B-49BC-9474-3D5EE9A35885}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepairBenchmark", "Benchmarks\RepairBenchmark\RepairBenchmark.csproj", "{F1A9BC32-0E2F-43D6-8F24-320849F72B86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{9AE3341B-952B-49BC-9474-3D5EE9A35885}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AE3341B-952B-49BC-9474-3D5EE9A35885}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AE3341B-952B-49BC-9474-3D5EE9A35885}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1A9BC32-0E2F-43D6-8F24-320849F72B86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1A9BC32-0E2F-43D6-8F24-320849F72B86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1A9BC32-0E2F-43D6-8F24-320849F72B86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1A9BC32-0E2F-43D6-8F24-320849F72B86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -75,6 +81,7 @@ Global
 		{73D31F40-FDF1-41EF-BBC6-646855297E80} = {AC32AAE2-F696-460F-AAC4-CEB082FC760A}
 		{4FE97B73-6A79-4BF7-89BD-60D9ADBAE853} = {AC32AAE2-F696-460F-AAC4-CEB082FC760A}
 		{9AE3341B-952B-49BC-9474-3D5EE9A35885} = {0832D5CD-AFD9-440D-8925-29142DD9166C}
+		{F1A9BC32-0E2F-43D6-8F24-320849F72B86} = {E22A17F6-C130-40B0-89A1-99E3D67DBC78}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E1113C82-4EE9-4805-A9F1-26E8E8950B58}
