@@ -2,6 +2,10 @@
 using System.Linq;
 using System.Text;
 
+#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
+
 namespace KbinXml.Net.Internal;
 
 internal static class EncodingDictionary
@@ -21,14 +25,14 @@ internal static class EncodingDictionary
                 { 0xA0, Encoding.UTF8 },
             }
 #if NET8_0_OR_GREATER
-        .ToFrozenDictionary(optimizeForReads: true);
+            .ToFrozenDictionary()
 #endif
             ;
         ReverseEncodingMap = EncodingMap
                 .Skip(1)
                 .ToDictionary(x => x.Value, x => x.Key)
 #if NET8_0_OR_GREATER
-            .ToFrozenDictionary(optimizeForReads: true);
+                .ToFrozenDictionary()
 #endif
             ;
     }

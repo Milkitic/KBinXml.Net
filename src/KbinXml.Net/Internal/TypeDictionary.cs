@@ -4,6 +4,10 @@ using System.Linq;
 using KbinXml.Net.Utils;
 using static KbinXml.Net.Utils.ConvertHelper;
 
+#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
+
 namespace KbinXml.Net.Internal;
 
 internal static class TypeDictionary
@@ -65,14 +69,14 @@ internal static class TypeDictionary
             { 56, new NodeType(1, 16, "vb", WriteU8String, U8ToString) },
         }
 #if NET8_0_OR_GREATER
-        .ToFrozenDictionary(optimizeForReads: true);
+            .ToFrozenDictionary()
 #endif
         ;
 
     internal static readonly IReadOnlyDictionary<string, byte> ReverseTypeMap = TypeMap
             .ToDictionary(x => x.Value.Name, x => x.Key)
 #if NET8_0_OR_GREATER
-        .ToFrozenDictionary(optimizeForReads: true);
+            .ToFrozenDictionary()
 #endif
         ;
 

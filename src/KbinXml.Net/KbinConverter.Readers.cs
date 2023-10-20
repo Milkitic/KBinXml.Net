@@ -9,6 +9,10 @@ using KbinXml.Net.Internal.Providers;
 using KbinXml.Net.Readers;
 using KbinXml.Net.Utils;
 
+#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
+
 namespace KbinXml.Net;
 
 public static partial class KbinConverter
@@ -272,7 +276,7 @@ public static partial class KbinConverter
             }
         }
     }
-    
+
     [InlineMethod.Inline]
     private static ReadContext GetReadContext(Memory<byte> sourceBuffer,
         Func<Encoding, WriterProvider> createWriterProvider)
@@ -378,9 +382,9 @@ public static partial class KbinConverter
         [127] = "DEL",
     }
 #if NET8_0_OR_GREATER
-        .ToFrozenDictionary(optimizeForReads: true);
+        .ToFrozenDictionary()
 #endif
-        ;
+    ;
 #endif
 
     private class ReadContext : IDisposable
