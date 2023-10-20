@@ -20,7 +20,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 7.0.x
         
     #- name: Restore dependencies
     #  run: dotnet restore
@@ -50,10 +50,10 @@ jobs:
         files: |
           ./ci-pack/KbinXml.Net.${{ steps.version.outputs.version }}.nupkg
 
-    - name: Create Github Package
-      if: ${{ success() }}
-      run: |
-        dotnet nuget push "./ci-pack/KbinXml.Net.${{ steps.version.outputs.version }}.nupkg"  --api-key ${{secrets.MILKI_TOKEN}} --source "github"
+    # - name: Create Github Package
+    #   if: ${{ success() }}
+    #   run: |
+    #     dotnet nuget push "./ci-pack/KbinXml.Net.${{ steps.version.outputs.version }}.nupkg"  --api-key ${{secrets.MILKI_TOKEN}} --source "github"
         
     - name: Nuget Publish KbinXml.Net
       uses: Rebel028/publish-nuget@v2.7.0

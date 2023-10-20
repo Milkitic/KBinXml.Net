@@ -7,11 +7,13 @@ namespace KbinXml.Net.Internal.Providers;
 
 internal class XmlWriterProvider : WriterProvider
 {
+    private readonly ReadOptions _readOptions;
     private readonly MemoryStream _writerStream;
     private readonly XmlWriter _xmlWriter;
 
-    public XmlWriterProvider(Encoding encoding) : base(encoding)
+    public XmlWriterProvider(Encoding encoding, ReadOptions readOptions) : base(encoding)
     {
+        _readOptions = readOptions;
         var settings = new XmlWriterSettings
         {
             Async = false,
@@ -43,7 +45,7 @@ internal class XmlWriterProvider : WriterProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteStartElement(string value)
     {
-        _xmlWriter.WriteStartElement(value);
+        _xmlWriter.WriteStartElement(KbinConverter.GetRepairedName(value, _readOptions.RepairedPrefix));
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,7 +57,7 @@ internal class XmlWriterProvider : WriterProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteStartAttribute(string value)
     {
-        _xmlWriter.WriteStartAttribute(value);
+        _xmlWriter.WriteStartAttribute(KbinConverter.GetRepairedName(value, _readOptions.RepairedPrefix));
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

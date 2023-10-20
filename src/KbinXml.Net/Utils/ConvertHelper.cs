@@ -183,8 +183,8 @@ public static class ConvertHelper
 
         return HexConverter.ToString(bytes, HexConverter.Casing.Lower);
     }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+
+    [InlineMethod.Inline]
     private static int IPv4AddressToStringHelper(uint address, Span<char> dst)
     {
         int offset = 0;
@@ -201,6 +201,7 @@ public static class ConvertHelper
         return offset;
     }
 
+    [InlineMethod.Inline]
     private static void FormatIPv4AddressNumber(int number, Span<char> dst, ref int offset)
     {
         offset += number > 99 ? 3 : number > 9 ? 2 : 1;
@@ -212,8 +213,8 @@ public static class ConvertHelper
             dst[--i] = (char)('0' + rem);
         } while (number != 0);
     }
-    
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+
+    [InlineMethod.Inline]
     private static NumberStyles GetNumberStyle(ReadOnlySpan<char> str, out ReadOnlySpan<char> hex)
     {
         var isSpanHex = str.Length > 2 &&

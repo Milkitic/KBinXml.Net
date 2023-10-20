@@ -17,10 +17,12 @@ public static partial class KbinConverter
     /// Reads the KBin bytes into an XML <see cref="XDocument"/>.
     /// </summary>
     /// <param name="sourceBuffer">The KBin bytes to convert.</param>
+    /// <param name="readOptions">Set the read options for reading.</param>
     /// <returns>Returns the <see cref="XDocument"/>.</returns>
-    public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer)
+    public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
-        var xDocument = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e), out var knownEncoding);
+        readOptions ??= new ReadOptions();
+        var xDocument = (XDocument)ReaderImpl(sourceBuffer, e => new XDocumentProvider(e, readOptions), out var knownEncoding);
         return xDocument;
     }
 
@@ -29,10 +31,12 @@ public static partial class KbinConverter
     /// </summary>
     /// <param name="sourceBuffer">The KBin bytes to convert.</param>
     /// <param name="knownEncodings">The declared encoding of this KBin.</param>
+    /// <param name="readOptions">Set the read options for reading.</param>
     /// <returns>Returns the <see cref="XDocument"/>.</returns>
-    public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings)
+    public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings, ReadOptions? readOptions = null)
     {
-        var xDocument = (XDocument)Read(sourceBuffer, e => new XDocumentProvider(e), out knownEncodings);
+        readOptions ??= new ReadOptions();
+        var xDocument = (XDocument)ReaderImpl(sourceBuffer, e => new XDocumentProvider(e, readOptions), out knownEncodings);
         return xDocument;
     }
 
@@ -40,10 +44,12 @@ public static partial class KbinConverter
     /// Reads the KBin bytes into an XML <see cref="T:byte[]"/>.
     /// </summary>
     /// <param name="sourceBuffer">The KBin bytes convert.</param>
+    /// <param name="readOptions">Set the read options for reading.</param>
     /// <returns>Returns the <see cref="T:byte[]"/>.</returns>
-    public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer)
+    public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
-        var bytes = (byte[])Read(sourceBuffer, e => new XmlWriterProvider(e), out var knownEncoding);
+        readOptions ??= new ReadOptions();
+        var bytes = (byte[])ReaderImpl(sourceBuffer, e => new XmlWriterProvider(e, readOptions), out var knownEncoding);
         return bytes;
     }
 
@@ -52,10 +58,12 @@ public static partial class KbinConverter
     /// </summary>
     /// <param name="sourceBuffer">The KBin bytes convert.</param>
     /// <param name="knownEncodings">The declared encoding of this KBin.</param>
+    /// <param name="readOptions">Set the read options for reading.</param>
     /// <returns>Returns the <see cref="T:byte[]"/>.</returns>
-    public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings)
+    public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings, ReadOptions? readOptions = null)
     {
-        var bytes = (byte[])Read(sourceBuffer, e => new XmlWriterProvider(e), out knownEncodings);
+        readOptions ??= new ReadOptions();
+        var bytes = (byte[])ReaderImpl(sourceBuffer, e => new XmlWriterProvider(e, readOptions), out knownEncodings);
         return bytes;
     }
 
@@ -63,10 +71,12 @@ public static partial class KbinConverter
     /// Reads the KBin bytes into an XML <see cref="XmlDocument"/>.
     /// </summary>
     /// <param name="sourceBuffer">The KBin bytes convert.</param>
+    /// <param name="readOptions">Set the read options for reading.</param>
     /// <returns>Returns the <see cref="XmlDocument"/>.</returns>
-    public static XmlDocument ReadXml(Memory<byte> sourceBuffer)
+    public static XmlDocument ReadXml(Memory<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
-        var xmlDocument = (XmlDocument)Read(sourceBuffer, e => new XmlDocumentProvider(e), out var knownEncoding);
+        readOptions ??= new ReadOptions();
+        var xmlDocument = (XmlDocument)ReaderImpl(sourceBuffer, e => new XmlDocumentProvider(e, readOptions), out var knownEncoding);
         return xmlDocument;
     }
 
@@ -75,14 +85,16 @@ public static partial class KbinConverter
     /// </summary>
     /// <param name="sourceBuffer">The KBin bytes convert.</param>
     /// <param name="knownEncodings">The declared encoding of this KBin.</param>
+    /// <param name="readOptions">Set the read options for reading.</param>
     /// <returns>Returns the <see cref="XmlDocument"/>.</returns>
-    public static XmlDocument ReadXml(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings)
+    public static XmlDocument ReadXml(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings, ReadOptions? readOptions = null)
     {
-        var xmlDocument = (XmlDocument)Read(sourceBuffer, e => new XmlDocumentProvider(e), out knownEncodings);
+        readOptions ??= new ReadOptions();
+        var xmlDocument = (XmlDocument)ReaderImpl(sourceBuffer, e => new XmlDocumentProvider(e, readOptions), out knownEncodings);
         return xmlDocument;
     }
 
-    private static object Read(Memory<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider,
+    private static object ReaderImpl(Memory<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider,
         out KnownEncodings knownEncoding)
     {
         using var readContext = GetReadContext(sourceBuffer, createWriterProvider);
@@ -260,7 +272,8 @@ public static partial class KbinConverter
             }
         }
     }
-
+    
+    [InlineMethod.Inline]
     private static ReadContext GetReadContext(Memory<byte> sourceBuffer,
         Func<Encoding, WriterProvider> createWriterProvider)
     {
