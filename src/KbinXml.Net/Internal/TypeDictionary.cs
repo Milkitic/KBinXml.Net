@@ -74,9 +74,10 @@ internal static class TypeDictionary
         ;
 
     internal static readonly IReadOnlyDictionary<string, byte> ReverseTypeMap = TypeMap
-            .ToDictionary(x => x.Value.Name, x => x.Key)
 #if NET8_0_OR_GREATER
-            .ToFrozenDictionary()
+            .ToFrozenDictionary(x => x.Value.Name, x => x.Key)
+#else
+            .ToDictionary(x => x.Value.Name, x => x.Key)
 #endif
         ;
 

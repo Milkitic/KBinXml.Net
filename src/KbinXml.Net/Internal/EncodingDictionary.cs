@@ -30,9 +30,10 @@ internal static class EncodingDictionary
             ;
         ReverseEncodingMap = EncodingMap
                 .Skip(1)
-                .ToDictionary(x => x.Value, x => x.Key)
 #if NET8_0_OR_GREATER
-                .ToFrozenDictionary()
+                .ToFrozenDictionary(x => x.Value, x => x.Key)
+#else
+                .ToDictionary(x => x.Value, x => x.Key)
 #endif
             ;
     }
