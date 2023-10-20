@@ -19,7 +19,7 @@ public class DataReader : BeBinaryReader
     public int Position32 => _position + Offset;
     public int Position16 => _pos16 + Offset;
     public int Position8 => _pos8 + Offset;
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Memory<byte> Read32BitAligned(int count, out int position, out string flag)
     {
@@ -40,7 +40,7 @@ public class DataReader : BeBinaryReader
 
         return result;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Memory<byte> Read16BitAligned(out int position, out string flag)
     {
@@ -74,7 +74,7 @@ public class DataReader : BeBinaryReader
 
         return result;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Memory<byte> Read8BitAligned(out int position, out string flag)
     {
@@ -108,7 +108,7 @@ public class DataReader : BeBinaryReader
 
         return result;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Memory<byte> ReadBytes(int count, out int position, out string flag)
     {
@@ -119,7 +119,7 @@ public class DataReader : BeBinaryReader
             _ => Read32BitAligned(count, out position, out flag)
         };
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadString(int count, out int position, out string flag)
     {
@@ -140,7 +140,7 @@ public class DataReader : BeBinaryReader
         return _encoding.GetString(span.ToArray());
 #endif
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadBinary(int count, out int position, out string flag)
     {
@@ -149,7 +149,7 @@ public class DataReader : BeBinaryReader
             return string.Empty;
         return ConvertHelper.ToHexString(bin.Span);
     }
-    
+
     [InlineMethod.Inline]
     private Memory<byte> ReadBytes(int offset, int count)
     {

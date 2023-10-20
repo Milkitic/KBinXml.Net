@@ -10,27 +10,27 @@ public static class BitConverterHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ushort ToBeUInt16(ReadOnlySpan<byte> readBytes) =>
         BinaryPrimitives.ReadUInt16BigEndian(readBytes);
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static short ToBeInt16(ReadOnlySpan<byte> readBytes) =>
         BinaryPrimitives.ReadInt16BigEndian(readBytes);
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ToBeUInt32(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadUInt32BigEndian(value);
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToBeInt32(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadInt32BigEndian(value);
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong ToBeUInt64(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadUInt64BigEndian(value);
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long ToBeInt64(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadInt64BigEndian(value);
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float ToBeSingle(ReadOnlySpan<byte> value)
     {
@@ -51,13 +51,13 @@ public static class BitConverterHelper
         }
 #endif
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double ToBeDouble(ReadOnlySpan<byte> value)
     {
         return BinaryPrimitivesExt.ReadDoubleBigEndian(value);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)] // todo: `foreach` statements?
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, ushort value)
     {
@@ -66,7 +66,7 @@ public static class BitConverterHelper
         foreach (var b in span) builder.Append(b);
         return span.Length;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, short value)
     {
@@ -75,7 +75,7 @@ public static class BitConverterHelper
         foreach (var b in span) builder.Append(b);
         return span.Length;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, uint value)
     {
@@ -84,7 +84,7 @@ public static class BitConverterHelper
         foreach (var b in span) builder.Append(b);
         return span.Length;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, int value)
     {
@@ -93,7 +93,7 @@ public static class BitConverterHelper
         foreach (var b in span) builder.Append(b);
         return span.Length;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, ulong value)
     {
@@ -102,7 +102,7 @@ public static class BitConverterHelper
         foreach (var b in span) builder.Append(b);
         return span.Length;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, long value)
     {
@@ -111,7 +111,7 @@ public static class BitConverterHelper
         foreach (var b in span) builder.Append(b);
         return span.Length;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, float value)
     {
@@ -130,7 +130,7 @@ public static class BitConverterHelper
 #endif
         return span.Length;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, double value)
     {

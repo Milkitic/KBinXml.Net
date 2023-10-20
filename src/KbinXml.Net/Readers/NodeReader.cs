@@ -16,7 +16,7 @@ public class NodeReader : BeBinaryReader
         _compressed = compressed;
         _encoding = encoding;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadString(out int position)
     {

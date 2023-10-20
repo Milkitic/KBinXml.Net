@@ -16,10 +16,11 @@ public static class SixbitHelper
     private const string Charset = "0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
     private static readonly IReadOnlyDictionary<char, byte> CharsetMapping = Charset
-        .Select((k, i) => (i, k))
-        .ToDictionary(k => k.k, k => (byte)k.i)
+            .Select((k, i) => (i, k))
 #if NET8_0_OR_GREATER
-        .ToFrozenDictionary()
+            .ToFrozenDictionary(k => k.k, k => (byte)k.i)
+#else
+            .ToDictionary(k => k.k, k => (byte)k.i)
 #endif
         ;
 

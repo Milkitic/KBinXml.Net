@@ -28,7 +28,7 @@ public static class StringExtensions
         // Needed to be compatible with the foreach operator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly SpaceSplitEnumerator GetEnumerator() => this;
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool MoveNext()
         {

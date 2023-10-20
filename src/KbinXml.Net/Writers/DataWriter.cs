@@ -29,7 +29,7 @@ public class DataWriter : BeBinaryWriter
             _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, null)
         };
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteBytes(ReadOnlySpan<byte> buffer)
     {
@@ -117,7 +117,7 @@ public class DataWriter : BeBinaryWriter
         }
 #endif
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteBinary(string value)
     {
@@ -138,7 +138,7 @@ public class DataWriter : BeBinaryWriter
             if (arr != null) ArrayPool<byte>.Shared.Return(arr);
         }
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write32BitAligned(ReadOnlySpan<byte> buffer)
     {
@@ -153,7 +153,7 @@ public class DataWriter : BeBinaryWriter
 
         Realign16_8();
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write16BitAligned(ReadOnlySpan<byte> buffer)
     {
@@ -167,7 +167,7 @@ public class DataWriter : BeBinaryWriter
         WriteBytes(buffer, ref _pos16);
         Realign16_8();
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write8BitAligned(byte value)
     {

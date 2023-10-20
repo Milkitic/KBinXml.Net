@@ -24,7 +24,7 @@ public static class StreamExtensions
         stream.Position = pos;
         return copyMs.ToArray();
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteSpan(this Stream builder, ReadOnlySpan<byte> buffer)
     {

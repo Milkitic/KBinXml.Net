@@ -14,7 +14,7 @@ public class NodeWriter : BeBinaryWriter
         Compressed = compressed;
         _encoding = encoding;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteString(string value)
     {

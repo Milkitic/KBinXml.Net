@@ -20,7 +20,7 @@ public static class KnownEncodingsExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(knownEncodings), knownEncodings, null)
         };
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static KnownEncodings ToKnownEncoding(this Encoding knownEncodings)
     {
