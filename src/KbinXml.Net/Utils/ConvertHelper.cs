@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using KbinXml.Net.Internal;
 
 namespace KbinXml.Net.Utils;
 
@@ -214,7 +215,8 @@ public static class ConvertHelper
         } while (number != 0);
     }
 
-    [InlineMethod.Inline]
+    //[InlineMethod.Inline]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static NumberStyles GetNumberStyle(ReadOnlySpan<char> str, out ReadOnlySpan<char> hex)
     {
         var isSpanHex = str.Length > 2 &&
