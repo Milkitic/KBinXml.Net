@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using KbinXml.Net.Internal;
 using KbinXml.Net.Utils;
@@ -29,6 +30,7 @@ public class DataWriter : BeBinaryWriter
         };
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteBytes(ReadOnlySpan<byte> buffer)
     {
         switch (buffer.Length)
@@ -116,6 +118,7 @@ public class DataWriter : BeBinaryWriter
 #endif
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteBinary(string value)
     {
         var length = value.Length >> 1;
@@ -136,34 +139,44 @@ public class DataWriter : BeBinaryWriter
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write32BitAligned(ReadOnlySpan<byte> buffer)
     {
         Pad(_pos32);
 
         WriteBytes(buffer, ref _pos32);
-        while ((_pos32 & 3) != 0)
-            _pos32++;
+        var left = _pos32 & 3;
+        if (left != 0)
+        {
+            _pos32 += (4 - left);
+        }
 
         Realign16_8();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write16BitAligned(ReadOnlySpan<byte> buffer)
     {
         Pad(_pos16);
 
         if ((_pos16 & 3) == 0)
+        {
             _pos32 += 4;
+        }
 
         WriteBytes(buffer, ref _pos16);
         Realign16_8();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write8BitAligned(byte value)
     {
         Pad(_pos8);
 
         if ((_pos8 & 3) == 0)
+        {
             _pos32 += 4;
+        }
 
         WriteBytes(stackalloc[] { value }, ref _pos8);
         Realign16_8();
@@ -197,10 +210,14 @@ public class DataWriter : BeBinaryWriter
     private void Realign16_8()
     {
         if ((_pos8 & 3) == 0)
+        {
             _pos8 = _pos32;
+        }
 
         if ((_pos16 & 3) == 0)
+        {
             _pos16 = _pos32;
+        }
     }
 
     [InlineMethod.Inline]

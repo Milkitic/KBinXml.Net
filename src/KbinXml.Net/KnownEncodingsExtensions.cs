@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using KbinXml.Net.Internal;
 
@@ -6,6 +7,7 @@ namespace KbinXml.Net;
 
 public static class KnownEncodingsExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Encoding ToEncoding(this KnownEncodings knownEncodings)
     {
         return knownEncodings switch
@@ -19,6 +21,7 @@ public static class KnownEncodingsExtensions
         };
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static KnownEncodings ToKnownEncoding(this Encoding knownEncodings)
     {
         if (knownEncodings.EncodingName == EncodingDictionary.EncodingMap[0x80].EncodingName)

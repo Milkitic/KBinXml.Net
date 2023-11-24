@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using KbinXml.Net.Utils;
 
@@ -16,6 +17,7 @@ public class NodeReader : BeBinaryReader
         _encoding = encoding;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadString(out int position)
     {
         int length = ReadU8(out position, out _);

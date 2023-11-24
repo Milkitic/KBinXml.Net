@@ -1,29 +1,37 @@
 ﻿using System;
 using System.Buffers;
 using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
 public static class BitConverterHelper
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ushort ToBeUInt16(ReadOnlySpan<byte> readBytes) =>
         BinaryPrimitives.ReadUInt16BigEndian(readBytes);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static short ToBeInt16(ReadOnlySpan<byte> readBytes) =>
         BinaryPrimitives.ReadInt16BigEndian(readBytes);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ToBeUInt32(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadUInt32BigEndian(value);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToBeInt32(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadInt32BigEndian(value);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong ToBeUInt64(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadUInt64BigEndian(value);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long ToBeInt64(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadInt64BigEndian(value);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float ToBeSingle(ReadOnlySpan<byte> value)
     {
 #if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
@@ -44,11 +52,13 @@ public static class BitConverterHelper
 #endif
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double ToBeDouble(ReadOnlySpan<byte> value)
     {
         return BinaryPrimitivesExt.ReadDoubleBigEndian(value);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] // todo: `foreach` statements?
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, ushort value)
     {
         Span<byte> span = stackalloc byte[sizeof(ushort)];
@@ -57,6 +67,7 @@ public static class BitConverterHelper
         return span.Length;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, short value)
     {
         Span<byte> span = stackalloc byte[sizeof(short)];
@@ -65,6 +76,7 @@ public static class BitConverterHelper
         return span.Length;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, uint value)
     {
         Span<byte> span = stackalloc byte[sizeof(uint)];
@@ -73,6 +85,7 @@ public static class BitConverterHelper
         return span.Length;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, int value)
     {
         Span<byte> span = stackalloc byte[sizeof(int)];
@@ -81,6 +94,7 @@ public static class BitConverterHelper
         return span.Length;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, ulong value)
     {
         Span<byte> span = stackalloc byte[sizeof(ulong)];
@@ -89,6 +103,7 @@ public static class BitConverterHelper
         return span.Length;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, long value)
     {
         Span<byte> span = stackalloc byte[sizeof(long)];
@@ -97,6 +112,7 @@ public static class BitConverterHelper
         return span.Length;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, float value)
     {
 #if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
@@ -115,6 +131,7 @@ public static class BitConverterHelper
         return span.Length;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(ref ValueListBuilder<byte> builder, double value)
     {
         Span<byte> span = stackalloc byte[sizeof(double)];

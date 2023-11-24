@@ -5,15 +5,24 @@ using System.IO;
 using System.Linq;
 using KbinXml.Net.Internal;
 
+#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
+
 namespace KbinXml.Net.Utils;
 
 public static class SixbitHelper
 {
     private const string Charset = "0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
-    private static readonly Dictionary<char, byte> CharsetMapping = Charset
-        .Select((k, i) => (i, k))
-        .ToDictionary(k => k.k, k => (byte)k.i);
+    private static readonly IReadOnlyDictionary<char, byte> CharsetMapping = Charset
+            .Select((k, i) => (i, k))
+#if NET8_0_OR_GREATER
+            .ToFrozenDictionary(k => k.k, k => (byte)k.i)
+#else
+            .ToDictionary(k => k.k, k => (byte)k.i)
+#endif
+        ;
 
     public static byte[] Encode(string input)
     {

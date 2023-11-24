@@ -12,6 +12,7 @@ namespace WriteBenchmark;
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net60)]
 [SimpleJob(RuntimeMoniker.Net70)]
+[SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net48)]
 public class MultiThreadComparison1
 {

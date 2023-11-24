@@ -9,6 +9,10 @@ using KbinXml.Net.Internal.Providers;
 using KbinXml.Net.Readers;
 using KbinXml.Net.Utils;
 
+#if NET8_0_OR_GREATER
+using System.Collections.Frozen;
+#endif
+
 namespace KbinXml.Net;
 
 public static partial class KbinConverter
@@ -22,7 +26,8 @@ public static partial class KbinConverter
     public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
-        var xDocument = (XDocument)ReaderImpl(sourceBuffer, e => new XDocumentProvider(e, readOptions), out var knownEncoding);
+        var xDocument = (XDocument)ReaderImpl(sourceBuffer, e => new XDocumentProvider(e, readOptions),
+            out var knownEncoding);
         return xDocument;
     }
 
@@ -33,10 +38,12 @@ public static partial class KbinConverter
     /// <param name="knownEncodings">The declared encoding of this KBin.</param>
     /// <param name="readOptions">Set the read options for reading.</param>
     /// <returns>Returns the <see cref="XDocument"/>.</returns>
-    public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings, ReadOptions? readOptions = null)
+    public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings,
+        ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
-        var xDocument = (XDocument)ReaderImpl(sourceBuffer, e => new XDocumentProvider(e, readOptions), out knownEncodings);
+        var xDocument =
+            (XDocument)ReaderImpl(sourceBuffer, e => new XDocumentProvider(e, readOptions), out knownEncodings);
         return xDocument;
     }
 
@@ -60,7 +67,8 @@ public static partial class KbinConverter
     /// <param name="knownEncodings">The declared encoding of this KBin.</param>
     /// <param name="readOptions">Set the read options for reading.</param>
     /// <returns>Returns the <see cref="T:byte[]"/>.</returns>
-    public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings, ReadOptions? readOptions = null)
+    public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings,
+        ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
         var bytes = (byte[])ReaderImpl(sourceBuffer, e => new XmlWriterProvider(e, readOptions), out knownEncodings);
@@ -76,7 +84,8 @@ public static partial class KbinConverter
     public static XmlDocument ReadXml(Memory<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
-        var xmlDocument = (XmlDocument)ReaderImpl(sourceBuffer, e => new XmlDocumentProvider(e, readOptions), out var knownEncoding);
+        var xmlDocument = (XmlDocument)ReaderImpl(sourceBuffer, e => new XmlDocumentProvider(e, readOptions),
+            out var knownEncoding);
         return xmlDocument;
     }
 
@@ -87,10 +96,12 @@ public static partial class KbinConverter
     /// <param name="knownEncodings">The declared encoding of this KBin.</param>
     /// <param name="readOptions">Set the read options for reading.</param>
     /// <returns>Returns the <see cref="XmlDocument"/>.</returns>
-    public static XmlDocument ReadXml(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings, ReadOptions? readOptions = null)
+    public static XmlDocument ReadXml(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings,
+        ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
-        var xmlDocument = (XmlDocument)ReaderImpl(sourceBuffer, e => new XmlDocumentProvider(e, readOptions), out knownEncodings);
+        var xmlDocument = (XmlDocument)ReaderImpl(sourceBuffer, e => new XmlDocumentProvider(e, readOptions),
+            out knownEncodings);
         return xmlDocument;
     }
 
@@ -272,7 +283,7 @@ public static partial class KbinConverter
             }
         }
     }
-    
+
     [InlineMethod.Inline]
     private static ReadContext GetReadContext(Memory<byte> sourceBuffer,
         Func<Encoding, WriterProvider> createWriterProvider)
@@ -341,7 +352,7 @@ public static partial class KbinConverter
         return $"[\\{(int)c}]";
     }
 
-    private static readonly Dictionary<int, string> NonPrintDict = new()
+    private static readonly IReadOnlyDictionary<int, string> NonPrintDict = new Dictionary<int, string>
     {
         [00] = "NULL",
         [01] = "SOH",
@@ -376,7 +387,11 @@ public static partial class KbinConverter
         [30] = "RS",
         [31] = "US",
         [127] = "DEL",
-    };
+    }
+#if NET8_0_OR_GREATER
+            .ToFrozenDictionary()
+#endif
+        ;
 #endif
 
     private class ReadContext : IDisposable

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Linq;
 
@@ -21,16 +22,19 @@ internal class XDocumentProvider : WriterProvider
         _nodeStack.Push(_xDocument);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteStartDocument()
     {
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteElementValue(string? value)
     {
         var current = _nodeStack.Peek();
         current.Add(value);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteAttributeValue(string? value)
     {
         if (_holdAttrName != null)
@@ -47,6 +51,7 @@ internal class XDocumentProvider : WriterProvider
         else throw new Exception("Current attribute is null!");
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteStartElement(string elementName)
     {
         var current = _nodeStack.Peek();
@@ -61,6 +66,7 @@ internal class XDocumentProvider : WriterProvider
 #endif
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteEndElement()
     {
 #if DEBUG
@@ -71,21 +77,25 @@ internal class XDocumentProvider : WriterProvider
         _nodeStack.Pop();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteStartAttribute(string value)
     {
         _holdAttrName = KbinConverter.GetRepairedName(value, _readOptions.RepairedPrefix);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteEndAttribute()
     {
         _holdAttrName = null;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override object GetResult()
     {
         return _xDocument;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private string GetNodePath()
     {
         var e = string.Join(".", _nodeStack.ToArray().Reverse().Select(k =>

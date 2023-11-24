@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Writers;
@@ -14,6 +15,7 @@ public class NodeWriter : BeBinaryWriter
         _encoding = encoding;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteString(string value)
     {
         if (Compressed)

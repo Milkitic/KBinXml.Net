@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Text;
 using KbinXml.Net.Utils;
 
@@ -19,6 +20,7 @@ public class DataReader : BeBinaryReader
     public int Position16 => _pos16 + Offset;
     public int Position8 => _pos8 + Offset;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Memory<byte> Read32BitAligned(int count, out int position, out string flag)
     {
 #if DEBUG
@@ -28,13 +30,18 @@ public class DataReader : BeBinaryReader
 #endif
         flag = "p32";
         var result = ReadBytes(_position, count);
-        while ((count & 3) != 0)
-            count++;
+        var left = count & 3;
+        if (left != 0)
+        {
+            count += (4 - left);
+        }
+
         _position += count;
 
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Memory<byte> Read16BitAligned(out int position, out string flag)
     {
         // Realign before read.
@@ -68,6 +75,7 @@ public class DataReader : BeBinaryReader
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Memory<byte> Read8BitAligned(out int position, out string flag)
     {
         // Realign before read.
@@ -101,6 +109,7 @@ public class DataReader : BeBinaryReader
         return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override Memory<byte> ReadBytes(int count, out int position, out string flag)
     {
         return count switch
@@ -111,6 +120,7 @@ public class DataReader : BeBinaryReader
         };
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadString(int count, out int position, out string flag)
     {
         var memory = Read32BitAligned(count, out position, out flag);
@@ -131,6 +141,7 @@ public class DataReader : BeBinaryReader
 #endif
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadBinary(int count, out int position, out string flag)
     {
         var bin = Read32BitAligned(count, out position, out flag);
@@ -138,7 +149,7 @@ public class DataReader : BeBinaryReader
             return string.Empty;
         return ConvertHelper.ToHexString(bin.Span);
     }
-    
+
     [InlineMethod.Inline]
     private Memory<byte> ReadBytes(int offset, int count)
     {
