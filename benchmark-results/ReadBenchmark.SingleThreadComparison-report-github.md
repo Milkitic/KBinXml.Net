@@ -1,24 +1,30 @@
-``` ini
+```
 
-BenchmarkDotNet=v0.13.1, OS=ubuntu 20.04
-Intel Xeon Platinum 8272CL CPU 2.60GHz, 1 CPU, 2 logical and 2 physical cores
-.NET SDK=6.0.200
-  [Host]   : .NET 6.0.2 (6.0.222.6406), X64 RyuJIT
-  .NET 6.0 : .NET 6.0.2 (6.0.222.6406), X64 RyuJIT
+BenchmarkDotNet v0.13.9+228a464e8be6c580ad9408e98f18813f6407fb5a, Windows 10 (10.0.20348.2113) (Hyper-V)
+AMD EPYC 7763, 1 CPU, 4 logical and 2 physical cores
+.NET SDK 8.0.100
+  [Host]             : .NET 6.0.25 (6.0.2523.51912), X64 RyuJIT AVX2
+  .NET 6.0           : .NET 6.0.25 (6.0.2523.51912), X64 RyuJIT AVX2
+  .NET 7.0           : .NET 7.0.14 (7.0.1423.51910), X64 RyuJIT AVX2
+  .NET 8.0           : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET Framework 4.8 : .NET Framework 4.8.1 (4.8.9186.0), X64 RyuJIT VectorSize=256
 
 
 ```
-|   Method |           Job |       Runtime |     Mean |     Error |    StdDev | Ratio | RatioSD |   Gen 0 |   Gen 1 |   Gen 2 | Allocated |
-|--------- |-------------- |-------------- |---------:|----------:|----------:|------:|--------:|--------:|--------:|--------:|----------:|
-| ReadLinq |      .NET 6.0 |      .NET 6.0 | 1.542 ms | 0.0049 ms | 0.0046 ms |  0.95 |    0.00 | 27.3438 | 13.6719 |       - | 519,545 B |
-|  ReadRaw |      .NET 6.0 |      .NET 6.0 | 1.619 ms | 0.0058 ms | 0.0052 ms |  1.00 |    0.00 | 58.5938 | 58.5938 | 58.5938 | 591,081 B |
-|  ReadW3C |      .NET 6.0 |      .NET 6.0 | 2.338 ms | 0.0154 ms | 0.0144 ms |  1.44 |    0.01 | 35.1563 | 15.6250 |       - | 683,011 B |
-|          |               |               |          |           |           |       |         |         |         |         |           |
-|  ReadRaw | .NET Core 3.1 | .NET Core 3.1 |       NA |        NA |        NA |     ? |       ? |       - |       - |       - |         - |
-| ReadLinq | .NET Core 3.1 | .NET Core 3.1 |       NA |        NA |        NA |     ? |       ? |       - |       - |       - |         - |
-|  ReadW3C | .NET Core 3.1 | .NET Core 3.1 |       NA |        NA |        NA |     ? |       ? |       - |       - |       - |         - |
-
-Benchmarks with issues:
-  SingleThreadComparison1.ReadRaw: .NET Core 3.1(Runtime=.NET Core 3.1)
-  SingleThreadComparison1.ReadLinq: .NET Core 3.1(Runtime=.NET Core 3.1)
-  SingleThreadComparison1.ReadW3C: .NET Core 3.1(Runtime=.NET Core 3.1)
+| Method   | Job                | Runtime            | Mean       | Error    | StdDev   | Ratio | Gen0     | Gen1    | Gen2    | Allocated | Alloc Ratio |
+|--------- |------------------- |------------------- |-----------:|---------:|---------:|------:|---------:|--------:|--------:|----------:|------------:|
+| ReadLinq | .NET 6.0           | .NET 6.0           |   976.7 μs |  4.32 μs |  4.04 μs |  0.87 |  29.2969 |  9.7656 |       - | 507.49 KB |        0.88 |
+| ReadRaw  | .NET 6.0           | .NET 6.0           | 1,119.0 μs |  2.54 μs |  2.25 μs |  1.00 |  58.5938 | 58.5938 | 58.5938 | 577.34 KB |        1.00 |
+| ReadW3C  | .NET 6.0           | .NET 6.0           | 1,780.1 μs |  5.84 μs |  5.46 μs |  1.59 |  39.0625 | 17.5781 |       - | 667.12 KB |        1.16 |
+|          |                    |                    |            |          |          |       |          |         |         |           |             |
+| ReadLinq | .NET 7.0           | .NET 7.0           |   894.0 μs | 11.55 μs | 10.81 μs |  0.86 |  30.2734 | 10.7422 |       - | 507.49 KB |        0.88 |
+| ReadRaw  | .NET 7.0           | .NET 7.0           | 1,034.5 μs |  3.62 μs |  3.39 μs |  1.00 |  58.5938 | 58.5938 | 58.5938 | 577.34 KB |        1.00 |
+| ReadW3C  | .NET 7.0           | .NET 7.0           | 1,598.5 μs |  5.43 μs |  5.08 μs |  1.55 |  39.0625 | 17.5781 |       - | 667.12 KB |        1.16 |
+|          |                    |                    |            |          |          |       |          |         |         |           |             |
+| ReadLinq | .NET 8.0           | .NET 8.0           |   824.8 μs |  4.45 μs |  4.16 μs |  0.84 |  30.2734 | 14.6484 |       - | 496.61 KB |        0.88 |
+| ReadRaw  | .NET 8.0           | .NET 8.0           |   976.5 μs |  3.47 μs |  3.08 μs |  1.00 |  58.5938 | 58.5938 | 58.5938 | 566.49 KB |        1.00 |
+| ReadW3C  | .NET 8.0           | .NET 8.0           | 1,385.8 μs |  3.30 μs |  3.09 μs |  1.42 |  39.0625 | 25.3906 |       - | 656.24 KB |        1.16 |
+|          |                    |                    |            |          |          |       |          |         |         |           |             |
+| ReadLinq | .NET Framework 4.8 | .NET Framework 4.8 | 1,560.5 μs |  2.26 μs |  1.77 μs |  0.98 |  89.8438 | 31.2500 |       - | 563.17 KB |        0.89 |
+| ReadRaw  | .NET Framework 4.8 | .NET Framework 4.8 | 1,591.3 μs |  2.67 μs |  2.50 μs |  1.00 | 117.1875 | 58.5938 | 58.5938 | 633.24 KB |        1.00 |
+| ReadW3C  | .NET Framework 4.8 | .NET Framework 4.8 | 2,535.6 μs |  9.60 μs |  8.98 μs |  1.59 | 117.1875 | 54.6875 |       - | 723.63 KB |        1.14 |

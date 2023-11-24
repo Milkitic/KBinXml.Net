@@ -1,24 +1,30 @@
-``` ini
+```
 
-BenchmarkDotNet=v0.13.1, OS=ubuntu 20.04
-Intel Xeon Platinum 8272CL CPU 2.60GHz, 1 CPU, 2 logical and 2 physical cores
-.NET SDK=6.0.200
-  [Host]   : .NET 6.0.2 (6.0.222.6406), X64 RyuJIT
-  .NET 6.0 : .NET 6.0.2 (6.0.222.6406), X64 RyuJIT
+BenchmarkDotNet v0.13.9+228a464e8be6c580ad9408e98f18813f6407fb5a, Windows 10 (10.0.20348.2113) (Hyper-V)
+AMD EPYC 7763, 1 CPU, 4 logical and 2 physical cores
+.NET SDK 8.0.100
+  [Host]             : .NET 6.0.25 (6.0.2523.51912), X64 RyuJIT AVX2
+  .NET 6.0           : .NET 6.0.25 (6.0.2523.51912), X64 RyuJIT AVX2
+  .NET 7.0           : .NET 7.0.14 (7.0.1423.51910), X64 RyuJIT AVX2
+  .NET 8.0           : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
+  .NET Framework 4.8 : .NET Framework 4.8.1 (4.8.9186.0), X64 RyuJIT VectorSize=256
 
 
 ```
-|                 Method |           Job |       Runtime |     Mean |   Error |  StdDev | Ratio | RatioSD |     Gen 0 |     Gen 1 |    Gen 2 |     Allocated |
-|----------------------- |-------------- |-------------- |---------:|--------:|--------:|------:|--------:|----------:|----------:|---------:|--------------:|
-|  ReadRaw_32ThreadsX160 |      .NET 6.0 |      .NET 6.0 | 132.1 ms | 1.66 ms | 1.47 ms |  1.00 |    0.00 | 4250.0000 | 1250.0000 | 750.0000 |  94,580,122 B |
-| ReadLinq_32ThreadsX160 |      .NET 6.0 |      .NET 6.0 | 321.4 ms | 4.79 ms | 4.25 ms |  2.43 |    0.04 | 4000.0000 | 2000.0000 |        - |  83,140,240 B |
-|  ReadW3C_32ThreadsX160 |      .NET 6.0 |      .NET 6.0 | 372.1 ms | 5.33 ms | 4.73 ms |  2.82 |    0.05 | 5000.0000 | 2000.0000 |        - | 109,297,728 B |
-|                        |               |               |          |         |         |       |         |           |           |          |               |
-|  ReadRaw_32ThreadsX160 | .NET Core 3.1 | .NET Core 3.1 |       NA |      NA |      NA |     ? |       ? |         - |         - |        - |             - |
-| ReadLinq_32ThreadsX160 | .NET Core 3.1 | .NET Core 3.1 |       NA |      NA |      NA |     ? |       ? |         - |         - |        - |             - |
-|  ReadW3C_32ThreadsX160 | .NET Core 3.1 | .NET Core 3.1 |       NA |      NA |      NA |     ? |       ? |         - |         - |        - |             - |
-
-Benchmarks with issues:
-  MultiThreadComparison1.ReadRaw_32ThreadsX160: .NET Core 3.1(Runtime=.NET Core 3.1)
-  MultiThreadComparison1.ReadLinq_32ThreadsX160: .NET Core 3.1(Runtime=.NET Core 3.1)
-  MultiThreadComparison1.ReadW3C_32ThreadsX160: .NET Core 3.1(Runtime=.NET Core 3.1)
+| Method                 | Job                | Runtime            | Mean      | Error    | StdDev    | Median    | Ratio | RatioSD | Gen0       | Gen1      | Gen2      | Allocated | Alloc Ratio |
+|----------------------- |------------------- |------------------- |----------:|---------:|----------:|----------:|------:|--------:|-----------:|----------:|----------:|----------:|------------:|
+| ReadRaw_32ThreadsX160  | .NET 6.0           | .NET 6.0           |  78.82 ms | 1.414 ms |  1.683 ms |  78.69 ms |  1.00 |    0.00 |  6571.4286 | 4000.0000 | 2714.2857 |  90.22 MB |        1.00 |
+| ReadLinq_32ThreadsX160 | .NET 6.0           | .NET 6.0           | 223.25 ms | 4.454 ms |  9.588 ms | 226.44 ms |  2.84 |    0.16 |  6000.0000 | 3333.3333 | 1000.0000 |  79.31 MB |        0.88 |
+| ReadW3C_32ThreadsX160  | .NET 6.0           | .NET 6.0           | 317.12 ms | 4.682 ms |  4.150 ms | 315.38 ms |  4.03 |    0.12 |  7500.0000 | 4000.0000 | 1000.0000 | 104.26 MB |        1.16 |
+|                        |                    |                    |           |          |           |           |       |         |            |           |           |           |             |
+| ReadRaw_32ThreadsX160  | .NET 7.0           | .NET 7.0           |  74.23 ms | 1.350 ms |  1.326 ms |  73.84 ms |  1.00 |    0.00 |  6285.7143 | 3857.1429 | 2571.4286 |  90.23 MB |        1.00 |
+| ReadLinq_32ThreadsX160 | .NET 7.0           | .NET 7.0           | 220.22 ms | 3.718 ms |  3.296 ms | 220.76 ms |  2.96 |    0.08 |  6666.6667 | 6333.3333 | 1666.6667 |  79.31 MB |        0.88 |
+| ReadW3C_32ThreadsX160  | .NET 7.0           | .NET 7.0           | 370.15 ms | 6.183 ms |  5.783 ms | 369.39 ms |  4.98 |    0.14 |  8000.0000 | 7000.0000 | 2000.0000 | 104.26 MB |        1.16 |
+|                        |                    |                    |           |          |           |           |       |         |            |           |           |           |             |
+| ReadRaw_32ThreadsX160  | .NET 8.0           | .NET 8.0           |  69.19 ms | 1.253 ms |  1.876 ms |  68.99 ms |  1.00 |    0.00 |  6666.6667 | 4666.6667 | 3000.0000 |  88.53 MB |        1.00 |
+| ReadLinq_32ThreadsX160 | .NET 8.0           | .NET 8.0           | 195.34 ms | 3.892 ms |  6.059 ms | 194.24 ms |  2.82 |    0.11 |  6000.0000 | 5500.0000 | 1500.0000 |  77.61 MB |        0.88 |
+| ReadW3C_32ThreadsX160  | .NET 8.0           | .NET 8.0           | 350.97 ms | 6.984 ms | 18.398 ms | 359.82 ms |  5.12 |    0.29 |  8000.0000 | 7000.0000 | 2000.0000 | 102.56 MB |        1.16 |
+|                        |                    |                    |           |          |           |           |       |         |            |           |           |           |             |
+| ReadRaw_32ThreadsX160  | .NET Framework 4.8 | .NET Framework 4.8 | 117.51 ms | 1.899 ms |  1.776 ms | 116.83 ms |  1.00 |    0.00 | 14200.0000 | 5200.0000 | 2400.0000 | 100.78 MB |        1.00 |
+| ReadLinq_32ThreadsX160 | .NET Framework 4.8 | .NET Framework 4.8 | 267.93 ms | 2.039 ms |  1.808 ms | 268.24 ms |  2.28 |    0.03 | 15000.0000 | 4000.0000 | 1500.0000 |  88.83 MB |        0.88 |
+| ReadW3C_32ThreadsX160  | .NET Framework 4.8 | .NET Framework 4.8 | 416.00 ms | 8.114 ms | 11.375 ms | 414.83 ms |  3.55 |    0.12 | 21000.0000 | 8000.0000 | 2000.0000 | 114.05 MB |        1.13 |

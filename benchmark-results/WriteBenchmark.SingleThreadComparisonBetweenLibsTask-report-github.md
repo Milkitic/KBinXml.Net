@@ -1,24 +1,25 @@
-``` ini
+```
 
-BenchmarkDotNet=v0.13.1, OS=ubuntu 20.04
-Intel Xeon Platinum 8272CL CPU 2.60GHz, 1 CPU, 2 logical and 2 physical cores
-.NET SDK=6.0.200
-  [Host]   : .NET 6.0.2 (6.0.222.6406), X64 RyuJIT
-  .NET 6.0 : .NET 6.0.2 (6.0.222.6406), X64 RyuJIT
+BenchmarkDotNet v0.13.9+228a464e8be6c580ad9408e98f18813f6407fb5a, Windows 10 (10.0.20348.2113) (Hyper-V)
+AMD EPYC 7763, 1 CPU, 4 logical and 2 physical cores
+.NET SDK 8.0.100
+  [Host]   : .NET 6.0.25 (6.0.2523.51912), X64 RyuJIT AVX2
+  .NET 6.0 : .NET 6.0.25 (6.0.2523.51912), X64 RyuJIT AVX2
+  .NET 7.0 : .NET 7.0.14 (7.0.1423.51910), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 
 
 ```
-|                Method |           Job |       Runtime |     Mean |     Error |    StdDev | Ratio | RatioSD |    Gen 0 |   Gen 1 |   Gen 2 |   Allocated |
-|---------------------- |-------------- |-------------- |---------:|----------:|----------:|------:|--------:|---------:|--------:|--------:|------------:|
-|     WriteLinq_NKZsmos |      .NET 6.0 |      .NET 6.0 | 1.769 ms | 0.0025 ms | 0.0024 ms |  1.00 |    0.00 |  13.6719 |  3.9063 |       - |   279,113 B |
-| WriteLinq_ItsNovaHere |      .NET 6.0 |      .NET 6.0 | 4.620 ms | 0.0158 ms | 0.0148 ms |  2.61 |    0.01 |  70.3125 | 15.6250 |       - | 1,393,126 B |
-|       WriteLinq_FSH_B |      .NET 6.0 |      .NET 6.0 | 6.613 ms | 0.0577 ms | 0.0540 ms |  3.74 |    0.03 | 179.6875 | 93.7500 | 54.6875 | 3,704,210 B |
-|                       |               |               |          |           |           |       |         |          |         |         |             |
-|     WriteLinq_NKZsmos | .NET Core 3.1 | .NET Core 3.1 |       NA |        NA |        NA |     ? |       ? |        - |       - |       - |           - |
-|       WriteLinq_FSH_B | .NET Core 3.1 | .NET Core 3.1 |       NA |        NA |        NA |     ? |       ? |        - |       - |       - |           - |
-| WriteLinq_ItsNovaHere | .NET Core 3.1 | .NET Core 3.1 |       NA |        NA |        NA |     ? |       ? |        - |       - |       - |           - |
-
-Benchmarks with issues:
-  SingleThreadComparisonBetweenLibsTask.WriteLinq_NKZsmos: .NET Core 3.1(Runtime=.NET Core 3.1)
-  SingleThreadComparisonBetweenLibsTask.WriteLinq_FSH_B: .NET Core 3.1(Runtime=.NET Core 3.1)
-  SingleThreadComparisonBetweenLibsTask.WriteLinq_ItsNovaHere: .NET Core 3.1(Runtime=.NET Core 3.1)
+| Method                | Job      | Runtime  | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0     | Gen1     | Gen2    | Allocated  | Alloc Ratio |
+|---------------------- |--------- |--------- |-----------:|---------:|---------:|------:|--------:|---------:|---------:|--------:|-----------:|------------:|
+| WriteLinq_NKZsmos     | .NET 6.0 | .NET 6.0 | 1,211.1 μs |  0.92 μs |  0.86 μs |  1.00 |    0.00 |  13.6719 |   1.9531 |       - |  236.99 KB |        1.00 |
+| WriteLinq_ItsNovaHere | .NET 6.0 | .NET 6.0 | 2,736.7 μs |  5.41 μs |  4.52 μs |  2.26 |    0.00 |  82.0313 |  15.6250 |       - | 1360.47 KB |        5.74 |
+| WriteLinq_FSH_B       | .NET 6.0 | .NET 6.0 | 4,321.2 μs | 15.90 μs | 14.87 μs |  3.57 |    0.01 | 242.1875 | 117.1875 | 54.6875 | 3621.52 KB |       15.28 |
+|                       |          |          |            |          |          |       |         |          |          |         |            |             |
+| WriteLinq_NKZsmos     | .NET 7.0 | .NET 7.0 | 1,134.7 μs |  2.03 μs |  1.89 μs |  1.00 |    0.00 |  13.6719 |   1.9531 |       - |  234.81 KB |        1.00 |
+| WriteLinq_ItsNovaHere | .NET 7.0 | .NET 7.0 | 2,624.4 μs |  3.70 μs |  3.47 μs |  2.31 |    0.01 |  82.0313 |        - |       - | 1360.47 KB |        5.79 |
+| WriteLinq_FSH_B       | .NET 7.0 | .NET 7.0 | 4,224.9 μs | 17.07 μs | 15.97 μs |  3.72 |    0.02 | 242.1875 | 117.1875 | 54.6875 |  3621.5 KB |       15.42 |
+|                       |          |          |            |          |          |       |         |          |          |         |            |             |
+| WriteLinq_NKZsmos     | .NET 8.0 | .NET 8.0 |   945.3 μs |  1.80 μs |  1.68 μs |  1.00 |    0.00 |  13.6719 |   2.9297 |       - |  234.81 KB |        1.00 |
+| WriteLinq_ItsNovaHere | .NET 8.0 | .NET 8.0 | 2,067.4 μs |  7.42 μs |  6.19 μs |  2.19 |    0.01 |  82.0313 |  19.5313 |       - | 1360.47 KB |        5.79 |
+| WriteLinq_FSH_B       | .NET 8.0 | .NET 8.0 | 3,581.2 μs | 24.37 μs | 21.61 μs |  3.79 |    0.02 | 234.3750 | 171.8750 | 46.8750 | 3621.44 KB |       15.42 |

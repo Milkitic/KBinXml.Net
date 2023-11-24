@@ -1,24 +1,25 @@
-``` ini
+```
 
-BenchmarkDotNet=v0.13.1, OS=ubuntu 20.04
-Intel Xeon Platinum 8272CL CPU 2.60GHz, 1 CPU, 2 logical and 2 physical cores
-.NET SDK=6.0.200
-  [Host]   : .NET 6.0.2 (6.0.222.6406), X64 RyuJIT
-  .NET 6.0 : .NET 6.0.2 (6.0.222.6406), X64 RyuJIT
+BenchmarkDotNet v0.13.9+228a464e8be6c580ad9408e98f18813f6407fb5a, Windows 10 (10.0.20348.2113) (Hyper-V)
+AMD EPYC 7763, 1 CPU, 4 logical and 2 physical cores
+.NET SDK 8.0.100
+  [Host]   : .NET 6.0.25 (6.0.2523.51912), X64 RyuJIT AVX2
+  .NET 6.0 : .NET 6.0.25 (6.0.2523.51912), X64 RyuJIT AVX2
+  .NET 7.0 : .NET 7.0.14 (7.0.1423.51910), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.0 (8.0.23.53103), X64 RyuJIT AVX2
 
 
 ```
-|               Method |           Job |       Runtime |     Mean |     Error |    StdDev | Ratio | RatioSD |    Gen 0 |   Gen 1 |   Gen 2 |   Allocated |
-|--------------------- |-------------- |-------------- |---------:|----------:|----------:|------:|--------:|---------:|--------:|--------:|------------:|
-|     ReadLinq_NKZsmos |      .NET 6.0 |      .NET 6.0 | 1.542 ms | 0.0058 ms | 0.0054 ms |  1.00 |    0.00 |  27.3438 | 13.6719 |       - |   519,545 B |
-| ReadLinq_ItsNovaHere |      .NET 6.0 |      .NET 6.0 | 4.418 ms | 0.0180 ms | 0.0160 ms |  2.86 |    0.02 | 109.3750 | 54.6875 |       - | 2,184,266 B |
-|       ReadLinq_FSH_B |      .NET 6.0 |      .NET 6.0 | 5.764 ms | 0.0674 ms | 0.0630 ms |  3.74 |    0.05 | 148.4375 | 93.7500 | 46.8750 | 2,449,438 B |
-|                      |               |               |          |           |           |       |         |          |         |         |             |
-|     ReadLinq_NKZsmos | .NET Core 3.1 | .NET Core 3.1 |       NA |        NA |        NA |     ? |       ? |        - |       - |       - |           - |
-|       ReadLinq_FSH_B | .NET Core 3.1 | .NET Core 3.1 |       NA |        NA |        NA |     ? |       ? |        - |       - |       - |           - |
-| ReadLinq_ItsNovaHere | .NET Core 3.1 | .NET Core 3.1 |       NA |        NA |        NA |     ? |       ? |        - |       - |       - |           - |
-
-Benchmarks with issues:
-  SingleThreadComparisonBetweenLibsTask.ReadLinq_NKZsmos: .NET Core 3.1(Runtime=.NET Core 3.1)
-  SingleThreadComparisonBetweenLibsTask.ReadLinq_FSH_B: .NET Core 3.1(Runtime=.NET Core 3.1)
-  SingleThreadComparisonBetweenLibsTask.ReadLinq_ItsNovaHere: .NET Core 3.1(Runtime=.NET Core 3.1)
+| Method               | Job      | Runtime  | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0     | Gen1    | Gen2    | Allocated  | Alloc Ratio |
+|--------------------- |--------- |--------- |-----------:|---------:|---------:|------:|--------:|---------:|--------:|--------:|-----------:|------------:|
+| ReadLinq_NKZsmos     | .NET 6.0 | .NET 6.0 |   968.4 μs |  3.23 μs |  2.69 μs |  1.00 |    0.00 |  29.2969 |  9.7656 |       - |  507.49 KB |        1.00 |
+| ReadLinq_ItsNovaHere | .NET 6.0 | .NET 6.0 | 2,347.0 μs | 18.30 μs | 17.11 μs |  2.43 |    0.02 | 128.9063 | 42.9688 |       - | 2133.12 KB |        4.20 |
+| ReadLinq_FSH_B       | .NET 6.0 | .NET 6.0 | 4,216.5 μs | 18.40 μs | 17.21 μs |  4.35 |    0.02 | 148.4375 | 70.3125 | 46.8750 | 2392.02 KB |        4.71 |
+|                      |          |          |            |          |          |       |         |          |         |         |            |             |
+| ReadLinq_NKZsmos     | .NET 7.0 | .NET 7.0 |   899.8 μs |  1.44 μs |  1.35 μs |  1.00 |    0.00 |  30.2734 | 10.7422 |       - |  507.49 KB |        1.00 |
+| ReadLinq_ItsNovaHere | .NET 7.0 | .NET 7.0 | 2,255.2 μs |  8.39 μs |  7.85 μs |  2.51 |    0.01 | 128.9063 | 42.9688 |       - | 2133.12 KB |        4.20 |
+| ReadLinq_FSH_B       | .NET 7.0 | .NET 7.0 | 3,655.3 μs | 32.72 μs | 30.61 μs |  4.06 |    0.04 | 148.4375 | 85.9375 | 46.8750 | 2391.47 KB |        4.71 |
+|                      |          |          |            |          |          |       |         |          |         |         |            |             |
+| ReadLinq_NKZsmos     | .NET 8.0 | .NET 8.0 |   855.1 μs |  1.19 μs |  1.12 μs |  1.00 |    0.00 |  30.2734 | 14.6484 |       - |  496.61 KB |        1.00 |
+| ReadLinq_ItsNovaHere | .NET 8.0 | .NET 8.0 | 1,975.6 μs |  8.80 μs |  8.23 μs |  2.31 |    0.01 | 128.9063 | 70.3125 |       - | 2118.26 KB |        4.27 |
+| ReadLinq_FSH_B       | .NET 8.0 | .NET 8.0 | 2,862.7 μs |  9.16 μs |  7.65 μs |  3.35 |    0.01 | 140.6250 | 78.1250 | 46.8750 | 2380.56 KB |        4.79 |
