@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     name: Build and Release
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout code
@@ -36,10 +36,12 @@ jobs:
         ./WriteBenchmark-SingleThreadComparisonBetweenLibsTask-net6.0.ps1
         ./WriteBenchmark-MultiThreadComparison.ps1
         ./WriteBenchmark-SingleThreadComparison.ps1
+        ls WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results
         copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md ./results/WriteBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md
         copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md ./results/WriteBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md
         copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.MultiThreadComparison1-report-github.md ./results/WriteBenchmark.MultiThreadComparison-report-github.md
         copy WriteBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/WriteBenchmark.SingleThreadComparison1-report-github.md ./results/WriteBenchmark.SingleThreadComparison-report-github.md
+        ls ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results
         copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md ./results/ReadBenchmark.MultiThreadComparisonBetweenLibsTask-report-github.md
         copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md ./results/ReadBenchmark.SingleThreadComparisonBetweenLibsTask-report-github.md
         copy ReadBenchmark/bin/Release/net6.0/BenchmarkDotNet.Artifacts/results/ReadBenchmark.MultiThreadComparison1-report-github.md ./results/ReadBenchmark.MultiThreadComparison-report-github.md
