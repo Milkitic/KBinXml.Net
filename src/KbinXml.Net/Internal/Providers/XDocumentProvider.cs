@@ -94,7 +94,8 @@ internal class XDocumentProvider : WriterProvider
     {
         return _xDocument;
     }
-
+    
+#if DEBUG
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private string GetNodePath()
     {
@@ -114,4 +115,5 @@ internal class XDocumentProvider : WriterProvider
         }).Where(k => k != null));
         return e;
     }
+#endif
 }

@@ -4,6 +4,7 @@
     <TargetFrameworks>netstandard2.0;net6.0;net7.0;net8.0</TargetFrameworks>
     <LangVersion>11.0</LangVersion>
     <Nullable>enable</Nullable>
+    <IsTrimmable>true</IsTrimmable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName Condition="'$(CI)'!='true'">local.KbinXml.Net</AssemblyName>
   </PropertyGroup>

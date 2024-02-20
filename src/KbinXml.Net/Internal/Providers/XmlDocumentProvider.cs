@@ -32,7 +32,7 @@ internal class XmlDocumentProvider : WriterProvider
     public override void WriteElementValue(string? value)
     {
         var current = _nodeStack.Peek();
-        current.InnerText = value;
+        current.InnerText = value!;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
