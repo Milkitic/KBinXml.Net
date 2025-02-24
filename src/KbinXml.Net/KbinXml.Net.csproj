@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0;net7.0;net8.0</TargetFrameworks>
-    <LangVersion>11.0</LangVersion>
+    <LangVersion>13</LangVersion>
     <Nullable>enable</Nullable>
     <IsTrimmable>true</IsTrimmable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -39,7 +39,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="InlineMethod.Fody" Version="0.6.2" >
+    <PackageReference Include="InlineMethod.Fody" Version="0.6.2">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="MinVer" Version="4.3.0">

@@ -25,7 +25,25 @@ public static class SixbitHelper
         return ms.ToArray();
     }
 
-    public static void EncodeAndWrite(Stream stream, string input) => EncodeCore(input, stream);
+    public static void EncodeAndWrite(Stream stream, string input)
+    {
+        EncodeCore(input, stream);
+    }
+
+    public static string Decode(ReadOnlySpan<byte> buffer, int length)
+    {
+        if (length <= Constants.MaxStackLength)
+        {
+            Span<byte> input = stackalloc byte[length];
+            SixbitHelperOptimized.Decode(buffer, input);
+            return GetString(input);
+        }
+
+        using var rentedInput = new RentedArray<byte>(ArrayPool<byte>.Shared, length);
+        var inputSpan = rentedInput.Array.AsSpan(0, length);
+        SixbitHelperOptimized.Decode(buffer, inputSpan);
+        return GetString(inputSpan);
+    }
 
     private static void EncodeCore(string input, Stream stream)
     {
@@ -50,21 +68,6 @@ public static class SixbitHelper
             SixbitHelperOptimized.Encode(inputSpan, outputSpan);
             stream.WriteSpan(outputSpan);
         }
-    }
-
-    public static string Decode(ReadOnlySpan<byte> buffer, int length)
-    {
-        if (length <= Constants.MaxStackLength)
-        {
-            Span<byte> input = stackalloc byte[length];
-            SixbitHelperOptimized.Decode(buffer, input);
-            return GetString(input);
-        }
-
-        using var rentedInput = new RentedArray<byte>(ArrayPool<byte>.Shared, length);
-        var inputSpan = rentedInput.Array.AsSpan(0, length);
-        SixbitHelperOptimized.Decode(buffer, inputSpan);
-        return GetString(inputSpan);
     }
 
     [InlineMethod.Inline]
