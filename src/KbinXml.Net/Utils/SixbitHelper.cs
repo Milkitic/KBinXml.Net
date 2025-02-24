@@ -1,28 +1,24 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using KbinXml.Net.Internal;
-
-#if NET8_0_OR_GREATER
-using System.Collections.Frozen;
-#endif
-
 namespace KbinXml.Net.Utils;
 
 public static class SixbitHelper
 {
     private const string Charset = "0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
-    private static readonly IReadOnlyDictionary<char, byte> CharsetMapping = Charset
-            .Select((k, i) => (i, k))
-#if NET8_0_OR_GREATER
-            .ToFrozenDictionary(k => k.k, k => (byte)k.i)
-#else
-            .ToDictionary(k => k.k, k => (byte)k.i)
-#endif
-        ;
+    private static readonly byte[] CharsetMappingArray = new byte[128];
+
+    static SixbitHelper()
+    {
+        // 初始化查找数组
+        for (int i = 0; i < Charset.Length; i++)
+        {
+            // 假设所有输入字符都在 ASCII 范围内
+            CharsetMappingArray[Charset[i]] = (byte)i;
+        }
+    }
 
     public static byte[] Encode(string input)
     {
@@ -110,7 +106,7 @@ public static class SixbitHelper
         for (var i = 0; i < content.Length; i++)
         {
             var c = content[i];
-            input[i] = CharsetMapping[c];
+            input[i] = CharsetMappingArray[c];
         }
     }
 
