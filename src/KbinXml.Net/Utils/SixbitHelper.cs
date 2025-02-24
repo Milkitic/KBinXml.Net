@@ -79,7 +79,7 @@ public static class SixbitHelper
         if (useStack)
         {
             Span<byte> input = stackalloc byte[length];
-            DecodeFillInput(buffer, length, ref input);
+            DecodeFillInput(buffer, ref input);
 
             Span<char> result = stackalloc char[input.Length];
             return DecodeGetString(input, result);
@@ -91,7 +91,7 @@ public static class SixbitHelper
         {
             arrOutput = ArrayPool<byte>.Shared.Rent(length);
             var input = arrOutput.AsSpan(0, length);
-            DecodeFillInput(buffer, length, ref input);
+            DecodeFillInput(buffer, ref input);
 
             arrResult = ArrayPool<char>.Shared.Rent(input.Length);
             var result = arrResult.AsSpan(0, input.Length);
@@ -115,7 +115,7 @@ public static class SixbitHelper
     }
 
     [InlineMethod.Inline]
-    private static void EncodeFillOutput(Span<byte> buffer, ref Span<byte> output)
+    public static void EncodeFillOutput(ReadOnlySpan<byte> buffer, ref Span<byte> output)
     {
         for (var i = 0; i < buffer.Length * 6; i++)
             output[i >> 3] = (byte)(output[i >> 3] |
@@ -123,9 +123,9 @@ public static class SixbitHelper
     }
 
     [InlineMethod.Inline]
-    private static void DecodeFillInput(ReadOnlySpan<byte> buffer, int length, ref Span<byte> input)
+    public static void DecodeFillInput(ReadOnlySpan<byte> buffer, ref Span<byte> input)
     {
-        for (var i = 0; i < length * 6; i++)
+        for (var i = 0; i < input.Length * 6; i++)
             input[i / 6] = (byte)(input[i / 6] |
                                   (((buffer[i >> 3] >> (7 - (i & 7))) & 1) << (5 - (i % 6))));
     }
