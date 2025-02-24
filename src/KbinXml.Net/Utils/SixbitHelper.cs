@@ -35,7 +35,7 @@ public static class SixbitHelper
             Span<byte> buffer = stackalloc byte[input.Length];
             EncodeFillInput(input, ref buffer);
 
-            var length = (int)Math.Ceiling(buffer.Length * 6 / 8d);
+            var length = (buffer.Length * 6 + 7) / 8;
 
             Span<byte> output = stackalloc byte[length];
             EncodeFillOutput(buffer, ref output);
