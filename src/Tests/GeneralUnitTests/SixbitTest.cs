@@ -28,7 +28,7 @@ namespace GeneralUnitTests
             // 执行两个版本
             SixbitHelperOriginal.EncodeFillOutput(testData, ref outputOriginal);
             //SixbitHelper.EncodeFillOutput_Optimized(testData, ref outputOptimize);
-            SixbitHelperOptimized.EncodeFillOutput(testData, ref outputOptimizeFinal);
+            SixbitHelperOptimized.Encode(testData, outputOptimizeFinal);
             SixbitHelperReleaseOptimized.EncodeFillOutput(testData, ref outputOptimizeFinal2);
 
             // 逐位比较
@@ -66,7 +66,7 @@ namespace GeneralUnitTests
             // 执行两个版本
             SixbitHelperOriginal.DecodeFillInput(output, ref inputOriginal);
             //SixbitHelper.DecodeFillInput_Optimized(output, ref inputOptimize);
-            SixbitHelperOptimized.DecodeFillInput(output, ref inputOptimizeFinal);
+            SixbitHelperOptimized.Decode(output, inputOptimizeFinal);
             SixbitHelperReleaseOptimized.DecodeFillInput(output, ref inputOptimizeFinal2);
 
             // 逐位比较

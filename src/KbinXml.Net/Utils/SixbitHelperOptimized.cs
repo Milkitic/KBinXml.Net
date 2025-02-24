@@ -4,7 +4,7 @@ namespace KbinXml.Net.Utils;
 
 public static class SixbitHelperOptimized
 {
-    public static unsafe void EncodeFillOutput(ReadOnlySpan<byte> buffer, ref Span<byte> output)
+    public static unsafe void Encode(ReadOnlySpan<byte> buffer, Span<byte> output)
     {
         fixed (byte* bufferPtr = buffer, outputPtr = output)
         {
@@ -44,7 +44,7 @@ public static class SixbitHelperOptimized
         }
     }
 
-    public static unsafe void DecodeFillInput(ReadOnlySpan<byte> buffer, ref Span<byte> input)
+    public static unsafe void Decode(ReadOnlySpan<byte> buffer, Span<byte> input)
     {
         fixed (byte* bufferPtr = buffer, inputPtr = input)
         {

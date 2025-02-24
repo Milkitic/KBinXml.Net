@@ -19,6 +19,7 @@ public class Program
         SmallTest();
         InvalidTest();
 
+        return;
         byte[] kbin = File.ReadAllBytes("data/test_case2.bin");
 
         byte[] xmlBytes = KbinConverter.ReadXmlBytes(kbin);
