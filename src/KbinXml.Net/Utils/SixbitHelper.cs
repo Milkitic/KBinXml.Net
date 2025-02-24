@@ -38,7 +38,7 @@ public static class SixbitHelper
             var length = (buffer.Length * 6 + 7) / 8;
 
             Span<byte> output = stackalloc byte[length];
-            EncodeFillOutput(buffer, ref output);
+            SixbitHelperOptimized.EncodeFillOutput(buffer, ref output);
 
             stream.WriteSpan(output);
         }
@@ -57,7 +57,7 @@ public static class SixbitHelper
 
                 arrOut = ArrayPool<byte>.Shared.Rent(length);
                 var output = arrOut.AsSpan(0, length);
-                EncodeFillOutput(buffer, ref output);
+                SixbitHelperOptimized.EncodeFillOutput(buffer, ref output);
 
                 stream.WriteSpan(output);
             }
@@ -75,7 +75,7 @@ public static class SixbitHelper
         if (useStack)
         {
             Span<byte> input = stackalloc byte[length];
-            DecodeFillInput(buffer, ref input);
+            SixbitHelperOptimized.DecodeFillInput(buffer, ref input);
 
             Span<char> result = stackalloc char[input.Length];
             return DecodeGetString(input, result);
@@ -87,7 +87,7 @@ public static class SixbitHelper
         {
             arrOutput = ArrayPool<byte>.Shared.Rent(length);
             var input = arrOutput.AsSpan(0, length);
-            DecodeFillInput(buffer, ref input);
+            SixbitHelperOptimized.DecodeFillInput(buffer, ref input);
 
             arrResult = ArrayPool<char>.Shared.Rent(input.Length);
             var result = arrResult.AsSpan(0, input.Length);
@@ -108,22 +108,6 @@ public static class SixbitHelper
             var c = content[i];
             input[i] = CharsetMappingArray[c];
         }
-    }
-
-    [InlineMethod.Inline]
-    public static void EncodeFillOutput(ReadOnlySpan<byte> buffer, ref Span<byte> output)
-    {
-        for (var i = 0; i < buffer.Length * 6; i++)
-            output[i >> 3] = (byte)(output[i >> 3] |
-                                    ((buffer[i / 6] >> (5 - (i % 6)) & 1) << (7 - (i & 7))));
-    }
-
-    [InlineMethod.Inline]
-    public static void DecodeFillInput(ReadOnlySpan<byte> buffer, ref Span<byte> input)
-    {
-        for (var i = 0; i < input.Length * 6; i++)
-            input[i / 6] = (byte)(input[i / 6] |
-                                  (((buffer[i >> 3] >> (7 - (i & 7))) & 1) << (5 - (i % 6))));
     }
 
     [InlineMethod.Inline]
