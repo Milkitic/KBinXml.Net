@@ -5,16 +5,14 @@ namespace KbinXml.Net.Utils;
 
 public readonly ref struct RentedArray<T> : IDisposable
 {
-    public Span<T> Span { get; }
+    public T[] Array { get; }
     private readonly ArrayPool<T> _pool;
-    private readonly T[]? _array;
 
     public RentedArray(ArrayPool<T> pool, int minimumLength)
     {
         _pool = pool;
-        _array = _pool.Rent(minimumLength);
-        Span = _array.AsSpan(0, minimumLength);
+        Array = _pool.Rent(minimumLength);
     }
 
-    public void Dispose() => _pool.Return(_array!);
+    public void Dispose() => _pool.Return(Array);
 }

@@ -26,7 +26,7 @@ namespace GeneralUnitTests
             Span<byte> outputOptimizeFinal2 = new byte[testData.Length * 6 / 8];
 
             // 执行两个版本
-            SixbitHelper.EncodeFillOutput(testData, ref outputOriginal);
+            SixbitHelperOriginal.EncodeFillOutput(testData, ref outputOriginal);
             //SixbitHelper.EncodeFillOutput_Optimized(testData, ref outputOptimize);
             SixbitHelperOptimized.EncodeFillOutput(testData, ref outputOptimizeFinal);
             SixbitHelperReleaseOptimized.EncodeFillOutput(testData, ref outputOptimizeFinal2);
@@ -56,7 +56,7 @@ namespace GeneralUnitTests
             byte[] testData = new byte[]{ 0x12, 0x34, 0x56, 0x78 };
             //rnd.NextBytes(testData);
             Span<byte> output = new byte[testData.Length * 6 / 8];
-            SixbitHelper.EncodeFillOutput(testData, ref output);
+            SixbitHelperOriginal.EncodeFillOutput(testData, ref output);
 
             Span<byte> inputOriginal = new byte[output.Length * 8 / 6];
             //Span<byte> inputOptimize = new byte[output.Length * 8 / 6];
@@ -64,7 +64,7 @@ namespace GeneralUnitTests
             Span<byte> inputOptimizeFinal2 = new byte[output.Length * 8 / 6];
 
             // 执行两个版本
-            SixbitHelper.DecodeFillInput(output, ref inputOriginal);
+            SixbitHelperOriginal.DecodeFillInput(output, ref inputOriginal);
             //SixbitHelper.DecodeFillInput_Optimized(output, ref inputOptimize);
             SixbitHelperOptimized.DecodeFillInput(output, ref inputOptimizeFinal);
             SixbitHelperReleaseOptimized.DecodeFillInput(output, ref inputOptimizeFinal2);

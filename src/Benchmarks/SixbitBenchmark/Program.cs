@@ -34,7 +34,7 @@ public class EncodeTask
     public object? EncodeFillOutput_Original()
     {
         Span<byte> output = _pool.AsSpan(0, Length * 6 / 8);
-        SixbitHelper.EncodeFillOutput(_testData, ref output);
+        SixbitHelperOriginal.EncodeFillOutput(_testData, ref output);
         return _pool;
     }
 
@@ -73,7 +73,7 @@ public class DecodeTask
         rnd.NextBytes(buffer);
 
         Span<byte> output = new byte[Length * 6 / 8];
-        SixbitHelper.EncodeFillOutput(buffer, ref output);
+        SixbitHelperOriginal.EncodeFillOutput(buffer, ref output);
 
         _testData = output.ToArray();
 
@@ -84,7 +84,7 @@ public class DecodeTask
     public object? DecodeFillOutput_Original()
     {
         Span<byte> output = _pool.AsSpan(0, _testData.Length * 6 / 8);
-        SixbitHelper.DecodeFillInput(_testData, ref output);
+        SixbitHelperOriginal.DecodeFillInput(_testData, ref output);
         return _pool;
     }
 
