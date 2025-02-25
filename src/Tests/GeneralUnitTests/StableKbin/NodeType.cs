@@ -1,6 +1,4 @@
-﻿using static StableKbin.Converters;
-
-namespace StableKbin
+﻿namespace StableKbin
 {
     internal sealed class NodeType
     {

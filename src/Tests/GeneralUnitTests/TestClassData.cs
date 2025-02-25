@@ -155,7 +155,7 @@ public class SingleTestData : IEnumerable<object[]>
         yield return new object[] { 1f };
         yield return new object[] { float.MaxValue };
         yield return new object[] { 0f };
-        yield return new object[] { 5125.72234f};
+        yield return new object[] { 5125.72234f };
         yield return new object[] { 65536.65845f };
         yield return new object[] { 512433451.195623f };
         yield return new object[] { 3012433451.276934f };

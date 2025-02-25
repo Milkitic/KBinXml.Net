@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using KbinXml.Net.Utils;
 using Xunit;
 
@@ -17,7 +13,7 @@ namespace GeneralUnitTests
             //var total = 1024 * 1024;
 
             //Random rnd = new();
-            byte[] testData = new byte[]{ 0x12, 0x34, 0x56, 0x78 };
+            byte[] testData = new byte[] { 0x12, 0x34, 0x56, 0x78 };
             //rnd.NextBytes(testData);
 
             Span<byte> outputOriginal = new byte[testData.Length * 6 / 8];
@@ -53,7 +49,7 @@ namespace GeneralUnitTests
             //var total = 1024 * 1024;
 
             //Random rnd = new();
-            byte[] testData = new byte[]{ 0x12, 0x34, 0x56, 0x78 };
+            byte[] testData = new byte[] { 0x12, 0x34, 0x56, 0x78 };
             //rnd.NextBytes(testData);
             Span<byte> output = new byte[testData.Length * 6 / 8];
             SixbitHelperOriginal.EncodeFillOutput(testData, ref output);

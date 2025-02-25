@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using BenchmarkDotNet.Running;
+﻿using BenchmarkDotNet.Running;
 
 namespace ReadBenchmark;
 

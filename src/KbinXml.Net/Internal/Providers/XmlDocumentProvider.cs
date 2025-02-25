@@ -56,7 +56,7 @@ internal class XmlDocumentProvider : WriterProvider
         current.AppendChild(node);
         _nodeStack.Push(node);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteEndElement()
     {

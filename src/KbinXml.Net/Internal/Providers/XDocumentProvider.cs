@@ -94,7 +94,7 @@ internal class XDocumentProvider : WriterProvider
     {
         return _xDocument;
     }
-    
+
 #if DEBUG
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private string GetNodePath()

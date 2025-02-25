@@ -64,7 +64,7 @@ public ref struct ValueListBuilder<T>
             ArrayPool<T>.Shared.Return(toReturn);
         }
     }
-    
+
     [InlineMethod.Inline]
     private void Grow()
     {
