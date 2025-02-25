@@ -50,7 +50,7 @@ public class EncodeTask
     public object? EncodeFillOutput_DeepseekAlgorithmOptimizedDangerous()
     {
         Span<byte> output = _pool.AsSpan(0, Length * 6 / 8);
-        SixbitHelperReleaseOptimized.EncodeFillOutput(_testData, ref output);
+        SixbitHelperReleaseOptimized.Encode(_testData, output);
         return _pool;
     }
 }
@@ -108,7 +108,7 @@ public class DecodeTask
     public object? DecodeFillOutput_DeepseekAlgorithmOptimizedDangerous()
     {
         Span<byte> output = _pool.AsSpan(0, _testData.Length * 6 / 8);
-        SixbitHelperReleaseOptimized.DecodeFillInput(_testData, ref output);
+        SixbitHelperReleaseOptimized.Decode(_testData, output);
         return _pool;
     }
 }

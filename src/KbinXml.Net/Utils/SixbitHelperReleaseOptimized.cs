@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
@@ -14,7 +13,7 @@ public static class SixbitHelperReleaseOptimized
     /// </summary>
     /// <param name="buffer">输入缓冲区（每个字节包含6位有效数据）</param>
     /// <param name="output">输出缓冲区（长度应至少为 (input.Length * 6 + 7) / 8）</param>
-    public static unsafe void EncodeFillOutput(ReadOnlySpan<byte> buffer, ref Span<byte> output)
+    public static unsafe void Encode(ReadOnlySpan<byte> buffer, Span<byte> output)
     {
         // 参数校验（DEBUG模式下检查缓冲区长度）
         Debug.Assert(output.Length >= (buffer.Length * 6 + 7) >> 3,
@@ -60,7 +59,7 @@ public static class SixbitHelperReleaseOptimized
     /// </summary>
     /// <param name="buffer">输入字节流</param>
     /// <param name="input">输出缓冲区（长度应至少为 (buffer.Length * 8) / 6）</param>
-    public static unsafe void DecodeFillInput(ReadOnlySpan<byte> buffer, ref Span<byte> input)
+    public static unsafe void Decode(ReadOnlySpan<byte> buffer, Span<byte> input)
     {
         // 参数校验（DEBUG模式下检查缓冲区长度）
         Debug.Assert(input.Length >= (buffer.Length << 3) / 6,
