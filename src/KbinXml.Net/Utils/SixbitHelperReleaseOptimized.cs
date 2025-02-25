@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace KbinXml.Net.Utils;
 
-public static class SixbitHelperReleaseOptimized
+internal static class SixbitHelperReleaseOptimized
 {
     // 需确保运行环境为小端字节序
     // 要求输入/输出缓冲区预留至少4字节冗余空间（32位操作可能访问后续3字节）

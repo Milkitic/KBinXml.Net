@@ -16,8 +16,10 @@ public static partial class KbinConverter
 #else
     internal static NullLogger Logger { get; } = new NullLogger();
 #endif
-
+    
+#if !NET5_0_OR_GREATER
     private static readonly Type ControlTypeT = typeof(ControlType);
+#endif
     private static readonly HashSet<byte> ControlTypes =
 #if NET5_0_OR_GREATER
         new(Enum.GetValues<ControlType>().Cast<byte>());

@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿#if DEBUG
+using System.Collections.Generic;
 using System.Xml.Linq;
+#endif
 
 namespace KbinXml.Net.Internal.Loggers;
+
 internal interface IKbinLogger
 {
 #if DEBUG

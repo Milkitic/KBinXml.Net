@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DEBUG
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,7 +8,6 @@ using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Internal.Loggers;
 
-#if DEBUG
 internal class ConsoleLogger : IKbinLogger
 {
     [DebuggerStepThrough]

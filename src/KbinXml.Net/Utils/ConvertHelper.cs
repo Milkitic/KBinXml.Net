@@ -7,7 +7,7 @@ using KbinXml.Net.Internal;
 
 namespace KbinXml.Net.Utils;
 
-public static class ConvertHelper
+internal static class ConvertHelper
 {
     private static readonly NumberFormatInfo USNumberFormat = new CultureInfo("en-US", false).NumberFormat;
 

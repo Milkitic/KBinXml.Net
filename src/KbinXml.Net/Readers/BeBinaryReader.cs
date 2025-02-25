@@ -4,7 +4,7 @@ using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Readers;
 
-public class BeBinaryReader
+internal class BeBinaryReader
 {
     protected readonly Memory<byte> Buffer;
     protected readonly int BaseOffset;

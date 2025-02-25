@@ -5,7 +5,7 @@ using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Writers;
 
-public class BeBinaryWriter : IDisposable
+internal class BeBinaryWriter : IDisposable
 {
     protected internal readonly MemoryStream Stream;
 

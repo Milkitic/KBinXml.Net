@@ -33,13 +33,13 @@ internal class XmlWriterProvider : WriterProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteElementValue(string? value)
     {
-        _xmlWriter.WriteString(value);
+        _xmlWriter.WriteString(value ?? "");
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteAttributeValue(string? value)
     {
-        _xmlWriter.WriteString(value);
+        _xmlWriter.WriteString(value ?? "");
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

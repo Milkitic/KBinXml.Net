@@ -5,7 +5,7 @@ using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Readers;
 
-public class NodeReader : BeBinaryReader
+internal class NodeReader : BeBinaryReader
 {
     private readonly bool _compressed;
     private readonly Encoding _encoding;

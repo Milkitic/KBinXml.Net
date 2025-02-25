@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
-public static class StreamExtensions
+internal static class StreamExtensions
 {
     public static byte[] ToArray(this Stream stream)
     {

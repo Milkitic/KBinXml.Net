@@ -4,7 +4,7 @@ using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Writers;
 
-public class NodeWriter : BeBinaryWriter
+internal class NodeWriter : BeBinaryWriter
 {
     public bool Compressed { get; }
     private readonly Encoding _encoding;

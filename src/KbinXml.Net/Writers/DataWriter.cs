@@ -7,17 +7,21 @@ using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Writers;
 
-public class DataWriter : BeBinaryWriter
+internal class DataWriter : BeBinaryWriter
 {
     private int _pos32;
     private int _pos16;
     private int _pos8;
     private readonly Encoding _encoding;
+    
+#if NETCOREAPP3_1_OR_GREATER
     private readonly int _shiftVal;
+#endif
 
     public DataWriter(Encoding encoding)
     {
         _encoding = encoding;
+#if NETCOREAPP3_1_OR_GREATER
         _shiftVal = EncodingDictionary.ReverseEncodingMap[encoding] switch
         {
             0x00 => 1,
@@ -28,6 +32,7 @@ public class DataWriter : BeBinaryWriter
             0xA0 => 2,
             _ => throw new ArgumentOutOfRangeException(nameof(encoding), encoding, null)
         };
+#endif
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

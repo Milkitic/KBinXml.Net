@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Buffers;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
-public static class BitConverterHelper
+internal static class BitConverterHelper
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ushort ToBeUInt16(ReadOnlySpan<byte> readBytes) =>
@@ -37,7 +36,7 @@ public static class BitConverterHelper
 #if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
         return BinaryPrimitivesExt.ReadSingleBigEndian(value);
 #else
-        var arr = ArrayPool<byte>.Shared.Rent(value.Length);
+        var arr = System.Buffers.ArrayPool<byte>.Shared.Rent(value.Length);
         try
         {
             value.CopyTo(arr);
@@ -47,7 +46,7 @@ public static class BitConverterHelper
         }
         finally
         {
-            ArrayPool<byte>.Shared.Return(arr);
+            System.Buffers.ArrayPool<byte>.Shared.Return(arr);
         }
 #endif
     }

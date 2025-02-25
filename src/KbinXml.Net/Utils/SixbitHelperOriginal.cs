@@ -2,7 +2,7 @@
 
 namespace KbinXml.Net.Utils;
 
-public static class SixbitHelperOriginal
+internal static class SixbitHelperOriginal
 {
     [InlineMethod.Inline]
     public static void EncodeFillOutput(ReadOnlySpan<byte> buffer, ref Span<byte> output)

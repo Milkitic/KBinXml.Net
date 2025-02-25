@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
-public static class StringExtensions
+internal static class StringExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static SpaceSplitEnumerator SpanSplit(this string str, char c)

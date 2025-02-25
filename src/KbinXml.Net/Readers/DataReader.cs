@@ -5,7 +5,7 @@ using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Readers;
 
-public class DataReader : BeBinaryReader
+internal class DataReader : BeBinaryReader
 {
     private readonly Encoding _encoding;
     private int _pos16;
@@ -16,9 +16,9 @@ public class DataReader : BeBinaryReader
         _encoding = encoding;
     }
 
-    public int Position32 => _position + BaseOffset;
-    public int Position16 => _pos16 + BaseOffset;
-    public int Position8 => _pos8 + BaseOffset;
+    //public int Position32 => _position + BaseOffset;
+    //public int Position16 => _pos16 + BaseOffset;
+    //public int Position8 => _pos8 + BaseOffset;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Memory<byte> Read32BitAligned(int count, out int position, out string flag)

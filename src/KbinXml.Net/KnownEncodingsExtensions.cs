@@ -5,7 +5,7 @@ using KbinXml.Net.Internal;
 
 namespace KbinXml.Net;
 
-public static class KnownEncodingsExtensions
+internal static class KnownEncodingsExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Encoding ToEncoding(this KnownEncodings knownEncodings)
