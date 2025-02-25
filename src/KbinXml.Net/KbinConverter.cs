@@ -7,7 +7,7 @@ using KbinXml.Net.Internal.Loggers;
 namespace KbinXml.Net;
 
 /// <summary>
-/// Provides functionality to convert XML to KBin and to convert KBin into XML text, bytes or XElement.
+/// Provides methods for converting between KBin binary format and XML representations.
 /// </summary>
 public static partial class KbinConverter
 {

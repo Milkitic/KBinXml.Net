@@ -2,8 +2,25 @@
 
 namespace KbinXml.Net.Utils;
 
+/// <summary>
+/// Provides optimized 6-bit encoding/decoding implementations using unsafe code.
+/// </summary>
+/// <remarks>
+/// This class contains performance-critical code using pointer operations.
+/// All methods require proper buffer size validation before invocation.
+/// </remarks>
 public static class SixbitHelperOptimized
 {
+    /// <summary>
+    /// Encodes 6-bit values into a packed bitstream.
+    /// </summary>
+    /// <param name="buffer">Input buffer (each byte must be a valid 6-bit value).</param>
+    /// <param name="output">Output buffer (size should be (input.Length * 6 + 7) / 8).</param>
+    /// <remarks>
+    /// This method uses unsafe pointer operations for performance. The caller must ensure:
+    /// 1. All bytes in <paramref name="buffer"/> contain valid 6-bit values (0-63)
+    /// 2. <paramref name="output"/> has sufficient capacity
+    /// </remarks>
     public static unsafe void Encode(ReadOnlySpan<byte> buffer, Span<byte> output)
     {
         fixed (byte* bufferPtr = buffer, outputPtr = output)
@@ -44,6 +61,16 @@ public static class SixbitHelperOptimized
         }
     }
 
+    /// <summary>
+    /// Decodes a packed bitstream into 6-bit values.
+    /// </summary>
+    /// <param name="buffer">Input buffer containing packed bits.</param>
+    /// <param name="input">Output buffer for 6-bit values.</param>
+    /// <remarks>
+    /// This method uses unsafe pointer operations for performance. The caller must ensure:
+    /// 1. <paramref name="input"/> has sufficient capacity for decoded data
+    /// 2. <paramref name="buffer"/> contains valid packed 6-bit data
+    /// </remarks>
     public static unsafe void Decode(ReadOnlySpan<byte> buffer, Span<byte> input)
     {
         fixed (byte* bufferPtr = buffer, inputPtr = input)

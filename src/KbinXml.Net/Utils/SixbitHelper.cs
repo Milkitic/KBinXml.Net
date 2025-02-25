@@ -6,6 +6,9 @@ using System.Runtime.InteropServices;
 using KbinXml.Net.Internal;
 namespace KbinXml.Net.Utils;
 
+/// <summary>
+/// Provides methods for converting between strings and 6-bit encoded binary data.
+/// </summary>
 public static class SixbitHelper
 {
     private const string Charset = "0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
@@ -17,19 +20,38 @@ public static class SixbitHelper
         for (var i = 0; i < Charset.Length; i++)
             CharsetMapping[Charset[i]] = (byte)i;
     }
-
+    
+    /// <summary>
+    /// Encodes a string into 6-bit encoded binary data.
+    /// </summary>
+    /// <param name="input">The string to encode.</param>
+    /// <returns>A byte array containing the 6-bit encoded data.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null"/>.</exception>
     public static byte[] Encode(string input)
     {
         using var ms = new MemoryStream();
         EncodeCore(input, ms);
         return ms.ToArray();
     }
-
+    
+    /// <summary>
+    /// Encodes a string and writes the 6-bit encoded data directly to a stream.
+    /// </summary>
+    /// <param name="stream">The output stream to write to.</param>
+    /// <param name="input">The string to encode.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> or <paramref name="input"/> is <see langword="null"/>.</exception>
     public static void EncodeAndWrite(Stream stream, string input)
     {
         EncodeCore(input, stream);
     }
-
+    
+    /// <summary>
+    /// Decodes 6-bit encoded binary data back to a string.
+    /// </summary>
+    /// <param name="buffer">The buffer containing the encoded data.</param>
+    /// <param name="length">The number of bytes to decode.</param>
+    /// <returns>The decoded string.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> exceeds the buffer size.</exception>
     public static string Decode(ReadOnlySpan<byte> buffer, int length)
     {
         if (length <= Constants.MaxStackLength)

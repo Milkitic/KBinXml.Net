@@ -14,12 +14,19 @@ namespace KbinXml.Net;
 public static partial class KbinConverter
 {
     /// <summary>
-    /// Converts the provided XML to KBin bytes.
+    /// Converts an XML document to KBin-formatted binary data.
     /// </summary>
-    /// <param name="xml">The XmlDocument object to convert.</param>
-    /// <param name="knownEncodings">The encoding for target KBin.</param>
-    /// <param name="writeOptions">Set the write options for writing.</param>
-    /// <returns>The bytes of KBin.</returns>
+    /// <param name="xml">The XML document to convert.</param>
+    /// <param name="knownEncodings">The text encoding specification for the output KBin data.</param>
+    /// <param name="writeOptions">Configuration options for the conversion process.</param>
+    /// <returns>A byte array containing the KBin-formatted data.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="xml"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="knownEncodings"/> specifies an unsupported encoding.</exception>
+    /// <exception cref="KbinException">Invalid XML structure or data conversion error occurs.</exception>
+    /// <remarks>
+    /// <para>This method supports both compressed and uncompressed KBin formats.</para>
+    /// <para>If <paramref name="writeOptions"/> is null, default options will be used.</para>
+    /// </remarks>
     public static byte[] Write(XmlDocument xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
         var encoding = knownEncodings.ToEncoding();
@@ -38,14 +45,16 @@ public static partial class KbinConverter
             context.NodeWriter.Dispose();
         }
     }
-
+    
     /// <summary>
-    /// Converts the provided XML to KBin bytes.
+    /// Converts a LINQ-to-XML element/document to KBin-formatted binary data.
     /// </summary>
-    /// <param name="xml">The XContainer object to convert.</param>
-    /// <param name="knownEncodings">The encoding for target KBin.</param>
-    /// <param name="writeOptions">Set the write options for writing.</param>
-    /// <returns>The bytes of KBin.</returns>
+    /// <param name="xml">The XML element or document to convert. Must be a valid <see cref="XContainer"/> (XElement or XDocument).</param>
+    /// <param name="knownEncodings">The text encoding specification for the output KBin data. See supported values in <see cref="KnownEncodings"/>.</param>
+    /// <param name="writeOptions">Configuration options for serialization. When null, uses default compression and validation settings.</param>
+    /// <returns>A byte array containing structured KBin data with proper section alignment.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="xml"/> contains a null reference.</exception>
+    /// <inheritdoc cref="Write(XmlDocument, KnownEncodings, WriteOptions?)"/>
     public static byte[] Write(XContainer xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
         var encoding = knownEncodings.ToEncoding();
@@ -66,12 +75,14 @@ public static partial class KbinConverter
     }
 
     /// <summary>
-    /// Converts the provided XML to KBin bytes.
+    /// Converts XML text to KBin-formatted binary data.
     /// </summary>
-    /// <param name="xmlText">The XML text to convert.</param>
-    /// <param name="knownEncodings">The encoding for target KBin.</param>
-    /// <param name="writeOptions">Set the write options for writing.</param>
-    /// <returns>The bytes of KBin.</returns>
+    /// <param name="xmlText">The XML string to convert. Must be well-formed XML 1.0 text.</param>
+    /// <param name="knownEncodings">The character encoding scheme for text conversion. Affects string storage in KBin format.</param>
+    /// <param name="writeOptions">Serialization control parameters. Null values enable default compression and error handling behavior.</param>
+    /// <returns>A byte array containing the KBin binary output with proper header validation.</returns>
+    /// <exception cref="ArgumentException"><paramref name="xmlText"/> contains invalid XML syntax.</exception>
+    /// <inheritdoc cref="Write(XmlDocument, KnownEncodings, WriteOptions?)"/>
     public static byte[] Write(string xmlText, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
         var encoding = knownEncodings.ToEncoding();
@@ -91,14 +102,16 @@ public static partial class KbinConverter
             context.NodeWriter.Dispose();
         }
     }
-
+    
     /// <summary>
-    /// Converts the provided XML to KBin bytes.
+    /// Converts UTF-8 encoded XML bytes to KBin-formatted binary data.
     /// </summary>
-    /// <param name="xmlBytes">The XML bytes to convert.</param>
-    /// <param name="knownEncodings">The encoding for target KBin.</param>
-    /// <param name="writeOptions">Set the write options while writing.</param>
-    /// <returns>The bytes of KBin.</returns>
+    /// <param name="xmlBytes">The XML data to convert. Must be valid UTF-8 encoded bytes (with or without BOM).</param>
+    /// <param name="knownEncodings">The target text encoding specification. Determines how strings are stored in the KBin output.</param>
+    /// <param name="writeOptions">Serialization configuration parameters. Controls compression and validation behavior.</param>
+    /// <returns>A byte array containing the complete KBin structure with node and data sections.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="xmlBytes"/> is a null reference.</exception>
+    /// <inheritdoc cref="Write(XmlDocument, KnownEncodings, WriteOptions?)"/>
     public static byte[] Write(byte[] xmlBytes, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
         var encoding = knownEncodings.ToEncoding();

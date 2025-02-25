@@ -12,11 +12,18 @@ namespace KbinXml.Net;
 public static partial class KbinConverter
 {
     /// <summary>
-    /// Reads the KBin bytes into an XML <see cref="XDocument"/>.
+    /// Converts KBin binary data to an <see cref="XDocument"/> representation.
     /// </summary>
-    /// <param name="sourceBuffer">The KBin bytes to convert.</param>
-    /// <param name="readOptions">Set the read options for reading.</param>
-    /// <returns>Returns the <see cref="XDocument"/>.</returns>
+    /// <param name="sourceBuffer">The source buffer containing KBin-formatted data.</param>
+    /// <param name="readOptions">Optional reading configuration options.</param>
+    /// <returns>An <see cref="XDocument"/> containing the parsed XML structure.</returns>
+    /// <exception cref="KbinException">
+    /// Thrown when invalid KBin data is detected (invalid signature, encoding mismatch, or unknown node types).
+    /// </exception>
+    /// <remarks>
+    /// <para>This method uses LINQ-to-XML for document construction.</para>
+    /// <para>If <paramref name="readOptions"/> is null, default read options will be used.</para>
+    /// </remarks>
     public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
@@ -26,12 +33,13 @@ public static partial class KbinConverter
     }
 
     /// <summary>
-    /// Reads the KBin bytes into an XML <see cref="XDocument"/>.
+    /// Converts KBin binary data to an <see cref="XDocument"/> and outputs the detected encoding.
     /// </summary>
-    /// <param name="sourceBuffer">The KBin bytes to convert.</param>
-    /// <param name="knownEncodings">The declared encoding of this KBin.</param>
-    /// <param name="readOptions">Set the read options for reading.</param>
-    /// <returns>Returns the <see cref="XDocument"/>.</returns>
+    /// <param name="sourceBuffer">The source buffer containing KBin-formatted data.</param>
+    /// <param name="knownEncodings">When this method returns, contains the detected encoding used in the KBin data.</param>
+    /// <param name="readOptions">Optional reading configuration options.</param>
+    /// <returns>An <see cref="XDocument"/> containing the parsed XML structure.</returns>
+    /// <inheritdoc cref="ReadXmlLinq(Memory{byte}, ReadOptions?)"/>
     public static XDocument ReadXmlLinq(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings,
         ReadOptions? readOptions = null)
     {
@@ -40,27 +48,33 @@ public static partial class KbinConverter
             (XDocument)ReaderImpl(sourceBuffer, e => new XDocumentProvider(e, readOptions), out knownEncodings);
         return xDocument;
     }
-
+    
     /// <summary>
-    /// Reads the KBin bytes into an XML <see cref="T:byte[]"/>.
+    /// Converts KBin binary data to raw XML bytes.
     /// </summary>
-    /// <param name="sourceBuffer">The KBin bytes convert.</param>
-    /// <param name="readOptions">Set the read options for reading.</param>
-    /// <returns>Returns the <see cref="T:byte[]"/>.</returns>
+    /// <param name="sourceBuffer">The source buffer containing KBin-formatted data.</param>
+    /// <param name="readOptions">Optional reading configuration options.</param>
+    /// <returns>A byte array containing the XML document in UTF-8 encoding.</returns>
+    /// <inheritdoc cref="ReadXmlLinq(Memory{byte}, ReadOptions?)"/>
+    /// <remarks>
+    /// The resulting byte array contains standard XML 1.0 formatted data without
+    /// Byte Order Mark (BOM) by default.
+    /// </remarks>
     public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
         var bytes = (byte[])ReaderImpl(sourceBuffer, e => new XmlWriterProvider(e, readOptions), out var knownEncoding);
         return bytes;
     }
-
+    
     /// <summary>
-    /// Reads the KBin bytes into an XML <see cref="T:byte[]"/>.
+    /// Converts KBin binary data to raw XML bytes and outputs the detected encoding.
     /// </summary>
-    /// <param name="sourceBuffer">The KBin bytes convert.</param>
-    /// <param name="knownEncodings">The declared encoding of this KBin.</param>
-    /// <param name="readOptions">Set the read options for reading.</param>
-    /// <returns>Returns the <see cref="T:byte[]"/>.</returns>
+    /// <param name="sourceBuffer">The source buffer containing KBin-formatted data.</param>
+    /// <param name="knownEncodings">When this method returns, contains the detected encoding used in the KBin data.</param>
+    /// <param name="readOptions">Optional reading configuration options.</param>
+    /// <returns>A byte array containing the XML document in UTF-8 encoding.</returns>
+    /// <inheritdoc cref="ReadXmlBytes(Memory{byte}, ReadOptions?)"/>
     public static byte[] ReadXmlBytes(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings,
         ReadOptions? readOptions = null)
     {
@@ -68,13 +82,18 @@ public static partial class KbinConverter
         var bytes = (byte[])ReaderImpl(sourceBuffer, e => new XmlWriterProvider(e, readOptions), out knownEncodings);
         return bytes;
     }
-
+    
     /// <summary>
-    /// Reads the KBin bytes into an XML <see cref="XmlDocument"/>.
+    /// Converts KBin binary data to an <see cref="XmlDocument"/> representation.
     /// </summary>
-    /// <param name="sourceBuffer">The KBin bytes convert.</param>
-    /// <param name="readOptions">Set the read options for reading.</param>
-    /// <returns>Returns the <see cref="XmlDocument"/>.</returns>
+    /// <param name="sourceBuffer">The source buffer containing KBin-formatted data.</param>
+    /// <param name="readOptions">Optional reading configuration options.</param>
+    /// <returns>An <see cref="XmlDocument"/> containing the parsed XML structure.</returns>
+    /// <inheritdoc cref="ReadXmlLinq(Memory{byte}, ReadOptions?)"/>
+    /// <remarks>
+    /// This method uses the classic <see cref="XmlDocument"/> API which implements
+    /// the W3C Document Object Model (DOM) Level 1 Core specification.
+    /// </remarks>
     public static XmlDocument ReadXml(Memory<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
@@ -82,14 +101,15 @@ public static partial class KbinConverter
             out var knownEncoding);
         return xmlDocument;
     }
-
+    
     /// <summary>
-    /// Reads the KBin bytes into an XML <see cref="XmlDocument"/>.
+    /// Converts KBin binary data to an <see cref="XmlDocument"/> and outputs the detected encoding.
     /// </summary>
-    /// <param name="sourceBuffer">The KBin bytes convert.</param>
-    /// <param name="knownEncodings">The declared encoding of this KBin.</param>
-    /// <param name="readOptions">Set the read options for reading.</param>
-    /// <returns>Returns the <see cref="XmlDocument"/>.</returns>
+    /// <param name="sourceBuffer">The source buffer containing KBin-formatted data.</param>
+    /// <param name="knownEncodings">When this method returns, contains the detected encoding used in the KBin data.</param>
+    /// <param name="readOptions">Optional reading configuration options.</param>
+    /// <returns>An <see cref="XmlDocument"/> containing the parsed XML structure.</returns>
+    /// <inheritdoc cref="ReadXml(Memory{byte}, ReadOptions?)"/>
     public static XmlDocument ReadXml(Memory<byte> sourceBuffer, out KnownEncodings knownEncodings,
         ReadOptions? readOptions = null)
     {
