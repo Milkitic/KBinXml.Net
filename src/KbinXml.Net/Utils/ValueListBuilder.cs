@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
-public ref struct ValueListBuilder<T>
+public ref struct ValueListBuilder<T> : IDisposable
 {
     private Span<T> _span;
     private T[]? _arrayFromPool;
