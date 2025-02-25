@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml.Linq;
@@ -42,11 +41,7 @@ internal class XDocumentProvider : WriterProvider
             var current = _nodeStack.Peek();
             var attr = new XAttribute(XName.Get(_holdAttrName), value ?? "");
             current.Add(attr);
-#if DEBUG
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine($"{"linq",4}{"",12}   Attribute: {_holdAttrName}={value}");
-            Console.ResetColor();
-#endif
+            KbinConverter.Logger.LogXmlAttribute(_holdAttrName, value);
         }
         else throw new Exception("Current attribute is null!");
     }
@@ -59,21 +54,13 @@ internal class XDocumentProvider : WriterProvider
         var node = new XElement(KbinConverter.GetRepairedName(elementName, _readOptions.RepairedPrefix));
         current.Add(node);
         _nodeStack.Push(node);
-#if DEBUG
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine($"{"linq",4}{"",12}   NodeStart: {GetNodePath()}");
-        Console.ResetColor();
-#endif
+        KbinConverter.Logger.LogXmlNodeStart(_nodeStack);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override void WriteEndElement()
     {
-#if DEBUG
-        Console.ForegroundColor = ConsoleColor.DarkGray;
-        Console.WriteLine($"{"linq",4}{"",12}   NodeEnd: {GetNodePath()}");
-        Console.ResetColor();
-#endif
+        KbinConverter.Logger.LogXmlNodeEnd(_nodeStack);
         _nodeStack.Pop();
     }
 
@@ -94,26 +81,4 @@ internal class XDocumentProvider : WriterProvider
     {
         return _xDocument;
     }
-
-#if DEBUG
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private string GetNodePath()
-    {
-        var e = string.Join(".", _nodeStack.ToArray().Reverse().Select(k =>
-        {
-            if (k == null) throw new ArgumentNullException(nameof(k));
-            if (k is XElement xe)
-            {
-                return xe.Name.ToString();
-            }
-            else if (k is XDocument xd)
-            {
-                return null;
-            }
-
-            throw new ArgumentOutOfRangeException();
-        }).Where(k => k != null));
-        return e;
-    }
-#endif
 }

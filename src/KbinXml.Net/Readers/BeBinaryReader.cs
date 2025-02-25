@@ -7,23 +7,23 @@ namespace KbinXml.Net.Readers;
 public class BeBinaryReader
 {
     protected readonly Memory<byte> Buffer;
-    protected readonly int Offset;
+    protected readonly int BaseOffset;
 
     // ReSharper disable once InconsistentNaming
     protected int _position;
 
-    public BeBinaryReader(Memory<byte> buffer, int offset = 0)
+    public BeBinaryReader(Memory<byte> buffer, int baseOffset = 0)
     {
         Buffer = buffer;
-        Offset = offset;
+        BaseOffset = baseOffset;
     }
 
-    public int Position => _position + Offset;
+    public int Position => _position + BaseOffset;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Memory<byte> ReadBytes(int count, out int position, out string? flag)
     {
-        position = _position + Offset;
+        position = _position + BaseOffset;
         var slice = Buffer.Slice(_position, count);
         _position += count;
         flag = null;

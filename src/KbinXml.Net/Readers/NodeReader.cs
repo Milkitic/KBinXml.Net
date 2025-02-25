@@ -10,8 +10,8 @@ public class NodeReader : BeBinaryReader
     private readonly bool _compressed;
     private readonly Encoding _encoding;
 
-    public NodeReader(Memory<byte> buffer, int offset, bool compressed, Encoding encoding)
-        : base(buffer, offset)
+    public NodeReader(Memory<byte> buffer, int baseOffset, bool compressed, Encoding encoding)
+        : base(buffer, baseOffset)
     {
         _compressed = compressed;
         _encoding = encoding;

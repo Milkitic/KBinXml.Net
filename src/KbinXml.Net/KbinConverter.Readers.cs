@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -8,10 +6,6 @@ using KbinXml.Net.Internal;
 using KbinXml.Net.Internal.Providers;
 using KbinXml.Net.Readers;
 using KbinXml.Net.Utils;
-
-#if NET8_0_OR_GREATER
-using System.Collections.Frozen;
-#endif
 
 namespace KbinXml.Net;
 
@@ -126,11 +120,7 @@ public static partial class KbinConverter
             nodeType = (byte)(nodeType & ~0x40);
             if (ControlTypes.Contains(nodeType))
             {
-#if DEBUG
-                var str = $"node(0x{pos:X8})   NodeControlType: {(ControlType)nodeType}(0x{nodeType:X2})";
-                if (array) str += ", With array flag";
-                Console.WriteLine(str);
-#endif
+                Logger.LogNodeControl(nodeType, pos, array);
 
                 var controlType = (ControlType)nodeType;
                 switch (controlType)
@@ -143,26 +133,16 @@ public static partial class KbinConverter
                         }
 
                         var elementName = nodeReader.ReadString(out pos);
-#if DEBUG
-                        Console.WriteLine($"node(0x{pos:X8})   StructElement: \"{elementName}\"");
-#endif
+                        Logger.LogStructElement(elementName, pos);
                         writerProvider.WriteStartElement(elementName);
                         break;
                     case ControlType.Attribute:
                         var attr = nodeReader.ReadString(out pos);
-#if DEBUG
-                        Console.WriteLine($"node(0x{pos:X8})   AttrName: \"{attr}\"");
-#endif
+                        Logger.LogAttributeName(attr, pos);
                         var strLen = dataReader.ReadS32(out pos, out var flag);
-#if DEBUG
-                        Console.WriteLine($"{flag,4}(0x{pos:X8})   AttrLen: \"{strLen}\"");
-#endif
+                        Logger.LogAttributeLength(strLen, pos, flag);
                         var value = dataReader.ReadString(strLen, out pos, out flag);
-#if DEBUG
-                        var arr = value.SelectMany(c => char.IsControl(c) ? GetDisplayable(c) : c.ToString());
-                        var str1 = new string(arr.ToArray());
-                        Console.WriteLine($"{flag,4}(0x{pos:X8}) o AttrValue: \"{str1}\"");
-#endif
+                        Logger.LogAttributeValue(value, pos, flag);
                         // Size has been written below
                         if (currentType != "bin" || attr != "__size")
                         {
@@ -189,12 +169,8 @@ public static partial class KbinConverter
             }
             else if (TypeDictionary.TypeMap.TryGetValue(nodeType, out var propertyType))
             {
-#if DEBUG
-                var str =
-                    $"node(0x{pos:X8})   NodeDataType: {propertyType.Name} (Size={propertyType.Size}, Count={propertyType.Count})";
-                if (array) str += ", With array flag";
-                Console.WriteLine(str);
-#endif
+                Logger.LogNodeData(propertyType, pos, array);
+
                 if (holdValue != null)
                 {
                     writerProvider.WriteElementValue(holdValue);
@@ -202,9 +178,7 @@ public static partial class KbinConverter
                 }
 
                 var elementName = nodeReader.ReadString(out pos);
-#if DEBUG
-                Console.WriteLine($"node(0x{pos:X8})   DataElement: \"{elementName}\"");
-#endif
+                Logger.LogDataElement(elementName, pos);
                 writerProvider.WriteStartElement(elementName);
 
                 writerProvider.WriteStartAttribute("__type");
@@ -217,19 +191,17 @@ public static partial class KbinConverter
                 if (array || propertyType.Name is "str" or "bin")
                 {
                     arraySize = dataReader.ReadS32(out pos, out var flag); // Total size.
-#if DEBUG
-                    Console.WriteLine($"{flag,4}(0x{pos:X8})   ArraySize: {arraySize}");
-#endif
+                    Logger.LogArraySize(arraySize, pos, flag);
                 }
                 else
+                {
                     arraySize = propertyType.Size * propertyType.Count;
+                }
 
                 if (propertyType.Name == "str")
                 {
                     holdValue = dataReader.ReadString(arraySize, out pos, out var flag);
-#if DEBUG
-                    Console.WriteLine($"{flag,4}(0x{pos:X8}) o ValString: \"{holdValue}\"");
-#endif
+                    Logger.LogStringValue(holdValue, pos, flag);
                 }
                 else if (propertyType.Name == "bin")
                 {
@@ -237,9 +209,7 @@ public static partial class KbinConverter
                     writerProvider.WriteAttributeValue(arraySize.ToString());
                     writerProvider.WriteEndAttribute();
                     holdValue = dataReader.ReadBinary(arraySize, out pos, out var flag);
-#if DEBUG
-                    Console.WriteLine($"{flag,4}(0x{pos:X8}) o ValBinary: \"{holdValue}\"");
-#endif
+                    Logger.LogBinaryValue(holdValue, pos, flag);
                 }
                 else
                 {
@@ -272,9 +242,7 @@ public static partial class KbinConverter
                     }
 
                     holdValue = stringBuilder.ToString();
-#if DEBUG
-                    Console.WriteLine($"{flag,4}(0x{pos:X8}) o ValArray: \"{holdValue}\"");
-#endif
+                    Logger.LogArrayValue(holdValue, pos, flag);
                 }
             }
             else
@@ -292,23 +260,15 @@ public static partial class KbinConverter
         int pos;
         var binaryBuffer = new BeBinaryReader(sourceBuffer);
         var signature = binaryBuffer.ReadU8(out pos, out _);
-#if DEBUG
-        Console.WriteLine($"0x{pos:X8}   Signature: 0x{signature:X2}");
-#endif
+        Logger.LogSignature(signature, pos);
 
         var compressionFlag = binaryBuffer.ReadU8(out pos, out _);
-#if DEBUG
-        Console.WriteLine($"0x{pos:X8}   Compression: 0x{compressionFlag:X2}");
-#endif
+        Logger.LogCompression(signature, pos);
 
         var encodingFlag = binaryBuffer.ReadU8(out pos, out _);
-#if DEBUG
-        Console.WriteLine($"0x{pos:X8}   Encoding: 0x{encodingFlag:X2}");
-#endif
+        Logger.LogEncoding(encodingFlag, pos);
         var encodingFlagNot = binaryBuffer.ReadU8(out pos, out _);
-#if DEBUG
-        Console.WriteLine($"0x{pos:X8}   Encoding~: 0x{encodingFlagNot:X2}");
-#endif
+        Logger.LogEncodingNot(encodingFlagNot, pos);
 
         //Verify magic.
         if (signature != 0xA0)
@@ -324,15 +284,11 @@ public static partial class KbinConverter
 
         //Get buffer lengths and load.
         var nodeLength = binaryBuffer.ReadS32(out pos, out _);
-#if DEBUG
-        Console.WriteLine($"0x{pos:X8}   NodeLength: {nodeLength}");
-#endif
+        Logger.LogNodeLength(nodeLength, pos);
         var nodeReader = new NodeReader(sourceBuffer.Slice(8, nodeLength), 8, compressed, encoding);
 
         var dataLength = BitConverterHelper.ToBeInt32(sourceBuffer.Slice(nodeLength + 8, 4).Span);
-#if DEBUG
-        Console.WriteLine($"0x{pos:X8}   DataLength: {dataLength}");
-#endif
+        Logger.LogDataLength(nodeLength, pos);
         var dataReader = new DataReader(sourceBuffer.Slice(nodeLength + 12, dataLength), nodeLength + 12, encoding);
 
         var readProvider = createWriterProvider(encoding);
@@ -340,59 +296,6 @@ public static partial class KbinConverter
         var readContext = new ReadContext(nodeReader, dataReader, readProvider, encoding.ToKnownEncoding());
         return readContext;
     }
-
-#if DEBUG
-    private static string GetDisplayable(char c)
-    {
-        if (NonPrintDict.TryGetValue(c, out var value))
-        {
-            return $"[\\{value}]";
-        }
-
-        return $"[\\{(int)c}]";
-    }
-
-    private static readonly IReadOnlyDictionary<int, string> NonPrintDict = new Dictionary<int, string>
-    {
-        [00] = "NULL",
-        [01] = "SOH",
-        [02] = "STX",
-        [03] = "ETX",
-        [04] = "EOT",
-        [05] = "ENQ",
-        [06] = "ACK",
-        [07] = "BEL",
-        [08] = "BS",
-        [09] = "HT",
-        [10] = "LF",
-        [11] = "VT",
-        [12] = "FF",
-        [13] = "CR",
-        [14] = "SO",
-        [15] = "SI",
-        [16] = "DLE",
-        [17] = "DC1",
-        [18] = "DC2",
-        [19] = "DC3",
-        [20] = "DC4",
-        [21] = "NAK",
-        [22] = "SYN",
-        [23] = "ETB",
-        [24] = "CAN",
-        [25] = "EM",
-        [26] = "SUB",
-        [27] = "ESC",
-        [28] = "FS",
-        [29] = "GS",
-        [30] = "RS",
-        [31] = "US",
-        [127] = "DEL",
-    }
-#if NET8_0_OR_GREATER
-            .ToFrozenDictionary()
-#endif
-        ;
-#endif
 
     private class ReadContext : IDisposable
     {

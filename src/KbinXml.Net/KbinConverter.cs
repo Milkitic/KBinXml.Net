@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using KbinXml.Net.Internal;
+using KbinXml.Net.Internal.Loggers;
 
 namespace KbinXml.Net;
 
@@ -10,6 +11,12 @@ namespace KbinXml.Net;
 /// </summary>
 public static partial class KbinConverter
 {
+#if DEBUG
+    internal static ConsoleLogger Logger { get; } = new ConsoleLogger();
+#else
+    internal static NullLogger Logger { get; } = new NullLogger();
+#endif
+
     private static readonly Type ControlTypeT = typeof(ControlType);
     private static readonly HashSet<byte> ControlTypes =
 #if NET5_0_OR_GREATER

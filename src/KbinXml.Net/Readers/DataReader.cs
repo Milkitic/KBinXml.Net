@@ -11,20 +11,20 @@ public class DataReader : BeBinaryReader
     private int _pos16;
     private int _pos8;
 
-    public DataReader(Memory<byte> buffer, int offset, Encoding encoding) : base(buffer, offset)
+    public DataReader(Memory<byte> buffer, int baseOffset, Encoding encoding) : base(buffer, baseOffset)
     {
         _encoding = encoding;
     }
 
-    public int Position32 => _position + Offset;
-    public int Position16 => _pos16 + Offset;
-    public int Position8 => _pos8 + Offset;
+    public int Position32 => _position + BaseOffset;
+    public int Position16 => _pos16 + BaseOffset;
+    public int Position8 => _pos8 + BaseOffset;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Memory<byte> Read32BitAligned(int count, out int position, out string flag)
     {
 #if DEBUG
-        position = _position + Offset;
+        position = _position + BaseOffset;
 #else
         position = _position;
 #endif
@@ -51,19 +51,19 @@ public class DataReader : BeBinaryReader
 #if DEBUG
             if (_pos16 != _position)
             {
-                Console.WriteLine($"---> p16 from {_pos16 + Offset:X8} to {_position + Offset:X8}");
+                Console.WriteLine($"---> p16 from {_pos16 + BaseOffset:X8} to {_position + BaseOffset:X8}");
             }
 #endif
             _pos16 = _position;
 
 #if DEBUG
-            Console.WriteLine($"---> p32 from {_position + Offset:X8} to {_position + Offset + 4:X8}");
+            Console.WriteLine($"---> p32 from {_position + BaseOffset:X8} to {_position + BaseOffset + 4:X8}");
 #endif
             _position += 4;
         }
 
 #if DEBUG
-        position = _pos16 + Offset;
+        position = _pos16 + BaseOffset;
 #else
         position = _pos16;
 #endif
@@ -85,19 +85,19 @@ public class DataReader : BeBinaryReader
 #if DEBUG
             if (_pos8 != _position)
             {
-                Console.WriteLine($"---> p8 from {_pos8 + Offset:X8} to {_position + Offset:X8}");
+                Console.WriteLine($"---> p8 from {_pos8 + BaseOffset:X8} to {_position + BaseOffset:X8}");
             }
 #endif
             _pos8 = _position;
 
 #if DEBUG
-            Console.WriteLine($"---> p32 from {_position + Offset:X8} to {_position + Offset + 4:X8}");
+            Console.WriteLine($"---> p32 from {_position + BaseOffset:X8} to {_position + BaseOffset + 4:X8}");
 #endif
             _position += 4;
         }
 
 #if DEBUG
-        position = _pos8 + Offset;
+        position = _pos8 + BaseOffset;
 #else
         position = _pos8;
 #endif
