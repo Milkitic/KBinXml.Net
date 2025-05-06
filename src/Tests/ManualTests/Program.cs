@@ -17,6 +17,10 @@ public class Program
 
     static void Main(string[] args)
     {
+        var allText = File.ReadAllText("E:\\Working\\GitHub\\Azisai\\Tests\\SignalRTest\\bin\\Debug\\net8.0\\FixedResponses\\KFC\\Assets\\music_db.xml");
+        var bytes = KbinConverter.WriteUtf8(allText);
+
+        Console.ReadLine();
         //var stream = RecyclableMemoryStreamManager.GetStream(null, 204800);
         //var init = stream.GetBuffer();
         //init.AsSpan().Fill(0x80);

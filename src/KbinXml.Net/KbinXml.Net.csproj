@@ -47,4 +47,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\dependencies\U8XmlParser\src\U8XmlParser\U8XmlParser.csproj" />
+  </ItemGroup>
+
 </Project>
