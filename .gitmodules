@@ -4,3 +4,6 @@
 [submodule "dependencies/KBinXML"]
 	path = dependencies/KBinXML
 	url = https://github.com/ItsNovaHere/KBinXML.git
+[submodule "dependencies/U8XmlParser"]
+	path = dependencies/U8XmlParser
+	url = https://github.com/ikorin24/U8XmlParser.git
