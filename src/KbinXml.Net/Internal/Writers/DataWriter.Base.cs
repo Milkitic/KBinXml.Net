@@ -122,7 +122,6 @@ internal partial struct DataWriter
         }
         else
         {
-            Debug.Assert(false);
             var streamPosition = Stream.Position;
             Stream.Position = pointer;
 

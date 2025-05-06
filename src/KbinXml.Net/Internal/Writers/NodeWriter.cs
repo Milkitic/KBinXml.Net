@@ -33,14 +33,14 @@ internal readonly ref partial struct NodeWriter
         {
             WriteU8((byte)(value.Length - 1 | 1 << 6));
 
+            // https://stackoverflow.com/questions/9533258/what-is-the-maximum-number-of-bytes-for-a-utf-8-encoded-character
+            //int byteCount = _encoding.GetByteCount(value);
 #if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
-            int byteCount = _encoding.GetByteCount(value);
-            var span = Stream.GetSpan(byteCount);
+            var span = Stream.GetSpan(value.Length * 4);
             int bytesWritten = _encoding.GetBytes(value.AsSpan(), span);
             Stream.Advance(bytesWritten);
 #else
-            int byteCount = _encoding.GetByteCount(value);
-            using (var rentedArray = new RentedArray<byte>(ArrayPool<byte>.Shared, byteCount))
+            using (var rentedArray = new RentedArray<byte>(ArrayPool<byte>.Shared, value.Length * 4))
             {
                 int bytesEncoded = _encoding.GetBytes(value, 0, value.Length, rentedArray.Array, 0);
                 Stream.Write(rentedArray.Array, 0, bytesEncoded);
