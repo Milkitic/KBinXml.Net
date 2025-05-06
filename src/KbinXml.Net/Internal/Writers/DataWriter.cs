@@ -224,7 +224,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
         int bytesWritten = _encoding.GetBytes(value.AsSpan(), span);
         span[bytesWritten] = 0; // 添加结尾的0字节
 #else
-        int bytesWritten = _encoding.GetByteCount(value);
+        int bytesWritten = byteCount - 1;
         using (var rentedArray = new RentedArray<byte>(ArrayPool<byte>.Shared, bytesWritten))
         {
             int bytesEncoded = _encoding.GetBytes(value, 0, value.Length, rentedArray.Array, 0);
