@@ -78,6 +78,36 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
         Realign16_8();
     }
 
+    public void WriteUtf8String(ReadOnlySpan<byte> value)
+    {
+        // 计算编码后的字节长度（包括结尾的0字节）
+        int byteCount = value.Length + 1;
+
+        // 先写入长度
+        WriteU32((uint)byteCount);
+
+        // 准备写入数据（32位对齐）
+        ref var pointer = ref _pos32;
+        var increment = GetIncrementLength(pointer);
+
+        // 获取足够大小的Span并写入数据
+        if (increment >= 0)
+        {
+            WriteUtf8StringCore(value, increment, byteCount);
+        }
+        else
+        {
+            var streamPosition = Stream.Position;
+            Stream.Position = pointer;
+            WriteUtf8StringCore(value, 0, byteCount);
+            Stream.Position = streamPosition;
+        }
+
+        pointer += byteCount;
+        AlignTo4Bytes(ref pointer);
+        Realign16_8();
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteBinary(string value)
     {
@@ -203,6 +233,24 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
 
         span[bytesWritten] = 0; // 添加结尾的0字节
 #endif
+        Stream.Advance(sizeHint);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteUtf8StringCore(ReadOnlySpan<byte> value, int increment, int byteCount)
+    {
+        var sizeHint = increment > 0 ? byteCount + increment : byteCount;
+        var span = Stream.GetSpan(sizeHint);
+
+        if (increment > 0)
+        {
+            ClearSpan(span, increment);
+            span = span.Slice(increment);
+        }
+
+        value.CopyTo(span);
+        span[value.Length] = 0; // 添加结尾的0字节
+
         Stream.Advance(sizeHint);
     }
 

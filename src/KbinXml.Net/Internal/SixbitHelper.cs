@@ -23,8 +23,10 @@ namespace KbinXml.Net.Internal;
 internal static class SixbitHelper
 {
     private const string Charset = "0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+
     private static readonly byte[] CharsetMapping = new byte[128];
     private static readonly char[] CharsetArray = Charset.ToCharArray();
+    private static readonly byte[] Utf8CharsetArray = "0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz"u8.ToArray();
 
     static SixbitHelper()
     {
@@ -59,6 +61,11 @@ internal static class SixbitHelper
     public static void EncodeAndWrite(Stream stream, string input)
     {
         EncodeCore(input, stream);
+    }
+
+    public static void EncodeAndWriteUtf8(RecyclableMemoryStream stream, ReadOnlySpan<byte> utf8Input)
+    {
+        EncodeUtf8Core(utf8Input, stream);
     }
 
     /// <summary>
@@ -134,10 +141,46 @@ internal static class SixbitHelper
         }
     }
 
+    private static void EncodeUtf8Core(ReadOnlySpan<byte> utf8Input, RecyclableMemoryStream stream)
+    {
+        var inputLength = utf8Input.Length;
+        var outputLength = (inputLength * 6 + 7) / 8;
+
+        if (inputLength <= Constants.MaxStackLength)
+        {
+            Span<byte> inputBuffer = stackalloc byte[inputLength];
+            FillUtf8Input(utf8Input, inputBuffer);
+            Span<byte> outputBuffer = stream.GetSpan(outputLength);
+            outputBuffer.Slice(0, outputLength).Clear();
+            SixbitHelperEncImpl.Encode(inputBuffer, outputBuffer);
+            stream.Advance(outputLength);
+        }
+        else
+        {
+            using var rentedInput = new RentedArray<byte>(ArrayPool<byte>.Shared, inputLength);
+            var inputSpan = rentedInput.Array.AsSpan(0, inputLength);
+            FillUtf8Input(utf8Input, inputSpan);
+            Span<byte> outputSpan = stream.GetSpan(outputLength);
+            outputSpan.Slice(0, outputLength).Clear();
+            SixbitHelperEncImpl.Encode(inputSpan, outputSpan);
+            stream.Advance(outputLength);
+        }
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void FillInput(string content, Span<byte> buffer)
     {
         ref var contentRef = ref MemoryMarshal.GetReference(content.AsSpan());
+        ref var bufferRef = ref MemoryMarshal.GetReference(buffer);
+
+        for (var i = 0; i < buffer.Length; i++)
+            Unsafe.Add(ref bufferRef, i) = CharsetMapping[Unsafe.Add(ref contentRef, i)];
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void FillUtf8Input(ReadOnlySpan<byte> content, Span<byte> buffer)
+    {
+        ref var contentRef = ref MemoryMarshal.GetReference(content);
         ref var bufferRef = ref MemoryMarshal.GetReference(buffer);
 
         for (var i = 0; i < buffer.Length; i++)
