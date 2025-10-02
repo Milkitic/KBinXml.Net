@@ -11,7 +11,7 @@ namespace KbinXml.Net
     /// 提供高性能的KBin格式编解码流操作。
     /// 可以直接创建新的流或包装现有流进行KBin格式的编解码。
     /// </summary>
-    public class KBinStream : Stream
+    internal class KBinStream : Stream
     {
         private readonly Stream _baseStream;
         private readonly bool _ownsStream;
@@ -201,10 +201,9 @@ namespace KbinXml.Net
         /// <param name="writeOptions">写入选项。</param>
         public void Encode(XmlDocument xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
         {
-            var data = EncodeToBuffer(xml, knownEncodings, writeOptions);
             SetLength(0);
             Position = 0;
-            Write(data, 0, data.Length);
+            KbinConverter.Write(xml, _baseStream, knownEncodings, writeOptions);
             Position = 0;
         }
 
@@ -216,10 +215,9 @@ namespace KbinXml.Net
         /// <param name="writeOptions">写入选项。</param>
         public void Encode(XDocument xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
         {
-            var data = EncodeToBuffer(xml, knownEncodings, writeOptions);
             SetLength(0);
             Position = 0;
-            Write(data, 0, data.Length);
+            KbinConverter.Write(xml, _baseStream, knownEncodings, writeOptions);
             Position = 0;
         }
 
@@ -245,16 +243,6 @@ namespace KbinXml.Net
         private static XmlDocument DecodeBufferToXmlDocument(byte[] buffer, out KnownEncodings knownEncodings, ReadOptions? readOptions = null)
         {
             return KbinConverter.ReadXml(buffer.AsSpan(), out knownEncodings, readOptions);
-        }
-
-        private static byte[] EncodeToBuffer(XmlDocument xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
-        {
-            return KbinConverter.Write(xml, knownEncodings, writeOptions);
-        }
-
-        private static byte[] EncodeToBuffer(XDocument xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
-        {
-            return KbinConverter.Write(xml, knownEncodings, writeOptions);
         }
 
         #endregion
