@@ -53,11 +53,17 @@ namespace StableKbin
                 .ToString()
 #endif
         ));
-        public static Span<byte> DoubleToBytes(ReadOnlySpan<char> input) => BitConverterHelper.GetBigEndianBytes(double.Parse(input
+        public static Span<byte> DoubleToBytes(ReadOnlySpan<char> input)
+        {
 #if NETSTANDARD2_0 || NETFRAMEWORK
-                .ToString()
+            var str = input.ToString();
+            var d = str == ((object)double.MaxValue).ToString() ? double.MaxValue : double.Parse(str);
+            return BitConverterHelper.GetBigEndianBytes(d);
+#else
+            return BitConverterHelper.GetBigEndianBytes(double.Parse(input));
 #endif
-        ));
+        }
+
         public static Span<byte> Ip4ToBytes(ReadOnlySpan<char> input) => IPAddress.Parse(input
 #if NETSTANDARD2_0 || NETFRAMEWORK
                 .ToString()

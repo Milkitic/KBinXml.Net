@@ -6,6 +6,8 @@ namespace KbinXml.Net.Utils;
 
 public static class ParseHelper
 {
+    private static readonly string? DoubleMaxString = ((object)double.MaxValue).ToString();
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool ParseBoolean(ReadOnlySpan<char> input)
     {
@@ -112,7 +114,9 @@ public static class ParseHelper
 #if NETCOREAPP3_1_OR_GREATER
         return double.Parse(input, provider: nfi);
 #else
-        return double.Parse(input.ToString(), nfi);
+        var str = input.ToString();
+        var d = str == DoubleMaxString ? double.MaxValue : double.Parse(str);
+        return d;
 #endif
     }
 
