@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using KbinXml.Net.Utils;
 using Microsoft.IO;
@@ -7,23 +8,32 @@ namespace KbinXml.Net.Internal.Writers;
 
 internal readonly ref struct BigEndianWriter : IKBinWriter, IDisposable
 {
-    internal readonly RecyclableMemoryStream Stream;
+    public readonly Stream BaseStream;
+
+    private readonly RecyclableMemoryStream? _recyclableMemoryStream;
+    private readonly bool _leaveOpen;
 
     public BigEndianWriter(int capacity = 0)
     {
-        Stream = KbinConverter.RecyclableMemoryStreamManager.GetStream("wbe", capacity);
+        BaseStream = _recyclableMemoryStream = KbinConverter.RecyclableMemoryStreamManager.GetStream("wbe", capacity);
+    }
+
+    public BigEndianWriter(Stream baseStream)
+    {
+        _leaveOpen = true;
+        BaseStream = baseStream;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteByte(byte singleByte)
     {
-        Stream.WriteByte(singleByte);
+        BaseStream.WriteByte(singleByte);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteBytes(scoped ReadOnlySpan<byte> buffer)
     {
-        Stream.Write(buffer);
+        BaseStream.WriteSpan(buffer);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -42,56 +52,110 @@ internal readonly ref struct BigEndianWriter : IKBinWriter, IDisposable
     public void WriteS16(short value)
     {
         const int size = sizeof(short);
-        BitConverterHelper.WriteBeBytes(Stream.GetSpan(size), value);
-        Stream.Advance(size);
+        if (_recyclableMemoryStream is { } stream)
+        {
+            BitConverterHelper.WriteBeBytes(stream.GetSpan(size), value);
+            stream.Advance(size);
+        }
+        else
+        {
+            Span<byte> buffer = stackalloc byte[size];
+            BitConverterHelper.WriteBeBytes(buffer, value);
+            BaseStream.WriteSpan(buffer);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteU16(ushort value)
     {
         const int size = sizeof(ushort);
-        BitConverterHelper.WriteBeBytes(Stream.GetSpan(size), value);
-        Stream.Advance(size);
+        if (_recyclableMemoryStream is { } stream)
+        {
+            BitConverterHelper.WriteBeBytes(stream.GetSpan(size), value);
+            stream.Advance(size);
+        }
+        else
+        {
+            Span<byte> buffer = stackalloc byte[size];
+            BitConverterHelper.WriteBeBytes(buffer, value);
+            BaseStream.WriteSpan(buffer);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteS32(int value)
     {
         const int size = sizeof(int);
-        BitConverterHelper.WriteBeBytes(Stream.GetSpan(size), value);
-        Stream.Advance(size);
+        if (_recyclableMemoryStream is { } stream)
+        {
+            BitConverterHelper.WriteBeBytes(stream.GetSpan(size), value);
+            stream.Advance(size);
+        }
+        else
+        {
+            Span<byte> buffer = stackalloc byte[size];
+            BitConverterHelper.WriteBeBytes(buffer, value);
+            BaseStream.WriteSpan(buffer);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteU32(uint value)
     {
         const int size = sizeof(uint);
-        BitConverterHelper.WriteBeBytes(Stream.GetSpan(size), value);
-        Stream.Advance(size);
+        if (_recyclableMemoryStream is { } stream)
+        {
+            BitConverterHelper.WriteBeBytes(stream.GetSpan(size), value);
+            stream.Advance(size);
+        }
+        else
+        {
+            Span<byte> buffer = stackalloc byte[size];
+            BitConverterHelper.WriteBeBytes(buffer, value);
+            BaseStream.WriteSpan(buffer);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteS64(long value)
     {
         const int size = sizeof(long);
-        BitConverterHelper.WriteBeBytes(Stream.GetSpan(size), value);
-        Stream.Advance(size);
+        if (_recyclableMemoryStream is { } stream)
+        {
+            BitConverterHelper.WriteBeBytes(stream.GetSpan(size), value);
+            stream.Advance(size);
+        }
+        else
+        {
+            Span<byte> buffer = stackalloc byte[size];
+            BitConverterHelper.WriteBeBytes(buffer, value);
+            BaseStream.WriteSpan(buffer);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteU64(ulong value)
     {
         const int size = sizeof(ulong);
-        BitConverterHelper.WriteBeBytes(Stream.GetSpan(size), value);
-        Stream.Advance(size);
+        if (_recyclableMemoryStream is { } stream)
+        {
+            BitConverterHelper.WriteBeBytes(stream.GetSpan(size), value);
+            stream.Advance(size);
+        }
+        else
+        {
+            Span<byte> buffer = stackalloc byte[size];
+            BitConverterHelper.WriteBeBytes(buffer, value);
+            BaseStream.WriteSpan(buffer);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void Pad()
     {
-        while ((Stream.Length & 3) != 0)
+        while ((BaseStream.Length & 3) != 0)
         {
-            Stream.WriteByte(0);
+            BaseStream.WriteByte(0);
         }
     }
 
@@ -99,12 +163,13 @@ internal readonly ref struct BigEndianWriter : IKBinWriter, IDisposable
     [Obsolete("This method has degraded performance and should be avoided.")]
     public byte[] ToArray()
     {
-        return Stream.ToArray();
+        return BaseStream.ToArray();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispose()
     {
-        Stream.Dispose();
+        if (!_leaveOpen)
+            BaseStream.Dispose();
     }
 }

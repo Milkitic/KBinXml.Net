@@ -13,6 +13,8 @@ namespace KbinXml.Net;
 
 public static partial class KbinConverter
 {
+    #region byte[] returning methods
+
     /// <summary>
     /// Converts an XML document to KBin-formatted binary data.
     /// </summary>
@@ -29,27 +31,9 @@ public static partial class KbinConverter
     /// </remarks>
     public static byte[] Write(XmlDocument xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
-        if (xml is null)
-        {
-            throw new ArgumentNullException(nameof(xml));
-        }
-
-        var encoding = knownEncodings.ToEncoding();
-        writeOptions ??= new WriteOptions();
-        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding),
-            writeOptions);
-
-        using XmlReader reader = new XmlNodeReader(xml);
-
-        try
-        {
-            return WriterImpl(encoding, ref context, reader, writeOptions);
-        }
-        finally
-        {
-            context.DataWriter.Dispose();
-            context.NodeWriter.Dispose();
-        }
+        using var ms = new MemoryStream();
+        Write(xml, ms, knownEncodings, writeOptions);
+        return ms.ToArray();
     }
 
     /// <summary>
@@ -63,27 +47,9 @@ public static partial class KbinConverter
     /// <inheritdoc cref="Write(XmlDocument, KnownEncodings, WriteOptions?)"/>
     public static byte[] Write(XContainer xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
-        if (xml is null)
-        {
-            throw new ArgumentNullException(nameof(xml));
-        }
-
-        var encoding = knownEncodings.ToEncoding();
-        writeOptions ??= new WriteOptions();
-        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding),
-            writeOptions);
-
-        using var reader = xml.CreateReader();
-
-        try
-        {
-            return WriterImpl(encoding, ref context, reader, writeOptions);
-        }
-        finally
-        {
-            context.DataWriter.Dispose();
-            context.NodeWriter.Dispose();
-        }
+        using var ms = new MemoryStream();
+        Write(xml, ms, knownEncodings, writeOptions);
+        return ms.ToArray();
     }
 
     /// <summary>
@@ -97,28 +63,9 @@ public static partial class KbinConverter
     /// <inheritdoc cref="Write(XmlDocument, KnownEncodings, WriteOptions?)"/>
     public static byte[] Write(string xmlText, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
-        if (string.IsNullOrEmpty(xmlText))
-        {
-            throw new ArgumentNullException(nameof(xmlText));
-        }
-
-        var encoding = knownEncodings.ToEncoding();
-        writeOptions ??= new WriteOptions();
-        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding),
-            writeOptions);
-
-        using var textReader = new StringReader(xmlText);
-        using var reader = XmlReader.Create(textReader, new XmlReaderSettings { IgnoreWhitespace = true });
-
-        try
-        {
-            return WriterImpl(encoding, ref context, reader, writeOptions);
-        }
-        finally
-        {
-            context.DataWriter.Dispose();
-            context.NodeWriter.Dispose();
-        }
+        using var ms = new MemoryStream();
+        Write(xmlText, ms, knownEncodings, writeOptions);
+        return ms.ToArray();
     }
 
     /// <summary>
@@ -132,17 +79,107 @@ public static partial class KbinConverter
     /// <inheritdoc cref="Write(XmlDocument, KnownEncodings, WriteOptions?)"/>
     public static byte[] Write(byte[] xmlBytes, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
-        var encoding = knownEncodings.ToEncoding();
-        writeOptions ??= new WriteOptions();
-        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding),
-            writeOptions);
+        using var ms = new MemoryStream();
+        Write(xmlBytes, ms, knownEncodings, writeOptions);
+        return ms.ToArray();
+    }
+
+    #endregion
+
+    #region Stream-based writing methods
+
+    /// <summary>
+    /// Converts an XML document to KBin-formatted binary data and writes it to a stream.
+    /// </summary>
+    /// <param name="xml">The XML document to convert.</param>
+    /// <param name="outputStream">The stream to write the KBin data to.</param>
+    /// <param name="knownEncodings">The text encoding specification for the output KBin data.</param>
+    /// <param name="writeOptions">Configuration options for the conversion process.</param>
+    /// <returns>The total number of bytes written to the stream.</returns>
+    public static int Write(XmlDocument xml, Stream outputStream, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
+    {
+        if (xml is null)
+            throw new ArgumentNullException(nameof(xml));
+        if (outputStream is null)
+            throw new ArgumentNullException(nameof(outputStream));
+
+        using XmlReader reader = new XmlNodeReader(xml);
+        return WriteCore(reader, outputStream, knownEncodings, writeOptions);
+    }
+
+    /// <summary>
+    /// Converts a LINQ-to-XML element/document to KBin-formatted binary data and writes it to a stream.
+    /// </summary>
+    /// <param name="xml">The XML element or document to convert.</param>
+    /// <param name="outputStream">The stream to write the KBin data to.</param>
+    /// <param name="knownEncodings">The text encoding specification for the output KBin data.</param>
+    /// <param name="writeOptions">Configuration options for serialization.</param>
+    /// <returns>The total number of bytes written to the stream.</returns>
+    public static int Write(XContainer xml, Stream outputStream, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
+    {
+        if (xml is null)
+            throw new ArgumentNullException(nameof(xml));
+        if (outputStream is null)
+            throw new ArgumentNullException(nameof(outputStream));
+
+        using var reader = xml.CreateReader();
+        return WriteCore(reader, outputStream, knownEncodings, writeOptions);
+    }
+
+    /// <summary>
+    /// Converts XML text to KBin-formatted binary data and writes it to a stream.
+    /// </summary>
+    /// <param name="xmlText">The XML string to convert.</param>
+    /// <param name="outputStream">The stream to write the KBin data to.</param>
+    /// <param name="knownEncodings">The character encoding scheme for text conversion.</param>
+    /// <param name="writeOptions">Serialization control parameters.</param>
+    /// <returns>The total number of bytes written to the stream.</returns>
+    public static int Write(string xmlText, Stream outputStream, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
+    {
+        if (xmlText is null)
+            throw new ArgumentNullException(nameof(xmlText));
+        if (outputStream is null)
+            throw new ArgumentNullException(nameof(outputStream));
+
+        using var textReader = new StringReader(xmlText);
+        using var reader = XmlReader.Create(textReader, new XmlReaderSettings { IgnoreWhitespace = true });
+        return WriteCore(reader, outputStream, knownEncodings, writeOptions);
+    }
+
+    /// <summary>
+    /// Converts UTF-8 encoded XML bytes to KBin-formatted binary data and writes it to a stream.
+    /// </summary>
+    /// <param name="xmlBytes">The XML data to convert.</param>
+    /// <param name="outputStream">The stream to write the KBin data to.</param>
+    /// <param name="knownEncodings">The target text encoding specification.</param>
+    /// <param name="writeOptions">Serialization configuration parameters.</param>
+    /// <returns>The total number of bytes written to the stream.</returns>
+    public static int Write(byte[] xmlBytes, Stream outputStream, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
+    {
+        if (xmlBytes is null)
+            throw new ArgumentNullException(nameof(xmlBytes));
+        if (outputStream is null)
+            throw new ArgumentNullException(nameof(outputStream));
 
         using var ms = new MemoryStream(xmlBytes);
         using var reader = XmlReader.Create(ms, new XmlReaderSettings { IgnoreWhitespace = true });
+        return WriteCore(reader, outputStream, knownEncodings, writeOptions);
+    }
+
+    #endregion
+
+    /// <summary>
+    /// Central writing logic that handles context creation and disposal.
+    /// </summary>
+    private static int WriteCore(XmlReader reader, Stream outputStream, KnownEncodings knownEncodings, WriteOptions? writeOptions)
+    {
+        var encoding = knownEncodings.ToEncoding();
+        writeOptions ??= new WriteOptions();
+        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding), writeOptions);
 
         try
         {
-            return WriterImpl(encoding, ref context, reader, writeOptions);
+            return WriterImpl(outputStream, encoding, ref context, reader, writeOptions);
         }
         finally
         {
@@ -151,7 +188,7 @@ public static partial class KbinConverter
         }
     }
 
-    private static byte[] WriterImpl(Encoding encoding, ref WriteContext context, XmlReader reader,
+    private static int WriterImpl(Stream outputStream, Encoding encoding, ref WriteContext context, XmlReader reader,
         WriteOptions writeOptions)
     {
         if (!EncodingDictionary.ReverseEncodingMap.TryGetValue(encoding, out var encodingBytes))
@@ -225,7 +262,7 @@ public static partial class KbinConverter
         context.NodeWriter.Pad();
         context.DataWriter.PadStream();
 
-        return FinalizeOutput(ref context, encodingBytes);
+        return FinalizeOutput(outputStream, ref context, encodingBytes);
     }
 
     private static void ProcessAttributes(XmlReader reader, ref WriteContext context, string? repairedPrefix)
@@ -258,15 +295,13 @@ public static partial class KbinConverter
         reader.MoveToElement();
     }
 
-    private static byte[] FinalizeOutput(ref WriteContext context, byte encodingBytes)
+    private static int FinalizeOutput(Stream outputStream, ref WriteContext context, byte encodingBytes)
     {
         var nodeLength = (int)context.NodeWriter.Stream.Length;
         var dataLength = (int)context.DataWriter.Stream.Length;
 
-        // 预先计算总输出大小，避免动态扩容
-        var totalSize = 8 + 4 + nodeLength + 4 + dataLength;
-
-        using var output = new BigEndianWriter(totalSize);
+        var position = outputStream.Position;
+        using var output = new BigEndianWriter(outputStream);
 
         //Write header data
         output.WriteU8(0xA0); // Signature
@@ -276,13 +311,14 @@ public static partial class KbinConverter
 
         //Write node buffer length and contents.
         output.WriteS32(nodeLength);
-        context.NodeWriter.Stream.WriteTo(output.Stream);
+        context.NodeWriter.Stream.WriteTo(outputStream);
 
         //Write data buffer length and contents.
         output.WriteS32(dataLength);
-        context.DataWriter.Stream.WriteTo(output.Stream);
+        context.DataWriter.Stream.WriteTo(outputStream);
 
-        return output.ToArray();
+        // Calculate total bytes written: Header (4) + NodeLen (4) + NodeData + DataLen (4) + Data
+        return (int)(outputStream.Position - position);
     }
 
     private ref struct WriteContext
@@ -390,7 +426,8 @@ public static partial class KbinConverter
                         {
                             if (strictMode)
                             {
-                                throw new KbinArrayCountMissMatchException(ArrayCountStr, PendingValue.Split(' ').Length);
+                                throw new KbinArrayCountMissMatchException(ArrayCountStr,
+                                    PendingValue.Split(' ').Length);
                             }
 
                             break;
