@@ -1,12 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using System.IO;
+using System.Text;
 using KbinXml.Net;
-using KbinXml.Net.Internal;
-using KbinXml.Net.Internal.Writers;
-using KbinXml.Net.Internal.Readers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -33,11 +28,11 @@ namespace GeneralUnitTests
             // Prepare a simple XML, add __type attribute
             var testXml = "<root><value __type=\"str\">テスト</value></root>";
             _outputHelper.WriteLine($"Original XML: {testXml}");
-            
+
             // Generate Kbin binary data
             var kbin = KbinConverter.Write(testXml, KnownEncodings.UTF8);
             _outputHelper.WriteLine($"Kbin size: {kbin.Length} bytes");
-            
+
             // Print the first 64 bytes of Kbin binary data for debugging
             _outputHelper.WriteLine("First 64 bytes of Kbin data:");
             for (int i = 0; i < Math.Min(64, kbin.Length); i++)
@@ -48,16 +43,16 @@ namespace GeneralUnitTests
             // Try reading with different encodings
             foreach (KnownEncodings encoding in Enum.GetValues(typeof(KnownEncodings)))
             {
-                try 
+                try
                 {
                     _outputHelper.WriteLine($"\nTrying to decode with {encoding}:");
                     var result = KbinConverter.ReadXmlLinq(kbin);
                     _outputHelper.WriteLine($"Decode result: {result}");
-                    
+
                     // Check value element's value
                     var valueText = result.Root?.Element("value")?.Value;
                     _outputHelper.WriteLine($"Value element value: '{valueText}'");
-                    
+
                     // Trace the complete XML structure
                     _outputHelper.WriteLine("XML structure:");
                     foreach (var element in result.Descendants())
@@ -78,7 +73,7 @@ namespace GeneralUnitTests
             // Test different string encoding results
             var testString = "テスト";
             _outputHelper.WriteLine($"Test string: '{testString}'");
-            
+
             foreach (KnownEncodings encoding in Enum.GetValues(typeof(KnownEncodings)))
             {
                 try
@@ -92,11 +87,11 @@ namespace GeneralUnitTests
                     {
                         _outputHelper.WriteLine($"[{i}] 0x{bytes[i]:X2}");
                     }
-                    
+
                     // Decode again
                     var decoded = encodingObj.GetString(bytes);
                     _outputHelper.WriteLine($"After decoding: '{decoded}'");
-                    
+
                     // Try using UTF8 to decode
                     var utf8Decoded = Encoding.UTF8.GetString(bytes);
                     _outputHelper.WriteLine($"UTF8 decoding: '{utf8Decoded}'");
@@ -115,26 +110,26 @@ namespace GeneralUnitTests
             // So we only test the overall XML conversion instead of testing NodeWriter separately
             var testString = "テスト";
             _outputHelper.WriteLine($"Test string: '{testString}'");
-            
+
             foreach (KnownEncodings knownEncoding in Enum.GetValues(typeof(KnownEncodings)))
             {
                 try
                 {
                     _outputHelper.WriteLine($"\n===== Encoding: {knownEncoding} =====");
-                    
+
                     // Create XML with test string
                     var xml = $"<root><value __type=\"str\">{testString}</value></root>";
-                    
+
                     // Convert to Kbin
                     var kbin = KbinConverter.Write(xml, knownEncoding);
-                    
+
                     _outputHelper.WriteLine($"Kbin size: {kbin.Length} bytes");
                     _outputHelper.WriteLine("First 32 bytes of Kbin data:");
                     for (int i = 0; i < Math.Min(kbin.Length, 32); i++)
                     {
                         _outputHelper.WriteLine($"[{i,2}] 0x{kbin[i]:X2}");
                     }
-                    
+
                     // Convert Kbin back to XML
                     var resultXml = KbinConverter.ReadXmlLinq(kbin);
                     var valueText = resultXml.Root?.Element("value")?.Value;
@@ -154,26 +149,26 @@ namespace GeneralUnitTests
             // So we only test the overall XML conversion instead of testing DataReader/DataWriter separately
             var testString = "テスト";
             _outputHelper.WriteLine($"Test string: '{testString}'");
-            
+
             foreach (KnownEncodings knownEncoding in Enum.GetValues(typeof(KnownEncodings)))
             {
                 try
                 {
                     _outputHelper.WriteLine($"\n===== Encoding: {knownEncoding} =====");
-                    
+
                     // Create XML with test string
                     var xml = $"<root><value __type=\"str\">{testString}</value></root>";
-                    
+
                     // Convert to Kbin
                     var kbin = KbinConverter.Write(xml, knownEncoding);
-                    
+
                     _outputHelper.WriteLine($"Kbin size: {kbin.Length} bytes");
                     _outputHelper.WriteLine("First 32 bytes of Kbin data:");
                     for (int i = 0; i < Math.Min(kbin.Length, 32); i++)
                     {
                         _outputHelper.WriteLine($"[{i,2}] 0x{kbin[i]:X2}");
                     }
-                    
+
                     // Convert Kbin back to XML
                     var resultXml = KbinConverter.ReadXmlLinq(kbin);
                     var valueText = resultXml.Root?.Element("value")?.Value;
@@ -190,11 +185,11 @@ namespace GeneralUnitTests
         public void Debug_EncodingDetailTest()
         {
             var japaneseStrings = new[] { "テスト", "メインサーバー", "最初の項目", "コンテンツあり" };
-            
+
             foreach (var testString in japaneseStrings)
             {
                 _outputHelper.WriteLine($"\n==== Test string: '{testString}' ====");
-                
+
                 // Only use UTF8 encoding for testing, avoid using unsupported encodings
                 foreach (KnownEncodings knownEncoding in new[] { KnownEncodings.UTF8, KnownEncodings.ASCII })
                 {
@@ -202,27 +197,27 @@ namespace GeneralUnitTests
                     {
                         var encoding = knownEncoding.ToEncoding();
                         _outputHelper.WriteLine($"\n=== Encoding: {knownEncoding} ===");
-                        
+
                         // 1. Encode to byte array
                         var bytes = encoding.GetBytes(testString);
                         _outputHelper.WriteLine($"Encoded byte count: {bytes.Length}");
                         _outputHelper.WriteLine("Byte content:");
-                        
+
                         string bytesHex = BitConverter.ToString(bytes);
                         _outputHelper.WriteLine($"HEX: {bytesHex}");
-                        
+
                         // 2. Generate XML and add __type attribute
                         var xml = $"<root><value __type=\"str\">{testString}</value></root>";
-                        
+
                         // 3. Convert to KBin
                         var kbin = KbinConverter.Write(xml, knownEncoding);
                         _outputHelper.WriteLine($"\nKbin size: {kbin.Length} bytes");
-                        
+
                         // 4. Convert KBin back to XML
                         var resultXml = KbinConverter.ReadXmlLinq(kbin);
                         var valueText = resultXml.Root?.Element("value")?.Value;
                         _outputHelper.WriteLine($"Value after decoding: '{valueText}'");
-                        
+
                         // Check if it matches
                         if (testString == valueText)
                         {
@@ -282,32 +277,32 @@ namespace GeneralUnitTests
                 // Convert to Kbin
                 var kbin = KbinConverter.Write(xml, KnownEncodings.UTF8);
                 _outputHelper.WriteLine($"Kbin size: {kbin.Length} bytes");
-                
+
                 // Convert Kbin back to XML
                 var resultXml = KbinConverter.ReadXmlLinq(kbin);
                 _outputHelper.WriteLine($"Read back XML: {resultXml}");
-                
+
                 // Verify each element
                 _outputHelper.WriteLine("\nVerify each element value:");
-                
+
                 var strValue = resultXml.Root?.Element("strValue")?.Value;
                 _outputHelper.WriteLine($"strValue: '{strValue}'");
-                
+
                 var intValue = resultXml.Root?.Element("intValue")?.Value;
                 _outputHelper.WriteLine($"intValue: '{intValue}'");
-                
+
                 var floatValue = resultXml.Root?.Element("floatValue")?.Value;
                 _outputHelper.WriteLine($"floatValue: '{floatValue}'");
-                
+
                 var binValue = resultXml.Root?.Element("binValue")?.Value;
                 _outputHelper.WriteLine($"binValue: '{binValue}'");
-                
+
                 var boolValue = resultXml.Root?.Element("boolValue")?.Value;
                 _outputHelper.WriteLine($"boolValue: '{boolValue}'");
-                
+
                 var intArray = resultXml.Root?.Element("intArray")?.Value;
                 _outputHelper.WriteLine($"intArray: '{intArray}'");
-                
+
                 var strArrayItems = resultXml.Root?.Element("strArray")?.Elements("item").Select(e => e.Value).ToList();
                 if (strArrayItems != null)
                 {
@@ -316,10 +311,10 @@ namespace GeneralUnitTests
                         _outputHelper.WriteLine($"strArray[{i}]: '{strArrayItems[i]}'");
                     }
                 }
-                
+
                 var sectionTitle = resultXml.Root?.Element("section")?.Element("title")?.Value;
                 _outputHelper.WriteLine($"section.title: '{sectionTitle}'");
-                
+
                 var sectionContent = resultXml.Root?.Element("section")?.Element("content")?.Value;
                 _outputHelper.WriteLine($"section.content: '{sectionContent}'");
             }
@@ -372,13 +367,13 @@ namespace GeneralUnitTests
                 // Convert to Kbin
                 var kbin = KbinConverter.Write(xml, KnownEncodings.UTF8);
                 _outputHelper.WriteLine($"Kbin size: {kbin.Length} bytes");
-                
+
                 // Convert Kbin back to XML
                 var resultXml = KbinConverter.ReadXmlLinq(kbin);
-                
+
                 // Verify each element
                 _outputHelper.WriteLine("\nVerify each element value:");
-                
+
                 foreach (var element in resultXml.Root.Elements())
                 {
                     var typeName = element.Attribute("__type")?.Value;
@@ -391,4 +386,4 @@ namespace GeneralUnitTests
             }
         }
     }
-} 
+}

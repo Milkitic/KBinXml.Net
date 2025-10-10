@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using KbinXml.Net.Internal.Sixbit;
 using Xunit;
 
@@ -27,7 +26,7 @@ namespace GeneralUnitTests
             SixbitHelperOptimized.Encode(testData, outputOptimized);
             SixbitHelperSuperOptimized.Encode(testData, outputSuperOptimized);
             SixbitHelperCoreClrOptimized.Encode(testData, outputCoreClrOptimized);
-            
+
             Assert.Equal(outputOriginal.ToArray(), outputOptimized.ToArray());
             Assert.Equal(outputOriginal.ToArray(), outputSuperOptimized.ToArray());
             Assert.Equal(outputOriginal.ToArray(), outputCoreClrOptimized.ToArray());
@@ -57,7 +56,7 @@ namespace GeneralUnitTests
             SixbitHelperOptimized.Decode(output, inputOptimized);
             SixbitHelperSuperOptimized.Decode(output, inputSuperOptimized);
             SixbitHelperCoreClrOptimized.Decode(output, inputCoreClrOptimized);
-            
+
             Assert.Equal(inputOriginal.ToArray(), inputOptimized.ToArray());
             Assert.Equal(inputOriginal.ToArray(), inputSuperOptimized.ToArray());
             Assert.Equal(inputSuperOptimized.ToArray(), inputCoreClrOptimized.ToArray());

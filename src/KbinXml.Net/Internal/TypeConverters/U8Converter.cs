@@ -19,7 +19,7 @@ internal sealed class U8Converter : ITypeConverter
         builder.Append(ParseHelper.ParseByte(str, numberStyle));
         return 1; // 写入 1 个字节
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToString(ReadOnlySpan<byte> span)
     {
