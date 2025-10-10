@@ -1,10 +1,9 @@
 using System;
 using System.Text;
-using System.Xml.Linq;
+using System.Xml;
 using KbinXml.Net;
 using Xunit;
 using Xunit.Abstractions;
-using System.Xml;
 
 namespace GeneralUnitTests
 {

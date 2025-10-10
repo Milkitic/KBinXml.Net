@@ -13,7 +13,7 @@ public class WriteOptions
     /// The default value is <see langword="true"/> (strict validation enabled).
     /// </value>
     public bool StrictMode { get; set; } = true;
-    
+
     /// <summary>
     /// Gets or sets a value indicating whether XML output should be compressed using SixBit algorithm.
     /// </summary>
@@ -21,7 +21,7 @@ public class WriteOptions
     /// The default value is <see langword="true"/> (compression enabled).
     /// </value>
     public bool Compress { get; set; } = true;
-    
+
     /// <summary>
     /// Gets or sets the prefix used to repair invalid XML element names during serialization.  (e.g.: Names which start with numbers).
     /// When set to a non-null value, invalid names will be prefixed with this string.

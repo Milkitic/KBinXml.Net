@@ -17,7 +17,7 @@ internal sealed class DummyStrConverter : ITypeConverter
     {
         throw new NotSupportedException("String data should not be written as string.");
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToString(ReadOnlySpan<byte> span)
     {

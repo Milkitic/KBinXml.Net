@@ -18,7 +18,7 @@ internal sealed class FloatConverter : ITypeConverter
         return BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseSingle(str, ConvertHelper.UsNumberFormat));
         // 返回 4（大端字节序写入 4 个字节）
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToString(ReadOnlySpan<byte> span)
     {

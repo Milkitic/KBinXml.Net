@@ -17,7 +17,7 @@ internal sealed class DummyBinConverter : ITypeConverter
     {
         throw new NotSupportedException("Binary data should not be written as string.");
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToString(ReadOnlySpan<byte> span)
     {

@@ -34,7 +34,7 @@ namespace GeneralUnitTests
         {
             TestNumericTypeConversion(type, value);
         }
-        
+
         [Theory]
         [InlineData("s8", "0", 0)]
         [InlineData("s8", "-128", -128)]
@@ -43,7 +43,7 @@ namespace GeneralUnitTests
         {
             TestNumericTypeConversion(type, value);
         }
-        
+
         [Theory]
         [InlineData("u16", "0", 0U)]
         [InlineData("u16", "32767", 32767U)]
@@ -52,7 +52,7 @@ namespace GeneralUnitTests
         {
             TestNumericTypeConversion(type, value);
         }
-        
+
         [Theory]
         [InlineData("s16", "0", 0)]
         [InlineData("s16", "-32768", -32768)]
@@ -61,7 +61,7 @@ namespace GeneralUnitTests
         {
             TestNumericTypeConversion(type, value);
         }
-        
+
         [Theory]
         [InlineData("u32", "0", 0U)]
         [InlineData("u32", "2147483647", 2147483647U)]
@@ -70,7 +70,7 @@ namespace GeneralUnitTests
         {
             TestNumericTypeConversion(type, value);
         }
-        
+
         [Theory]
         [InlineData("s32", "0", 0)]
         [InlineData("s32", "-2147483648", -2147483648)]
@@ -79,7 +79,7 @@ namespace GeneralUnitTests
         {
             TestNumericTypeConversion(type, value);
         }
-        
+
         [Theory]
         [InlineData("u64", "0", "0")]
         [InlineData("u64", "9223372036854775807", "9223372036854775807")]
@@ -88,7 +88,7 @@ namespace GeneralUnitTests
         {
             TestNumericTypeConversion(type, value);
         }
-        
+
         [Theory]
         [InlineData("s64", "0", "0")]
         [InlineData("s64", "-9223372036854775808", "-9223372036854775808")]
@@ -102,14 +102,14 @@ namespace GeneralUnitTests
         {
             // Prepare XML
             var xml = $"<root><value __type=\"{type}\">{value}</value></root>";
-            
+
             // Convert to Kbin and return
             var kbin = KbinConverter.Write(xml, KnownEncodings.UTF8);
             var result = KbinConverter.ReadXmlLinq(kbin);
-            
+
             // Verify value is unchanged
             Assert.Equal(value, result.Root.Element("value").Value);
-            
+
             // Verify type attribute is preserved
             Assert.Equal(type, result.Root.Element("value").Attribute("__type").Value);
 
@@ -129,14 +129,14 @@ namespace GeneralUnitTests
         {
             // Prepare XML
             var xml = $"<root><value __type=\"str\">{value}</value></root>";
-            
+
             // Convert to Kbin and return
             var kbin = KbinConverter.Write(xml, KnownEncodings.UTF8);
             var result = KbinConverter.ReadXmlLinq(kbin);
-            
+
             // Verify value is unchanged
             Assert.Equal(value, result.Root.Element("value").Value);
-            
+
             // Verify type attribute is preserved
             Assert.Equal("str", result.Root.Element("value").Attribute("__type").Value);
 
@@ -155,14 +155,14 @@ namespace GeneralUnitTests
         {
             // Prepare XML
             var xml = $"<root><value __type=\"bin\" __size=\"{size}\">{hexValue}</value></root>";
-            
+
             // Convert to Kbin and return
             var kbin = KbinConverter.Write(xml, KnownEncodings.UTF8);
             var result = KbinConverter.ReadXmlLinq(kbin);
-            
+
             // Verify value is unchanged (ignoring case)
             Assert.Equal(hexValue.ToUpperInvariant(), result.Root.Element("value").Value.ToUpperInvariant());
-            
+
             // Verify type attribute and size attribute are preserved
             Assert.Equal("bin", result.Root.Element("value").Attribute("__type").Value);
             Assert.Equal(size.ToString(), result.Root.Element("value").Attribute("__size").Value);
@@ -182,14 +182,14 @@ namespace GeneralUnitTests
         {
             // Prepare XML
             var xml = $"<root><array __type=\"{type}\" __count=\"{count}\">{values}</array></root>";
-            
+
             // Convert to Kbin and return
             var kbin = KbinConverter.Write(xml, KnownEncodings.UTF8);
             var result = KbinConverter.ReadXmlLinq(kbin);
-            
+
             // Verify value is unchanged
             Assert.Equal(values, result.Root.Element("array").Value);
-            
+
             // Verify type attribute and count attribute are preserved
             Assert.Equal(type, result.Root.Element("array").Attribute("__type").Value);
             Assert.Equal(count.ToString(), result.Root.Element("array").Attribute("__count").Value);
@@ -206,14 +206,14 @@ namespace GeneralUnitTests
         {
             // Prepare XML
             var xml = "<root><ip __type=\"ip4\">192.168.1.1</ip></root>";
-            
+
             // Convert to Kbin and return
             var kbin = KbinConverter.Write(xml, KnownEncodings.UTF8);
             var result = KbinConverter.ReadXmlLinq(kbin);
-            
+
             // Verify value is unchanged
             Assert.Equal("192.168.1.1", result.Root.Element("ip").Value);
-            
+
             // Verify type attribute is preserved
             Assert.Equal("ip4", result.Root.Element("ip").Attribute("__type").Value);
 
@@ -229,17 +229,17 @@ namespace GeneralUnitTests
         {
             byte value = 123;
             string valueStr = value.ToString();
-            
+
             // Test writing
             var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
             int bytesWritten = U8Converter.Instance.WriteString(ref builder, valueStr.AsSpan());
-            
+
             Assert.Equal(1, bytesWritten);
-            
+
             // Test reading
             var bytes = builder.AsSpan().ToArray();
             string result = U8Converter.Instance.ToString(bytes);
-            
+
             Assert.Equal(valueStr, result);
         }
 
@@ -248,17 +248,17 @@ namespace GeneralUnitTests
         {
             int value = 123456789;
             string valueStr = value.ToString();
-            
+
             // Test writing
             var builder = new ValueListBuilder<byte>(stackalloc byte[8]);
             int bytesWritten = S32Converter.Instance.WriteString(ref builder, valueStr.AsSpan());
-            
+
             Assert.Equal(4, bytesWritten);
-            
+
             // Test reading
             var bytes = builder.AsSpan().ToArray();
             string result = S32Converter.Instance.ToString(bytes);
-            
+
             Assert.Equal(valueStr, result);
         }
 
@@ -266,17 +266,17 @@ namespace GeneralUnitTests
         public void Ip4ConverterTest()
         {
             string value = "192.168.1.1";
-            
+
             // Test writing
             var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
             int bytesWritten = Ip4Converter.Instance.WriteString(ref builder, value.AsSpan());
-            
+
             Assert.Equal(4, bytesWritten);
-            
+
             // Test reading
             var bytes = builder.AsSpan().ToArray();
             string result = Ip4Converter.Instance.ToString(bytes);
-            
+
             Assert.Equal(value, result);
         }
 
@@ -289,17 +289,17 @@ namespace GeneralUnitTests
         {
             // Prepare invalid value XML (out of type range)
             var xml = "<root><value __type=\"u8\">256</value></root>";
-            
+
             // Verify throws exception
             Assert.Throws<KbinException>(() => KbinConverter.Write(xml, KnownEncodings.UTF8));
         }
-        
+
         [Fact]
         public void InvalidType_ThrowsException()
         {
             // Prepare invalid type XML
             var xml = "<root><value __type=\"invalid_type\">123</value></root>";
-            
+
             // Verify throws exception
             Assert.Throws<KbinTypeNotFoundException>(() => KbinConverter.Write(xml, KnownEncodings.UTF8));
         }
@@ -307,7 +307,7 @@ namespace GeneralUnitTests
         #endregion
 
         #region Primitive Type Conversion Tests
-        
+
         [Theory]
         [ClassData(typeof(ByteTestData))]
         public void ByteTest(byte value)
@@ -479,7 +479,7 @@ namespace GeneralUnitTests
             Assert.Equal(bytes, bytes2);
             Assert.Equal(output, output2);
         }
-        
+
         #endregion
     }
-} 
+}

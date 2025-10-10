@@ -18,7 +18,7 @@ internal sealed class S16Converter : ITypeConverter
         return BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseInt16(str));
         // 返回 2（大端字节序写入 2 个字节）
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToString(ReadOnlySpan<byte> span)
     {

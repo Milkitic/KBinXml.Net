@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-
-namespace ReadBenchmark
+﻿namespace ReadBenchmark
 {
     internal static class MultiThreadUtils
     {

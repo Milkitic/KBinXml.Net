@@ -18,7 +18,7 @@ internal sealed class S64Converter : ITypeConverter
         return BitConverterHelper.WriteBeBytes(ref builder, ParseHelper.ParseInt64(str));
         // 返回 8（大端字节序写入 8 个字节）
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ToString(ReadOnlySpan<byte> span)
     {
