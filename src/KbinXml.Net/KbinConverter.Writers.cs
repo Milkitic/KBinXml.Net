@@ -31,7 +31,7 @@ public static partial class KbinConverter
     /// </remarks>
     public static byte[] Write(XmlDocument xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
-        using var ms = new MemoryStream();
+        using var ms = RecyclableMemoryStreamManager.GetStream("byte[] returning methods");
         Write(xml, ms, knownEncodings, writeOptions);
         return ms.ToArray();
     }
@@ -47,7 +47,7 @@ public static partial class KbinConverter
     /// <inheritdoc cref="Write(XmlDocument, KnownEncodings, WriteOptions?)"/>
     public static byte[] Write(XContainer xml, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
-        using var ms = new MemoryStream();
+        using var ms = RecyclableMemoryStreamManager.GetStream("byte[] returning methods");
         Write(xml, ms, knownEncodings, writeOptions);
         return ms.ToArray();
     }
@@ -63,7 +63,7 @@ public static partial class KbinConverter
     /// <inheritdoc cref="Write(XmlDocument, KnownEncodings, WriteOptions?)"/>
     public static byte[] Write(string xmlText, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
-        using var ms = new MemoryStream();
+        using var ms = RecyclableMemoryStreamManager.GetStream("byte[] returning methods");
         Write(xmlText, ms, knownEncodings, writeOptions);
         return ms.ToArray();
     }
@@ -79,7 +79,7 @@ public static partial class KbinConverter
     /// <inheritdoc cref="Write(XmlDocument, KnownEncodings, WriteOptions?)"/>
     public static byte[] Write(byte[] xmlBytes, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
     {
-        using var ms = new MemoryStream();
+        using var ms = RecyclableMemoryStreamManager.GetStream("byte[] returning methods");
         Write(xmlBytes, ms, knownEncodings, writeOptions);
         return ms.ToArray();
     }
@@ -161,7 +161,7 @@ public static partial class KbinConverter
         if (outputStream is null)
             throw new ArgumentNullException(nameof(outputStream));
 
-        using var ms = new MemoryStream(xmlBytes);
+        using var ms = RecyclableMemoryStreamManager.GetStream("byte[] returning methods");
         using var reader = XmlReader.Create(ms, new XmlReaderSettings { IgnoreWhitespace = true });
         return WriteCore(reader, outputStream, knownEncodings, writeOptions);
     }

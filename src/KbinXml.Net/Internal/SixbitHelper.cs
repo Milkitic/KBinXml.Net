@@ -40,7 +40,7 @@ internal static class SixbitHelper
     /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null"/>.</exception>
     public static byte[] Encode(string input)
     {
-        using var ms = new MemoryStream();
+        using var ms = KbinConverter.RecyclableMemoryStreamManager.GetStream("byte[] returning methods");
         EncodeCore(input, ms);
         return ms.GetBuffer();
     }

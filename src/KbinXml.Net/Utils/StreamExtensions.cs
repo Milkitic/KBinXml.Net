@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Runtime.CompilerServices;
 
@@ -13,8 +14,9 @@ public static class StreamExtensions
 
         var pos = stream.Position;
         stream.Position = 0;
-        byte[] buffer = new byte[16 * 1024];
-        using var copyMs = new MemoryStream();
+        using var rentedArray = new RentedArray<byte>(ArrayPool<byte>.Shared, 16 * 1024);
+        var buffer = rentedArray.Array;
+        using var copyMs = KbinConverter.RecyclableMemoryStreamManager.GetStream("byte[] returning methods");
         int read;
         while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
         {
