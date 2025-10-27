@@ -79,7 +79,14 @@ public ref struct ValueListBuilder<T> : IDisposable
         _pos = currentPos + itemsLength;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<T> AsSpan()
+    {
+        return _span.Slice(0, _pos);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<T> AsSpanUnsafe()
     {
         return _span.Slice(0, _pos);
     }
