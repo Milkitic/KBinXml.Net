@@ -38,11 +38,12 @@ internal static class SixbitHelper
     /// <param name="input">The string to encode.</param>
     /// <returns>A byte array containing the 6-bit encoded data.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null"/>.</exception>
+    [Obsolete("Use EncodeAndWrite() instead", true)]
     public static byte[] Encode(string input)
     {
         using var ms = KbinConverter.RecyclableMemoryStreamManager.GetStream("byte[] returning methods");
         EncodeCore(input, ms);
-        return ms.GetBuffer();
+        return ms.ToArray();
     }
 
     public static void EncodeAndWrite(RecyclableMemoryStream stream, string input)
@@ -91,26 +92,35 @@ internal static class SixbitHelper
         if (inputLength <= Constants.MaxStackLength)
         {
             Span<byte> inputBuffer = stackalloc byte[inputLength];
-            FillInput(input, inputBuffer);
-            Span<byte> outputBuffer = stream.GetSpan(outputLength);
-            outputBuffer.Slice(0, outputLength).Clear();
-            SixbitHelperEncImpl.Encode(inputBuffer, outputBuffer);
-            stream.Advance(outputLength);
+            InnerEncodeCore(inputBuffer);
         }
         else
         {
             using var rentedInput = new RentedArray<byte>(ArrayPool<byte>.Shared, inputLength);
-            var inputSpan = rentedInput.Array.AsSpan(0, inputLength);
-            FillInput(input, inputSpan);
-            Span<byte> outputSpan = stream.GetSpan(outputLength);
-            outputSpan.Slice(0, outputLength).Clear();
-            SixbitHelperEncImpl.Encode(inputSpan, outputSpan);
+            InnerEncodeCore(rentedInput.Array.AsSpan(0, inputLength));
+        }
+
+        return;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void InnerEncodeCore(Span<byte> inputBuffer)
+        {
+            FillInput(input, inputBuffer);
+            var outputSpan = stream.GetSpan(outputLength);
+            outputSpan.Slice(0, outputLength).Clear(); // Clear() Must be required
+            SixbitHelperEncImpl.Encode(inputBuffer, outputSpan);
             stream.Advance(outputLength);
         }
     }
 
     private static void EncodeCore(string input, Stream stream)
     {
+        if (stream is RecyclableMemoryStream rms)
+        {
+            EncodeCore(input, rms);
+            return;
+        }
+
         var inputLength = input.Length;
         var outputLength = (inputLength * 6 + 7) / 8;
 
@@ -118,9 +128,7 @@ internal static class SixbitHelper
         {
             Span<byte> inputBuffer = stackalloc byte[inputLength];
             Span<byte> outputBuffer = stackalloc byte[outputLength];
-            FillInput(input, inputBuffer);
-            SixbitHelperEncImpl.Encode(inputBuffer, outputBuffer);
-            stream.WriteSpan(outputBuffer);
+            InnerEncodeCore(inputBuffer, outputBuffer);
         }
         else
         {
@@ -128,12 +136,21 @@ internal static class SixbitHelper
             using var rentedOutput = new RentedArray<byte>(ArrayPool<byte>.Shared, outputLength);
             var inputSpan = rentedInput.Array.AsSpan(0, inputLength);
             var outputSpan = rentedOutput.Array.AsSpan(0, outputLength);
-            FillInput(input, inputSpan);
-            SixbitHelperEncImpl.Encode(inputSpan, outputSpan);
-            stream.WriteSpan(outputSpan);
+            InnerEncodeCore(inputSpan, outputSpan);
+        }
+
+        return;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void InnerEncodeCore(Span<byte> inputBuffer, Span<byte> outputBuffer)
+        {
+            FillInput(input, inputBuffer);
+            SixbitHelperEncImpl.Encode(inputBuffer, outputBuffer);
+            stream.WriteSpan(outputBuffer);
         }
     }
 
+#if NETSTANDARD2_0
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void FillInput(string content, Span<byte> buffer)
     {
@@ -143,6 +160,34 @@ internal static class SixbitHelper
         for (var i = 0; i < buffer.Length; i++)
             Unsafe.Add(ref bufferRef, i) = CharsetMapping[Unsafe.Add(ref contentRef, i)];
     }
+#else
+    private static void FillInput(string content, Span<byte> buffer)
+    {
+        if (!System.Text.Ascii.IsValid(content))
+        {
+            ThrowInvalidCharException();
+        }
+
+        ref var contentRef = ref MemoryMarshal.GetReference(content.AsSpan());
+        ref var bufferRef = ref MemoryMarshal.GetReference(buffer);
+        ref var mappingRef = ref MemoryMarshal.GetArrayDataReference(CharsetMapping);
+
+        var length = buffer.Length;
+        var i = 0;
+        var unrollLimit = length - 3;
+
+        for (; i < unrollLimit; i += 4)
+        {
+            Unsafe.Add(ref bufferRef, i) = Unsafe.Add(ref mappingRef, Unsafe.Add(ref contentRef, i));
+            Unsafe.Add(ref bufferRef, i + 1) = Unsafe.Add(ref mappingRef, Unsafe.Add(ref contentRef, i + 1));
+            Unsafe.Add(ref bufferRef, i + 2) = Unsafe.Add(ref mappingRef, Unsafe.Add(ref contentRef, i + 2));
+            Unsafe.Add(ref bufferRef, i + 3) = Unsafe.Add(ref mappingRef, Unsafe.Add(ref contentRef, i + 3));
+        }
+
+        for (; i < length; i++)
+            Unsafe.Add(ref bufferRef, i) = Unsafe.Add(ref mappingRef, Unsafe.Add(ref contentRef, i));
+    }
+#endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static unsafe string GetString(scoped Span<byte> input)
@@ -153,22 +198,46 @@ internal static class SixbitHelper
             return string.Create(input.Length, (nint)inputPtr, (chars, state) =>
             {
                 var ptr = (byte*)state.ToPointer();
+                ref var charsRef = ref MemoryMarshal.GetReference(chars);
+
                 for (var i = 0; i < chars.Length; i++)
                 {
-                    chars[i] = CharsetArray[ptr[i]];
+                    var index = ptr[i];
+                    var value = CharsetArray[index];
+                    Unsafe.Add(ref charsRef, i) = value;
                 }
             });
         }
-#else
-        Span<char> chars = stackalloc char[input.Length];
-        ref var inputRef = ref MemoryMarshal.GetReference(input);
-        ref var charsRef = ref MemoryMarshal.GetReference(chars);
+#else 
+        if (input.Length <= Constants.MaxStackLength)
+        {
+            Span<char> chars = stackalloc char[input.Length];
+            FillChars(input, chars);
+            fixed (char* p = chars)
+                return new string(p, 0, chars.Length);
+        }
 
-        for (var i = 0; i < input.Length; i++)
-            Unsafe.Add(ref charsRef, i) = CharsetArray[Unsafe.Add(ref inputRef, i)];
+        using var rentedChars = new RentedArray<char>(ArrayPool<char>.Shared, input.Length);
+        var charSpan = rentedChars.Array.AsSpan(0, input.Length);
+        FillChars(input, charSpan);
+        fixed (char* p = charSpan)
+            return new string(p, 0, charSpan.Length);
 
-        fixed (char* p = chars)
-            return new string(p, 0, chars.Length);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void FillChars(ReadOnlySpan<byte> input, Span<char> chars)
+        {
+            ref var inputRef = ref MemoryMarshal.GetReference(input);
+            ref var charsRef = ref MemoryMarshal.GetReference(chars);
+
+            for (var i = 0; i < input.Length; i++)
+                Unsafe.Add(ref charsRef, i) = CharsetArray[Unsafe.Add(ref inputRef, i)];
+        }
 #endif
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static void ThrowInvalidCharException()
+    {
+        throw new ArgumentException("Input content contains invalid (non-ASCII or out-of-range) characters.");
     }
 }

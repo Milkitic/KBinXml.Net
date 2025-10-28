@@ -18,6 +18,7 @@ public static class ValueListBuilderExtensions
 
         try
         {
+            if (arr != null) span.Clear();
             valueListBuilder.AppendSpan(span);
         }
         finally

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using KbinXml.Net;
@@ -41,7 +42,7 @@ public class Program
         //g = stream.ToArray();
         //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         SmallTest();
-        InvalidTest();
+        //InvalidTest();
 
         return;
         byte[] kbin = File.ReadAllBytes("data/test_case2.bin");
@@ -87,14 +88,15 @@ public class Program
     private static void SmallTest()
     {
         var smallText = File.ReadAllText("data/small.xml");
-
-        for (int i = 0; i < 2000; i++)
+        for (int i = 0; i < 5000; i++)
         {
-            if (i == 200)
-            {
+            using var stream = KbinConverter.RecyclableMemoryStreamManager.GetStream();
+            //await Task.Delay(1);
+            //if (i == 200)
+            //{
 
-            }
-            var _kbin = KbinConverter.Write(smallText, KnownEncodings.ShiftJIS);
+            //}
+            var length = KbinConverter.Write(smallText, stream, KnownEncodings.ShiftJIS);
             //var linq = KbinConverter.ReadXmlLinq(_kbin);
             //var _xmlStr = linq.ToString();
             //KbinConverter.Write(_xmlStr, KnownEncodings.ShiftJIS, new WriteOptions { RepairedPrefix = "PREFIX_" });

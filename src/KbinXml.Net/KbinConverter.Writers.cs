@@ -161,8 +161,8 @@ public static partial class KbinConverter
         if (outputStream is null)
             throw new ArgumentNullException(nameof(outputStream));
 
-        using var ms = RecyclableMemoryStreamManager.GetStream("byte[] returning methods");
-        using var reader = XmlReader.Create(ms, new XmlReaderSettings { IgnoreWhitespace = true });
+        using var readerStream = new MemoryStream(xmlBytes);
+        using var reader = XmlReader.Create(readerStream, new XmlReaderSettings { IgnoreWhitespace = true });
         return WriteCore(reader, outputStream, knownEncodings, writeOptions);
     }
 
@@ -198,62 +198,14 @@ public static partial class KbinConverter
 
         var repairedPrefix = writeOptions.RepairedPrefix;
 
+        var nameTable = reader.NameTable;
+        context.NameType = nameTable.Add("__type");
+        context.NameCount = nameTable.Add("__count");
+        context.NameSize = nameTable.Add("__size");
+
         while (reader.Read())
         {
-            switch (reader.NodeType)
-            {
-                case XmlNodeType.Element:
-                    context.FlushPendingData();
-
-                    if (reader.AttributeCount > 0)
-                    {
-                        ProcessAttributes(reader, ref context, repairedPrefix);
-                    }
-
-                    var readerName = reader.Name;
-                    if (context.TypeStr == null)
-                    {
-                        context.NodeWriter.WriteU8(1);
-                    }
-                    else
-                    {
-                        if (!NodeTypeFactory.TryGetNodeTypeId(context.TypeStr, out var typeId)) // 内部为字典操作
-                        {
-                            throw new KbinTypeNotFoundException(context.TypeStr);
-                        }
-
-                        context.TypeId = typeId;
-                        if (context.ArrayCountStr != null)
-                        {
-                            context.NodeWriter.WriteU8((byte)(context.TypeId | 0x40));
-                        }
-                        else
-                        {
-                            context.NodeWriter.WriteU8(context.TypeId);
-                        }
-                    }
-
-                    context.NodeWriter.WriteString(KbinConverter.GetActualName(readerName, repairedPrefix));
-
-                    if (reader.IsEmptyElement)
-                    {
-                        context.FlushPendingData();
-                        context.NodeWriter.WriteU8(0xFE);
-                    }
-
-                    break;
-                case XmlNodeType.Text:
-                    context.PendingValue = reader.Value;
-                    break;
-                case XmlNodeType.EndElement:
-                    context.FlushPendingData();
-                    context.NodeWriter.WriteU8(0xFE);
-                    break;
-                default:
-                    //Console.WriteLine("Other node {0} with value {1}",
-                    //    reader.NodeType, reader.Value);
-                    break;
-            }
+            ProcessSingleRead(ref context, reader, repairedPrefix);
         }
 
         context.FlushPendingData();
@@ -265,30 +217,91 @@ public static partial class KbinConverter
         return FinalizeOutput(outputStream, ref context, encodingBytes);
     }
 
+    private static void ProcessSingleRead(ref WriteContext context, XmlReader reader, string? repairedPrefix)
+    {
+        switch (reader.NodeType)
+        {
+            case XmlNodeType.Element:
+                context.FlushPendingData();
+
+                if (reader.AttributeCount > 0)
+                {
+                    ProcessAttributes(reader, ref context, repairedPrefix);
+                }
+
+                if (context.TypeStr == null)
+                {
+                    context.NodeWriter.WriteU8(1);
+                }
+                else
+                {
+                    if (!NodeTypeFactory.TryGetNodeTypeId(context.TypeStr, out var typeId)) // 内部为字典操作
+                    {
+                        throw new KbinTypeNotFoundException(context.TypeStr);
+                    }
+
+                    context.TypeId = typeId;
+                    if (context.ArrayCountStr != null)
+                    {
+                        context.NodeWriter.WriteU8((byte)(context.TypeId | 0x40));
+                    }
+                    else
+                    {
+                        context.NodeWriter.WriteU8(context.TypeId);
+                    }
+                }
+                
+                var readerName = reader.Name;
+                context.NodeWriter.WriteString(GetActualName(readerName, repairedPrefix));
+
+                if (reader.IsEmptyElement)
+                {
+                    context.FlushPendingData();
+                    context.NodeWriter.WriteU8(0xFE);
+                }
+
+                break;
+            case XmlNodeType.Text:
+                context.PendingValue = reader.Value;
+                break;
+            case XmlNodeType.EndElement:
+                context.FlushPendingData();
+                context.NodeWriter.WriteU8(0xFE);
+                break;
+            default:
+                //Console.WriteLine("Other node {0} with value {1}",
+                //    reader.NodeType, reader.Value);
+                break;
+        }
+    }
+
     private static void ProcessAttributes(XmlReader reader, ref WriteContext context, string? repairedPrefix)
     {
-        var attrCount = reader.AttributeCount;
-        for (int i = 0; i < attrCount; i++)
+        while (reader.MoveToNextAttribute())
         {
-            reader.MoveToAttribute(i);
-            var name = reader.Name;
-            var value = reader.Value;
-
-            switch (name)
+            if (reader.Prefix.Length > 0)
             {
-                case "__type":
-                    context.TypeStr = value;
-                    break;
-                case "__count":
-                    context.ArrayCountStr = value;
-                    break;
-                case "__size":
-                    // ignore
-                    break;
-                default:
-                    context.PendingAttributes.Add(
-                        new KeyValuePair<string, string>(KbinConverter.GetActualName(name, repairedPrefix), value));
-                    break;
+                context.PendingAttributes.Add(
+                    new KeyValuePair<string, string>(GetActualName(reader.Name, repairedPrefix), reader.Value));
+                continue;
+            }
+            var localNameRef = reader.LocalName;
+
+            if (ReferenceEquals(localNameRef, context.NameType))
+            {
+                context.TypeStr = reader.Value;
+            }
+            else if (ReferenceEquals(localNameRef, context.NameCount))
+            {
+                context.ArrayCountStr = reader.Value;
+            }
+            else if (ReferenceEquals(localNameRef, context.NameSize))
+            {
+            }
+            else
+            {
+                context.PendingAttributes.Add(
+                    new KeyValuePair<string, string>(GetActualName(reader.Name, repairedPrefix), reader.Value));
             }
         }
 
@@ -346,6 +359,10 @@ public static partial class KbinConverter
             TypeId = 0;
         }
 
+        public string? NameType { get; set; }
+        public string? NameCount { get; set; }
+        public string? NameSize { get; set; }
+
         public void FlushPendingData()
         {
             if (TypeStr != null)
@@ -385,7 +402,7 @@ public static partial class KbinConverter
         private void ProcessComplexTypeData()
         {
             var type = NodeTypeFactory.GetNodeType(TypeId);
-            var values = PendingValue.SpanSplit(' '); // 已优化为Span操作
+            var valueEnumerator = PendingValue.SpanSplit(' '); // 已优化为Span操作
 
             var typeSize = type.Size;
             var requiredBytes = (uint)(typeSize * type.Count);
@@ -418,7 +435,11 @@ public static partial class KbinConverter
             {
                 int bytesWritten = 0;
                 var strictMode = WriteOptions.StrictMode;
-                foreach (var s in values)
+
+                if (PendingValue.Length == 0 && strictMode && iRequiredBytes > 0)
+                    throw new KbinException($"Node requires {iRequiredBytes} bytes but has no text value.");
+
+                foreach (var s in valueEnumerator)
                 {
                     try
                     {
