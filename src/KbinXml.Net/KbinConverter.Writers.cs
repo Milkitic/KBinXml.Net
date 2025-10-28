@@ -183,6 +183,7 @@ public static partial class KbinConverter
         }
         finally
         {
+            context.Dispose();
             context.DataWriter.Dispose();
             context.NodeWriter.Dispose();
         }
@@ -229,15 +230,15 @@ public static partial class KbinConverter
                     ProcessAttributes(reader, ref context, repairedPrefix);
                 }
 
-                if (context.TypeStr == null)
+                if (context.Type.IsEmpty)
                 {
                     context.NodeWriter.WriteU8(1);
                 }
                 else
                 {
-                    if (!NodeTypeFactory.TryGetNodeTypeId(context.TypeStr, out var typeId)) // 内部为字典操作
+                    if (!NodeTypeFactory.TryGetNodeTypeId(context.Type.Span, out var typeId)) // 内部为字典操作
                     {
-                        throw new KbinTypeNotFoundException(context.TypeStr);
+                        throw new KbinTypeNotFoundException(context.Type.ToString());
                     }
 
                     context.TypeId = typeId;
@@ -250,7 +251,7 @@ public static partial class KbinConverter
                         context.NodeWriter.WriteU8(context.TypeId);
                     }
                 }
-                
+
                 var readerName = reader.Name;
                 context.NodeWriter.WriteString(GetActualName(readerName, repairedPrefix));
 
@@ -285,11 +286,11 @@ public static partial class KbinConverter
                     new KeyValuePair<string, string>(GetActualName(reader.Name, repairedPrefix), reader.Value));
                 continue;
             }
-            var localNameRef = reader.LocalName;
 
+            var localNameRef = reader.LocalName;
             if (ReferenceEquals(localNameRef, context.NameType))
             {
-                context.TypeStr = reader.Value;
+                context.ReadTypeValue(reader);
             }
             else if (ReferenceEquals(localNameRef, context.NameCount))
             {
@@ -334,17 +335,25 @@ public static partial class KbinConverter
         return (int)(outputStream.Position - position);
     }
 
-    private ref struct WriteContext
+    private ref struct WriteContext : IDisposable
     {
+        private readonly char[] _typeBuffer = ArrayPool<char>.Shared.Rent(4096);
+
         public readonly WriteOptions WriteOptions;
         public readonly List<KeyValuePair<string, string>> PendingAttributes;
         public NodeWriter NodeWriter;
         public DataWriter DataWriter;
 
+        public ReadOnlyMemory<char> Type;
+
+        public string? NameType;
+        public string? NameCount;
+        public string? NameSize;
+
         public string PendingValue;
-        public string? TypeStr;
+
         public string? ArrayCountStr;
-        public byte TypeId;
+        public byte TypeId = 0;
 
         public WriteContext(NodeWriter nodeWriter, DataWriter dataWriter, WriteOptions writeOptions)
         {
@@ -354,18 +363,27 @@ public static partial class KbinConverter
 
             PendingAttributes = new List<KeyValuePair<string, string>>(8); // 预分配一个合理容量
             PendingValue = string.Empty;
-            TypeStr = null;
+            //TypeStr = null;
             ArrayCountStr = null;
-            TypeId = 0;
+            //TypeId = 0;
         }
 
-        public string? NameType { get; set; }
-        public string? NameCount { get; set; }
-        public string? NameSize { get; set; }
+        public void ReadTypeValue(XmlReader reader)
+        {
+            if (reader.CanReadValueChunk)
+            {
+                var length = reader.ReadValueChunk(_typeBuffer, 0, _typeBuffer.Length);
+                Type = _typeBuffer.AsMemory(0, length);
+            }
+            else
+            {
+                Type = reader.Value.AsMemory();
+            }
+        }
 
         public void FlushPendingData()
         {
-            if (TypeStr != null)
+            if (!Type.IsEmpty)
             {
                 ProcessTypeData();
             }
@@ -379,7 +397,7 @@ public static partial class KbinConverter
         private void ProcessTypeData()
         {
             // 使用switch提高性能
-            switch (TypeStr)
+            switch (Type.Span)
             {
                 case "str":
                     DataWriter.WriteString(PendingValue);
@@ -393,10 +411,10 @@ public static partial class KbinConverter
             }
 
             // 重置状态
-            TypeStr = null;
             ArrayCountStr = null;
             PendingValue = string.Empty;
             TypeId = 0;
+            Type = ReadOnlyMemory<char>.Empty;
         }
 
         private void ProcessComplexTypeData()
@@ -514,6 +532,11 @@ public static partial class KbinConverter
             }
 
             PendingAttributes.Clear();
+        }
+
+        public void Dispose()
+        {
+            ArrayPool<char>.Shared.Return(_typeBuffer);
         }
     }
 }
