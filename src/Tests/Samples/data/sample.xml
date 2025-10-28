@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <metadata>
+        <title>Sample KBin Data</title>
+        <version>1.0</version>
+        <created>2024-01-01</created>
+    </metadata>
+    <data>
+        <item id="1" type="string">Hello World</item>
+        <item id="2" type="number">42</item>
+        <item id="3" type="boolean">true</item>
+        <item id="4" type="array">
+            <value>item1</value>
+            <value>item2</value>
+            <value>item3</value>
+        </item>
+    </data>
+    <settings>
+        <encoding>UTF-8</encoding>
+        <compression>true</compression>
+        <strict_mode>false</strict_mode>
+    </settings>
+</root>

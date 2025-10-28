@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SixbitBenchmark", "Benchmar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "V2Benchmarks", "Benchmarks\V2Benchmarks\V2Benchmarks.csproj", "{3FFD0EA3-8F48-4E56-A8AD-F01D1F189135}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Tests\Samples\Samples.csproj", "{D1FDB755-A831-DD36-ED52-0795A59FA410}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +106,12 @@ Global
 		{3FFD0EA3-8F48-4E56-A8AD-F01D1F189135}.DebugLog|Any CPU.Build.0 = Debug|Any CPU
 		{3FFD0EA3-8F48-4E56-A8AD-F01D1F189135}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3FFD0EA3-8F48-4E56-A8AD-F01D1F189135}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1FDB755-A831-DD36-ED52-0795A59FA410}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1FDB755-A831-DD36-ED52-0795A59FA410}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1FDB755-A831-DD36-ED52-0795A59FA410}.DebugLog|Any CPU.ActiveCfg = DebugLog|Any CPU
+		{D1FDB755-A831-DD36-ED52-0795A59FA410}.DebugLog|Any CPU.Build.0 = DebugLog|Any CPU
+		{D1FDB755-A831-DD36-ED52-0795A59FA410}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1FDB755-A831-DD36-ED52-0795A59FA410}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +127,7 @@ Global
 		{F1A9BC32-0E2F-43D6-8F24-320849F72B86} = {E22A17F6-C130-40B0-89A1-99E3D67DBC78}
 		{CBD5FB95-C755-4D12-9E51-FD0FA45A8FB7} = {E22A17F6-C130-40B0-89A1-99E3D67DBC78}
 		{3FFD0EA3-8F48-4E56-A8AD-F01D1F189135} = {E22A17F6-C130-40B0-89A1-99E3D67DBC78}
+		{D1FDB755-A831-DD36-ED52-0795A59FA410} = {0832D5CD-AFD9-440D-8925-29142DD9166C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E1113C82-4EE9-4805-A9F1-26E8E8950B58}
