@@ -230,12 +230,10 @@ This library is engineered for **extreme performance** using cutting-edge .NET o
 - **🚀 Zero-Allocation Design**: Extensive use of `ref struct`, `Span<T>`, and `stackalloc` eliminates GC pressure
 - **⚡ Unsafe Optimizations**: Performance-critical Sixbit encoding uses `unsafe` code with direct pointer operations
 - **🔄 Memory Pooling**: `RecyclableMemoryStream` and `ArrayPool<T>` minimize heap allocations
-- **🎯 Method Inlining**: Aggressive inlining with `[MethodImpl(MethodImplOptions.AggressiveInlining)]` on hot paths
 
 ### Advanced Optimizations
 - **Layered Architecture**: Decoupled `Providers` (XDocument/XmlWriter) and `TypeConverters` for optimal performance paths
 - **Platform-Specific Code**: Conditional compilation leverages .NET Core 3.1+ optimizations vs .NET Framework
-- **Multiple Algorithm Variants**: Choose from Standard, Optimized, or SuperOptimized implementations based on your needs
 - **Batch Processing**: Sixbit encoding processes 4 chunks simultaneously with loop unrolling
 
 ### Benchmark-Driven Development
