@@ -6,14 +6,14 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using KbinXml.Net;
 
-namespace ReadBenchmark;
+namespace WriteBenchmark;
 
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net90)]
 [SimpleJob(RuntimeMoniker.Net48)]
-public class SingleThreadComparison
+public class MultiThreadComparison1
 {
     private byte[] _kbin;
     private byte[] _xmlBytes;
@@ -33,26 +33,38 @@ public class SingleThreadComparison
     }
 
     [Benchmark(Baseline = true)]
-    public object? ReadRawStream()
+    public object? WriteRaw_32ThreadsX160()
     {
-        return KbinConverter.GetXmlStream(_kbin);
+        return MultiThreadUtils.DoMultiThreadWork(_ =>
+        {
+            return KbinConverter.Write(_xmlBytes, KnownEncodings.UTF8);
+        }, 32, 5);
     }
 
     [Benchmark]
-    public object? ReadRaw()
+    public object? WriteRawStr_32ThreadsX160()
     {
-        return KbinConverter.ReadXmlBytes(_kbin);
+        return MultiThreadUtils.DoMultiThreadWork(_ =>
+        {
+            return KbinConverter.Write(_xmlStr, KnownEncodings.UTF8);
+        }, 32, 5);
     }
 
     [Benchmark]
-    public object? ReadLinq()
+    public object? WriteLinq_32ThreadsX160()
     {
-        return KbinConverter.ReadXmlLinq(_kbin);
+        return MultiThreadUtils.DoMultiThreadWork(_ =>
+        {
+            return KbinConverter.Write(_linq, KnownEncodings.UTF8);
+        }, 32, 5);
     }
 
     [Benchmark]
-    public object? ReadW3C()
+    public object? WriteW3C_32ThreadsX160()
     {
-        return KbinConverter.ReadXml(_kbin);
+        return MultiThreadUtils.DoMultiThreadWork(_ =>
+        {
+            return KbinConverter.Write(_xml, KnownEncodings.UTF8);
+        }, 32, 5);
     }
 }

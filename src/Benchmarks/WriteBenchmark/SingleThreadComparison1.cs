@@ -13,7 +13,7 @@ namespace WriteBenchmark;
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net90)]
 [SimpleJob(RuntimeMoniker.Net48)]
-public class MultiThreadComparison
+public class SingleThreadComparison1
 {
     private byte[] _kbin;
     private byte[] _xmlBytes;
@@ -33,38 +33,26 @@ public class MultiThreadComparison
     }
 
     [Benchmark(Baseline = true)]
-    public object? WriteRaw_32ThreadsX160()
+    public object? WriteRaw()
     {
-        return MultiThreadUtils.DoMultiThreadWork(_ =>
-        {
-            return KbinConverter.Write(_xmlBytes, KnownEncodings.UTF8);
-        }, 32, 5);
+        return KbinConverter.Write(_xmlBytes, KnownEncodings.UTF8);
     }
 
     [Benchmark]
-    public object? WriteRawStr_32ThreadsX160()
+    public object? WriteRawStr()
     {
-        return MultiThreadUtils.DoMultiThreadWork(_ =>
-        {
-            return KbinConverter.Write(_xmlStr, KnownEncodings.UTF8);
-        }, 32, 5);
+        return KbinConverter.Write(_xmlStr, KnownEncodings.UTF8);
     }
 
     [Benchmark]
-    public object? WriteLinq_32ThreadsX160()
+    public object? WriteLinq()
     {
-        return MultiThreadUtils.DoMultiThreadWork(_ =>
-        {
-            return KbinConverter.Write(_linq, KnownEncodings.UTF8);
-        }, 32, 5);
+        return KbinConverter.Write(_linq, KnownEncodings.UTF8);
     }
 
     [Benchmark]
-    public object? WriteW3C_32ThreadsX160()
+    public object? WriteW3C()
     {
-        return MultiThreadUtils.DoMultiThreadWork(_ =>
-        {
-            return KbinConverter.Write(_xml, KnownEncodings.UTF8);
-        }, 32, 5);
+        return KbinConverter.Write(_xml, KnownEncodings.UTF8);
     }
 }

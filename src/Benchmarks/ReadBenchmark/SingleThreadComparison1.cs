@@ -6,14 +6,14 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using KbinXml.Net;
 
-namespace WriteBenchmark;
+namespace ReadBenchmark;
 
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net90)]
 [SimpleJob(RuntimeMoniker.Net48)]
-public class SingleThreadComparison
+public class SingleThreadComparison1
 {
     private byte[] _kbin;
     private byte[] _xmlBytes;
@@ -33,26 +33,26 @@ public class SingleThreadComparison
     }
 
     [Benchmark(Baseline = true)]
-    public object? WriteRaw()
+    public object? ReadRawStream()
     {
-        return KbinConverter.Write(_xmlBytes, KnownEncodings.UTF8);
+        return KbinConverter.GetXmlStream(_kbin);
     }
 
     [Benchmark]
-    public object? WriteRawStr()
+    public object? ReadRaw()
     {
-        return KbinConverter.Write(_xmlStr, KnownEncodings.UTF8);
+        return KbinConverter.ReadXmlBytes(_kbin);
     }
 
     [Benchmark]
-    public object? WriteLinq()
+    public object? ReadLinq()
     {
-        return KbinConverter.Write(_linq, KnownEncodings.UTF8);
+        return KbinConverter.ReadXmlLinq(_kbin);
     }
 
     [Benchmark]
-    public object? WriteW3C()
+    public object? ReadW3C()
     {
-        return KbinConverter.Write(_xml, KnownEncodings.UTF8);
+        return KbinConverter.ReadXml(_kbin);
     }
 }
