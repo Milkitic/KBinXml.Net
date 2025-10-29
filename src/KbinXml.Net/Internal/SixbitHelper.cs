@@ -163,14 +163,8 @@ internal static class SixbitHelper
 #else
     private static void FillInput(string content, Span<byte> buffer)
     {
-        if (!System.Text.Ascii.IsValid(content))
-        {
-            ThrowInvalidCharException();
-        }
-
         ref var contentRef = ref MemoryMarshal.GetReference(content.AsSpan());
         ref var bufferRef = ref MemoryMarshal.GetReference(buffer);
-        ref var mappingRef = ref MemoryMarshal.GetArrayDataReference(CharsetMapping);
 
         var length = buffer.Length;
         var i = 0;
@@ -178,14 +172,14 @@ internal static class SixbitHelper
 
         for (; i < unrollLimit; i += 4)
         {
-            Unsafe.Add(ref bufferRef, i) = Unsafe.Add(ref mappingRef, Unsafe.Add(ref contentRef, i));
-            Unsafe.Add(ref bufferRef, i + 1) = Unsafe.Add(ref mappingRef, Unsafe.Add(ref contentRef, i + 1));
-            Unsafe.Add(ref bufferRef, i + 2) = Unsafe.Add(ref mappingRef, Unsafe.Add(ref contentRef, i + 2));
-            Unsafe.Add(ref bufferRef, i + 3) = Unsafe.Add(ref mappingRef, Unsafe.Add(ref contentRef, i + 3));
+            Unsafe.Add(ref bufferRef, i) = CharsetMapping[Unsafe.Add(ref contentRef, i)];
+            Unsafe.Add(ref bufferRef, i + 1) = CharsetMapping[Unsafe.Add(ref contentRef, i + 1)];
+            Unsafe.Add(ref bufferRef, i + 2) = CharsetMapping[Unsafe.Add(ref contentRef, i + 2)];
+            Unsafe.Add(ref bufferRef, i + 3) = CharsetMapping[Unsafe.Add(ref contentRef, i + 3)];
         }
 
         for (; i < length; i++)
-            Unsafe.Add(ref bufferRef, i) = Unsafe.Add(ref mappingRef, Unsafe.Add(ref contentRef, i));
+            Unsafe.Add(ref bufferRef, i) = CharsetMapping[Unsafe.Add(ref contentRef, i)];
     }
 #endif
 
@@ -233,11 +227,5 @@ internal static class SixbitHelper
                 Unsafe.Add(ref charsRef, i) = CharsetArray[Unsafe.Add(ref inputRef, i)];
         }
 #endif
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private static void ThrowInvalidCharException()
-    {
-        throw new ArgumentException("Input content contains invalid (non-ASCII or out-of-range) characters.");
     }
 }
