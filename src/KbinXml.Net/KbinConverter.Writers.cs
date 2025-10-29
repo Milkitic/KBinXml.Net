@@ -230,19 +230,19 @@ public static partial class KbinConverter
                     ProcessAttributes(reader, ref context, repairedPrefix);
                 }
 
-                if (context.Type.IsEmpty)
+                if (context.TypeMemory.IsEmpty)
                 {
                     context.NodeWriter.WriteU8(1);
                 }
                 else
                 {
-                    if (!NodeTypeFactory.TryGetNodeTypeId(context.Type.Span, out var typeId)) // 内部为字典操作
+                    if (!NodeTypeFactory.TryGetNodeTypeId(context.TypeMemory.Span, out var typeId)) // 内部为字典操作
                     {
-                        throw new KbinTypeNotFoundException(context.Type.ToString());
+                        throw new KbinTypeNotFoundException(context.TypeMemory.ToString());
                     }
 
                     context.TypeId = typeId;
-                    if (context.ArrayCountStr != null)
+                    if (!context.ArrayCountMemory.IsEmpty)
                     {
                         context.NodeWriter.WriteU8((byte)(context.TypeId | 0x40));
                     }
@@ -263,7 +263,7 @@ public static partial class KbinConverter
 
                 break;
             case XmlNodeType.Text:
-                context.PendingValue = reader.Value;
+                context.ReadPendingValue(reader);
                 break;
             case XmlNodeType.EndElement:
                 context.FlushPendingData();
@@ -294,7 +294,7 @@ public static partial class KbinConverter
             }
             else if (ReferenceEquals(localNameRef, context.NameCount))
             {
-                context.ArrayCountStr = reader.Value;
+                context.ReadArrayCount(reader);
             }
             else if (ReferenceEquals(localNameRef, context.NameSize))
             {
@@ -337,22 +337,23 @@ public static partial class KbinConverter
 
     private ref struct WriteContext : IDisposable
     {
-        private readonly char[] _typeBuffer = ArrayPool<char>.Shared.Rent(4096);
+        private readonly char[] _typeBuffer = ArrayPool<char>.Shared.Rent(32);
+        private readonly char[] _countBuffer = ArrayPool<char>.Shared.Rent(32);
+        private char[] _valueBuffer = ArrayPool<char>.Shared.Rent(8192);
 
         public readonly WriteOptions WriteOptions;
         public readonly List<KeyValuePair<string, string>> PendingAttributes;
         public NodeWriter NodeWriter;
         public DataWriter DataWriter;
 
-        public ReadOnlyMemory<char> Type;
+        public ReadOnlyMemory<char> TypeMemory = ReadOnlyMemory<char>.Empty;
+        public ReadOnlyMemory<char> ArrayCountMemory = ReadOnlyMemory<char>.Empty;
+        public ReadOnlyMemory<char> PendingValueMemory = ReadOnlyMemory<char>.Empty;
 
         public string? NameType;
         public string? NameCount;
         public string? NameSize;
 
-        public string PendingValue;
-
-        public string? ArrayCountStr;
         public byte TypeId = 0;
 
         public WriteContext(NodeWriter nodeWriter, DataWriter dataWriter, WriteOptions writeOptions)
@@ -362,10 +363,6 @@ public static partial class KbinConverter
             WriteOptions = writeOptions;
 
             PendingAttributes = new List<KeyValuePair<string, string>>(8); // 预分配一个合理容量
-            PendingValue = string.Empty;
-            //TypeStr = null;
-            ArrayCountStr = null;
-            //TypeId = 0;
         }
 
         public void ReadTypeValue(XmlReader reader)
@@ -373,17 +370,91 @@ public static partial class KbinConverter
             if (reader.CanReadValueChunk)
             {
                 var length = reader.ReadValueChunk(_typeBuffer, 0, _typeBuffer.Length);
-                Type = _typeBuffer.AsMemory(0, length);
+                TypeMemory = _typeBuffer.AsMemory(0, length);
             }
             else
             {
-                Type = reader.Value.AsMemory();
+                TypeMemory = reader.Value.AsMemory();
             }
+        }
+
+        public void ReadArrayCount(XmlReader reader)
+        {
+            if (reader.CanReadValueChunk)
+            {
+                var length = reader.ReadValueChunk(_countBuffer, 0, _countBuffer.Length);
+                ArrayCountMemory = _countBuffer.AsMemory(0, length);
+            }
+            else
+            {
+                ArrayCountMemory = reader.Value.AsMemory();
+            }
+        }
+
+        public void ReadPendingValue(XmlReader reader)
+        {
+            if (!reader.CanReadValueChunk)
+            {
+                PendingValueMemory = reader.Value.AsMemory();
+                return;
+            }
+
+            // 设定16MB为上限（8M chars = 16MB）
+            const int maxBufferSize = 8 * 1024 * 1024;
+            int totalLength = 0;
+
+            while (true)
+            {
+                if (totalLength == _valueBuffer.Length)
+                {
+                    int newSize = _valueBuffer.Length * 2;
+                    if (newSize > maxBufferSize)
+                    {
+                        newSize = maxBufferSize;
+                    }
+
+                    if (newSize <= _valueBuffer.Length)
+                    {
+                        throw new KbinException($"Value is too large to process. Exceeds {maxBufferSize} characters.");
+                    }
+
+                    var newBuffer = ArrayPool<char>.Shared.Rent(newSize);
+                    try
+                    {
+                        _valueBuffer.AsSpan(0, totalLength).CopyTo(newBuffer);
+                    }
+                    catch
+                    {
+                        ArrayPool<char>.Shared.Return(newBuffer);
+                        throw;
+                    }
+
+                    ArrayPool<char>.Shared.Return(_valueBuffer);
+                    _valueBuffer = newBuffer;
+                }
+
+                int remainingSpace = _valueBuffer.Length - totalLength;
+                var charsRead = reader.ReadValueChunk(_valueBuffer, totalLength, remainingSpace);
+
+                if (charsRead == 0)
+                {
+                    break;
+                }
+
+                totalLength += charsRead;
+
+                if (charsRead < remainingSpace)
+                {
+                    break;
+                }
+            }
+
+            PendingValueMemory = _valueBuffer.AsMemory(0, totalLength);
         }
 
         public void FlushPendingData()
         {
-            if (!Type.IsEmpty)
+            if (!TypeMemory.IsEmpty)
             {
                 ProcessTypeData();
             }
@@ -397,13 +468,15 @@ public static partial class KbinConverter
         private void ProcessTypeData()
         {
             // 使用switch提高性能
-            switch (Type.Span)
+            switch (TypeMemory.Span)
             {
                 case "str":
-                    DataWriter.WriteString(PendingValue);
+                    // Todo: api update: use span
+                    DataWriter.WriteString(PendingValueMemory.IsEmpty ? string.Empty : PendingValueMemory.ToString());
                     break;
                 case "bin":
-                    DataWriter.WriteBinary(PendingValue);
+                    // Todo: api update: use span
+                    DataWriter.WriteBinary(PendingValueMemory.IsEmpty ? string.Empty : PendingValueMemory.ToString());
                     break;
                 default:
                     ProcessComplexTypeData();
@@ -411,24 +484,24 @@ public static partial class KbinConverter
             }
 
             // 重置状态
-            ArrayCountStr = null;
-            PendingValue = string.Empty;
+            ArrayCountMemory = ReadOnlyMemory<char>.Empty;
+            PendingValueMemory = ReadOnlyMemory<char>.Empty;
+            TypeMemory = ReadOnlyMemory<char>.Empty;
             TypeId = 0;
-            Type = ReadOnlyMemory<char>.Empty;
         }
 
         private void ProcessComplexTypeData()
         {
             var type = NodeTypeFactory.GetNodeType(TypeId);
-            var valueEnumerator = PendingValue.SpanSplit(' '); // 已优化为Span操作
+            var valueEnumerator = PendingValueMemory.Span.SpanSplit(' ');
 
             var typeSize = type.Size;
             var requiredBytes = (uint)(typeSize * type.Count);
-            if (ArrayCountStr != null)
+            if (!ArrayCountMemory.IsEmpty)
             {
-                if (!uint.TryParse(ArrayCountStr, out var count))
+                if (!ParseHelper.TryParseUInt32(ArrayCountMemory.Span, out var count))
                 {
-                    throw new KbinException($"Invalid array count: {ArrayCountStr}");
+                    throw new KbinException($"Invalid array count: {ArrayCountMemory.ToString()}");
                 }
 
                 requiredBytes *= count;
@@ -454,7 +527,7 @@ public static partial class KbinConverter
                 int bytesWritten = 0;
                 var strictMode = WriteOptions.StrictMode;
 
-                if (PendingValue.Length == 0 && strictMode && iRequiredBytes > 0)
+                if (PendingValueMemory.IsEmpty && strictMode && iRequiredBytes > 0)
                     throw new KbinException($"Node requires {iRequiredBytes} bytes but has no text value.");
 
                 foreach (var s in valueEnumerator)
@@ -465,8 +538,8 @@ public static partial class KbinConverter
                         {
                             if (strictMode)
                             {
-                                throw new KbinArrayCountMissMatchException(ArrayCountStr,
-                                    PendingValue.Split(' ').Length);
+                                throw new KbinArrayCountMissMatchException(ArrayCountMemory.ToString(),
+                                    PendingValueMemory.ToString().Split(' ').Length);
                             }
 
                             break;
@@ -493,7 +566,7 @@ public static partial class KbinConverter
                 {
                     if (strictMode)
                     {
-                        throw new KbinArrayCountMissMatchException(ArrayCountStr, builder.Length / typeSize);
+                        throw new KbinArrayCountMissMatchException(ArrayCountMemory.ToString(), builder.Length / typeSize);
                     }
 
                     // 填充剩余字节
@@ -503,7 +576,7 @@ public static partial class KbinConverter
                 // 根据是否为数组选择合适的写入方法
                 // If array, force write 32bit
                 var builderSpan = builder.AsSpan();
-                if (ArrayCountStr != null)
+                if (!ArrayCountMemory.IsEmpty)
                 {
                     DataWriter.Write32BitAligned(builderSpan);
                 }
@@ -537,6 +610,8 @@ public static partial class KbinConverter
         public void Dispose()
         {
             ArrayPool<char>.Shared.Return(_typeBuffer);
+            ArrayPool<char>.Shared.Return(_valueBuffer);
+            ArrayPool<char>.Shared.Return(_countBuffer);
         }
     }
 }

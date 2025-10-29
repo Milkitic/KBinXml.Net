@@ -6,6 +6,13 @@ namespace KbinXml.Net.Utils;
 public static class StringExtensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static SpaceSplitEnumerator SpanSplit(this ReadOnlySpan<char> str, char c)
+    {
+        // SpaceSplitEnumerator is a struct so there is no allocation here
+        return new SpaceSplitEnumerator(str, c);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static SpaceSplitEnumerator SpanSplit(this string str, char c)
     {
         // SpaceSplitEnumerator is a struct so there is no allocation here
