@@ -84,37 +84,32 @@ internal static class SixbitHelper
         return GetString(inputSpan);
     }
 
+    /// <summary>
+    /// Internal encoding dispatcher for the optimized <see cref="RecyclableMemoryStream"/> path.
+    /// </summary>
     private static void EncodeCore(string input, RecyclableMemoryStream stream)
     {
         var inputLength = input.Length;
-        var outputLength = (inputLength * 6 + 7) / 8;
+        var outputLength = (inputLength * 6 + 7) >> 3;
 
         if (inputLength <= Constants.MaxStackLength)
         {
             Span<byte> inputBuffer = stackalloc byte[inputLength];
             FillInputSmall(input, inputBuffer);
-            InnerEncodeCore(inputBuffer);
+            EncodeCoreRecyclable(inputBuffer, stream, outputLength);
         }
         else
         {
             using var rentedInput = new RentedArray<byte>(ArrayPool<byte>.Shared, inputLength);
             var inputSpan = rentedInput.Array.AsSpan(0, inputLength);
             FillInputLarge(input, inputSpan);
-            InnerEncodeCore(inputSpan);
-        }
-
-        return;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void InnerEncodeCore(Span<byte> inputBuffer)
-        {
-            var outputSpan = stream.GetSpan(outputLength);
-            outputSpan.Slice(0, outputLength).Clear(); // Clear() Must be required
-            SixbitHelperEncImpl.Encode(inputBuffer, outputSpan);
-            stream.Advance(outputLength);
+            EncodeCoreRecyclable(inputSpan, stream, outputLength);
         }
     }
 
+    /// <summary>
+    /// Internal encoding dispatcher for the generic <see cref="Stream"/> path.
+    /// </summary>
     private static void EncodeCore(string input, Stream stream)
     {
         if (stream is RecyclableMemoryStream rms)
@@ -124,14 +119,14 @@ internal static class SixbitHelper
         }
 
         var inputLength = input.Length;
-        var outputLength = (inputLength * 6 + 7) / 8;
+        var outputLength = (inputLength * 6 + 7) >> 3;
 
         if (inputLength <= Constants.MaxStackLength)
         {
             Span<byte> inputBuffer = stackalloc byte[inputLength];
             Span<byte> outputBuffer = stackalloc byte[outputLength];
             FillInputSmall(input, inputBuffer);
-            InnerEncodeCore(inputBuffer, outputBuffer);
+            EncodeCoreGeneric(inputBuffer, outputBuffer, stream);
         }
         else
         {
@@ -140,19 +135,35 @@ internal static class SixbitHelper
             var inputSpan = rentedInput.Array.AsSpan(0, inputLength);
             var outputSpan = rentedOutput.Array.AsSpan(0, outputLength);
             FillInputLarge(input, inputSpan);
-            InnerEncodeCore(inputSpan, outputSpan);
-        }
-
-        return;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void InnerEncodeCore(Span<byte> inputBuffer, Span<byte> outputBuffer)
-        {
-            SixbitHelperEncImpl.Encode(inputBuffer, outputBuffer);
-            stream.WriteSpan(outputBuffer);
+            EncodeCoreGeneric(inputSpan, outputSpan, stream);
         }
     }
 
+    /// <summary>
+    /// Encodes to the stream using the high-performance GetSpan/Advance pattern.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void EncodeCoreRecyclable(Span<byte> inputBuffer, RecyclableMemoryStream stream, int outputLength)
+    {
+        var outputSpan = stream.GetSpan(outputLength);
+        outputSpan.Slice(0, outputLength).Clear(); // Clear() Must be required
+        SixbitHelperEncImpl.Encode(inputBuffer, outputSpan);
+        stream.Advance(outputLength);
+    }
+
+    /// <summary>
+    /// Encodes to an intermediate buffer and writes it to the generic stream.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void EncodeCoreGeneric(Span<byte> inputBuffer, Span<byte> outputBuffer, Stream stream)
+    {
+        SixbitHelperEncImpl.Encode(inputBuffer, outputBuffer);
+        stream.WriteSpan(outputBuffer);
+    }
+
+    /// <summary>
+    /// Fills the destination buffer from the source string (for small inputs).
+    /// </summary>
     private static void FillInputSmall(string content, Span<byte> buffer)
     {
         ref var contentRef = ref MemoryMarshal.GetReference(content.AsSpan());
@@ -162,6 +173,9 @@ internal static class SixbitHelper
             Unsafe.Add(ref bufferRef, i) = CharsetMapping[Unsafe.Add(ref contentRef, i)];
     }
 
+    /// <summary>
+    /// Fills the destination buffer from the source string (for large inputs, with loop unrolling).
+    /// </summary>
     private static void FillInputLarge(string content, Span<byte> buffer)
     {
         ref var contentRef = ref MemoryMarshal.GetReference(content.AsSpan());
@@ -201,7 +215,7 @@ internal static class SixbitHelper
                 }
             });
         }
-#else 
+#else
         if (input.Length <= Constants.MaxStackLength)
         {
             Span<char> chars = stackalloc char[input.Length];
