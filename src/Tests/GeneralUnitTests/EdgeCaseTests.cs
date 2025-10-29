@@ -361,5 +361,59 @@ namespace GeneralUnitTests
         }
 
         #endregion
+
+        #region Span Value Tests
+
+        [Fact]
+        public void TestLargeXmlWithManyNodes()
+        {
+            // 构造大量节点，强制 XmlReader 内部缓冲区重用
+            var xml = $"""
+                      <root>
+                          {string.Join("\n", Enumerable.Range(1, 1000).Select(k => $"<item __type='str'>Value{k}</item>"))}
+                      </root>
+                      """;
+            var xElement = XElement.Parse(xml);
+
+            var result = KbinConverter.Write(xml, KnownEncodings.UTF8);
+            var result2 = KbinConverter.Write(xElement, KnownEncodings.UTF8);
+            Assert.Equal(result, result2);
+        }
+
+        [Fact]
+        public void TestLongAttributeValues()
+        {
+            // 测试长属性值是否会导致缓冲区重用
+            var xml = $"""
+                       <root>
+                           <item __type='str' attr1='{new string('a', 10000)}'>{new string('b', 10000)}</item>
+                       </root>
+                       """;
+            var xElement = XElement.Parse(xml);
+
+            var result = KbinConverter.Write(xml, KnownEncodings.UTF8);
+            var result2 = KbinConverter.Write(xElement, KnownEncodings.UTF8);
+            Assert.Equal(result, result2);
+        }
+
+        [Fact]
+        public void TestMixedNodeTypes()
+        {
+            // 测试混合节点类型（属性、文本、嵌套）
+            var xml = """
+                      <root>
+                          <a __type='s32' __count='2'>1 2</a>
+                          <b __type='str'>Text</b>
+                          <c attr='value' __type='u8'>255</c>
+                      </root>
+                      """;
+            var xElement = XElement.Parse(xml);
+
+            var result = KbinConverter.Write(xml, KnownEncodings.UTF8);
+            var result2 = KbinConverter.Write(xElement, KnownEncodings.UTF8);
+            Assert.Equal(result, result2);
+        }
+
+        #endregion
     }
 }
