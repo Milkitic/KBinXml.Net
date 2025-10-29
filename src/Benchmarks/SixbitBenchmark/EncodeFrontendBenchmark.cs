@@ -13,9 +13,16 @@ public class EncodeFrontendBenchmark
     private static readonly RecyclableMemoryStreamManager MemoryStreamManager = new();
 
     [Params(3, 12, 1024)]
-    public int Length = 1024 * 1024;
+    public int Length;
 
     private string _testData = null!;
+
+    private MemoryStream _msOld = null!;
+    private MemoryStream _msNew = null!;
+    private RecyclableMemoryStream _pmsOld = null!;
+    private RecyclableMemoryStream _pmsNew = null!;
+
+    private int _estimatedCapacity;
     private const string Charset = "0123456789:ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
     [GlobalSetup]
@@ -31,38 +38,51 @@ public class EncodeFrontendBenchmark
         }
 
         _testData = new string(chars);
+        _estimatedCapacity = (int)(Length * 0.75) + 16;
+        _msOld = new MemoryStream(_estimatedCapacity);
+        _msNew = new MemoryStream(_estimatedCapacity);
+        _pmsOld = MemoryStreamManager.GetStream("test", _estimatedCapacity);
+        _pmsNew = MemoryStreamManager.GetStream("test", _estimatedCapacity);
     }
-    
+
     [Benchmark]
     public object? Encode_OldVersion()
     {
-        using var ms = new MemoryStream(ushort.MaxValue);
-        SixbitBenchmark.SixbitHelper.EncodeAndWrite(ms, _testData);
+        _msOld.SetLength(0);
+        SixbitBenchmark.SixbitHelper.EncodeAndWrite(_msOld, _testData);
         return null;
     }
-
 
     [Benchmark]
     public object? Encode_NewVersion()
     {
-        using var ms = new MemoryStream(ushort.MaxValue);
-        KbinXml.Net.Internal.SixbitHelper.EncodeAndWrite(ms, _testData);
+        _msNew.SetLength(0);
+        KbinXml.Net.Internal.SixbitHelper.EncodeAndWrite(_msNew, _testData);
         return null;
     }
 
     [Benchmark(Baseline = true)]
     public object? Encode_OldVersionPool()
     {
-        using var ms = MemoryStreamManager.GetStream("test", ushort.MaxValue);
-        SixbitBenchmark.SixbitHelper.EncodeAndWrite(ms, _testData);
+        _pmsOld.SetLength(0);
+        SixbitBenchmark.SixbitHelper.EncodeAndWrite(_pmsOld, _testData);
         return null;
     }
 
     [Benchmark]
     public object? Encode_NewVersionPool()
     {
-        using var ms = MemoryStreamManager.GetStream("test", ushort.MaxValue);
-        KbinXml.Net.Internal.SixbitHelper.EncodeAndWrite(ms, _testData);
+        _pmsNew.SetLength(0);
+        KbinXml.Net.Internal.SixbitHelper.EncodeAndWrite(_pmsNew, _testData);
         return null;
+    }
+
+    [GlobalCleanup]
+    public void Cleanup()
+    {
+        _msOld.Dispose();
+        _msNew.Dispose();
+        _pmsOld.Dispose();
+        _pmsNew.Dispose();
     }
 }
