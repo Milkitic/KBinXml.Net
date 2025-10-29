@@ -342,6 +342,8 @@ public static partial class KbinConverter
         private char[] _valueBuffer = ArrayPool<char>.Shared.Rent(8192);
 
         public readonly WriteOptions WriteOptions;
+
+        // Todo: attributes ReadonlyMemory (micro)
         public readonly List<KeyValuePair<string, string>> PendingAttributes;
         public NodeWriter NodeWriter;
         public DataWriter DataWriter;
@@ -471,12 +473,10 @@ public static partial class KbinConverter
             switch (TypeMemory.Span)
             {
                 case "str":
-                    // Todo: api update: use span
-                    DataWriter.WriteString(PendingValueMemory.IsEmpty ? string.Empty : PendingValueMemory.ToString());
+                    DataWriter.WriteString(PendingValueMemory.Span);
                     break;
                 case "bin":
-                    // Todo: api update: use span
-                    DataWriter.WriteBinary(PendingValueMemory.IsEmpty ? string.Empty : PendingValueMemory.ToString());
+                    DataWriter.WriteBinary(PendingValueMemory.Span);
                     break;
                 default:
                     ProcessComplexTypeData();
@@ -595,13 +595,14 @@ public static partial class KbinConverter
         private void ProcessAttributes()
         {
             // Xml Attribute排序
-            PendingAttributes.Sort(static (a, b) => string.Compare(a.Key, b.Key, StringComparison.Ordinal));
+            if (PendingAttributes.Count > 1)
+                PendingAttributes.Sort(static (a, b) => string.Compare(a.Key, b.Key, StringComparison.Ordinal));
 
             foreach (var attribute in PendingAttributes)
             {
                 NodeWriter.WriteU8(0x2E);
                 NodeWriter.WriteString(attribute.Key);
-                DataWriter.WriteString(attribute.Value);
+                DataWriter.WriteString(attribute.Value.AsSpan());
             }
 
             PendingAttributes.Clear();

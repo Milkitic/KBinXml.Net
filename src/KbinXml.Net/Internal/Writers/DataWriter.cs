@@ -48,8 +48,14 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
         }
     }
 
-    public void WriteString(string value)
+#if NETCOREAPP3_1_OR_GREATER
+    public void WriteString(ReadOnlySpan<char> value)
     {
+#else
+    public void WriteString(ReadOnlySpan<char> span)
+    {
+        var value = span.ToString();
+#endif
         // 计算编码后的字节长度（包括结尾的0字节）
         int byteCount = _encoding.GetByteCount(value) + 1;
 
@@ -79,7 +85,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteBinary(string value)
+    public void WriteBinary(ReadOnlySpan<char> value)
     {
         // 计算二进制数据的长度（每两个字符表示一个字节）
         int length = value.Length >> 1;
@@ -179,7 +185,11 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if NETCOREAPP3_1_OR_GREATER
+    private void WriteStringCore(ReadOnlySpan<char> value, int increment, int byteCount)
+#else
     private void WriteStringCore(string value, int increment, int byteCount)
+#endif
     {
         var sizeHint = increment > 0 ? byteCount + increment : byteCount;
         var span = Stream.GetSpan(sizeHint);
@@ -191,7 +201,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
         }
 
 #if NETCOREAPP3_1_OR_GREATER
-        int bytesWritten = _encoding.GetBytes(value.AsSpan(), span);
+        int bytesWritten = _encoding.GetBytes(value, span);
         span[bytesWritten] = 0; // 添加结尾的0字节
 #else
         int bytesWritten = byteCount - 1;
@@ -207,7 +217,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void WriteBinaryCore(string value, int increment, int length)
+    private void WriteBinaryCore(ReadOnlySpan<char> value, int increment, int length)
     {
         var sizeHint = increment > 0 ? length + increment : length;
         var span = Stream.GetSpan(sizeHint);
@@ -218,7 +228,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
             span = span.Slice(increment);
         }
 
-        HexConverter.TryDecodeFromUtf16(value.AsSpan(), span.Slice(0, length));
+        HexConverter.TryDecodeFromUtf16(value, span.Slice(0, length));
         Stream.Advance(sizeHint);
     }
 

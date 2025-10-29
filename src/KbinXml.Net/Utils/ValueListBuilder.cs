@@ -18,6 +18,12 @@ public ref struct ValueListBuilder<T> : IDisposable
         _pos = pos;
     }
 
+    public ValueListBuilder(int minimumLength = 256)
+    {
+        T[] array = ArrayPool<T>.Shared.Rent(minimumLength);
+        _span = _arrayFromPool = array;
+    }
+
     public int Length
     {
         get => _pos;
@@ -89,6 +95,13 @@ public ref struct ValueListBuilder<T> : IDisposable
     public Span<T> AsSpanUnsafe()
     {
         return _span.Slice(0, _pos);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Clear()
+    {
+        _span.Clear();
+        _pos = 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
