@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
+#if !NETSTANDARD2_0
+[SkipLocalsInit]
+#endif
 public static class BitConverterHelper
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

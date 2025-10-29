@@ -49,6 +49,9 @@ internal readonly ref struct BigEndianWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     public void WriteS16(short value)
     {
         const int size = sizeof(short);
@@ -66,6 +69,9 @@ internal readonly ref struct BigEndianWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     public void WriteU16(ushort value)
     {
         const int size = sizeof(ushort);
@@ -83,6 +89,9 @@ internal readonly ref struct BigEndianWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     public void WriteS32(int value)
     {
         const int size = sizeof(int);
@@ -100,6 +109,9 @@ internal readonly ref struct BigEndianWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     public void WriteU32(uint value)
     {
         const int size = sizeof(uint);
@@ -117,6 +129,9 @@ internal readonly ref struct BigEndianWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     public void WriteS64(long value)
     {
         const int size = sizeof(long);
@@ -134,6 +149,9 @@ internal readonly ref struct BigEndianWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     public void WriteU64(ulong value)
     {
         const int size = sizeof(ulong);
@@ -151,6 +169,9 @@ internal readonly ref struct BigEndianWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     internal void Pad()
     {
         while ((BaseStream.Length & 3) != 0)

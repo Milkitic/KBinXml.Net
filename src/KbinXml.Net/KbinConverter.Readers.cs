@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -400,7 +401,10 @@ public static partial class KbinConverter
             Logger.LogBinaryValue(HoldValue, valueReadResult.ReadStatus.Offset, valueReadResult.ReadStatus.Flag);
 #endif
         }
-
+        
+#if !NETSTANDARD2_0
+        [SkipLocalsInit]
+#endif
         private void ProcessPrimitiveType(NodeType propertyType, bool isArray, int arraySize)
         {
             if (isArray)

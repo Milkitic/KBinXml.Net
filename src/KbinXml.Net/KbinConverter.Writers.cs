@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -480,7 +481,10 @@ public static partial class KbinConverter
             TypeSpan = ReadOnlySpan<char>.Empty;
             TypeId = 0;
         }
-
+        
+#if !NETSTANDARD2_0
+        [SkipLocalsInit]
+#endif
         private void ProcessComplexTypeData()
         {
             var type = NodeTypeFactory.GetNodeType(TypeId);

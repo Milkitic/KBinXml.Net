@@ -69,6 +69,9 @@ internal static class SixbitHelper
     /// <param name="length">The number of bytes to decode.</param>
     /// <returns>The decoded string.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="length"/> exceeds the buffer size.</exception>
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     public static string Decode(ReadOnlySpan<byte> buffer, int length)
     {
         if (length <= Constants.MaxStackLength)
@@ -87,6 +90,9 @@ internal static class SixbitHelper
     /// <summary>
     /// Internal encoding dispatcher for the optimized <see cref="RecyclableMemoryStream"/> path.
     /// </summary>
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     private static void EncodeCore(string input, RecyclableMemoryStream stream)
     {
         var inputLength = input.Length;
@@ -116,6 +122,9 @@ internal static class SixbitHelper
     /// <summary>
     /// Internal encoding dispatcher for the generic <see cref="Stream"/> path.
     /// </summary>
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     private static void EncodeCore(string input, Stream stream)
     {
         if (stream is RecyclableMemoryStream rms)
