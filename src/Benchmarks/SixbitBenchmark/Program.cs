@@ -5,11 +5,10 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Running;
 using KbinXml.Net.Internal.Sixbit;
+using SixbitBenchmark;
 
 //BenchmarkRunner.Run<EncodeTask>();
-BenchmarkRunner.Run<DecodeTask>();
-
-[MemoryDiagnoser]
+BenchmarkRunner.Run<EncodeFrontendBenchmark>();
 
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [SimpleJob(RuntimeMoniker.Net48)]
