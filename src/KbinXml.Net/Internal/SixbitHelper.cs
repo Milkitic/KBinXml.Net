@@ -96,14 +96,20 @@ internal static class SixbitHelper
         {
             Span<byte> inputBuffer = stackalloc byte[inputLength];
             FillInputSmall(input, inputBuffer);
-            EncodeCoreRecyclable(inputBuffer, stream, outputLength);
+            Span<byte> outputBuffer = stream.GetSpan(outputLength);
+            outputBuffer.Slice(0, outputLength).Clear(); // Clear() Must be required
+            SixbitHelperEncImpl.Encode(inputBuffer, outputBuffer);
+            stream.Advance(outputLength);
         }
         else
         {
             using var rentedInput = new RentedArray<byte>(ArrayPool<byte>.Shared, inputLength);
             var inputSpan = rentedInput.Array.AsSpan(0, inputLength);
             FillInputLarge(input, inputSpan);
-            EncodeCoreRecyclable(inputSpan, stream, outputLength);
+            Span<byte> outputSpan = stream.GetSpan(outputLength);
+            outputSpan.Slice(0, outputLength).Clear(); // Clear() Must be required
+            SixbitHelperEncImpl.Encode(inputSpan, outputSpan);
+            stream.Advance(outputLength);
         }
     }
 
@@ -126,7 +132,8 @@ internal static class SixbitHelper
             Span<byte> inputBuffer = stackalloc byte[inputLength];
             Span<byte> outputBuffer = stackalloc byte[outputLength];
             FillInputSmall(input, inputBuffer);
-            EncodeCoreGeneric(inputBuffer, outputBuffer, stream);
+            SixbitHelperEncImpl.Encode(inputBuffer, outputBuffer);
+            stream.WriteSpan(outputBuffer);
         }
         else
         {
@@ -135,35 +142,15 @@ internal static class SixbitHelper
             var inputSpan = rentedInput.Array.AsSpan(0, inputLength);
             var outputSpan = rentedOutput.Array.AsSpan(0, outputLength);
             FillInputLarge(input, inputSpan);
-            EncodeCoreGeneric(inputSpan, outputSpan, stream);
+            SixbitHelperEncImpl.Encode(inputSpan, outputSpan);
+            stream.WriteSpan(outputSpan);
         }
-    }
-
-    /// <summary>
-    /// Encodes to the stream using the high-performance GetSpan/Advance pattern.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void EncodeCoreRecyclable(Span<byte> inputBuffer, RecyclableMemoryStream stream, int outputLength)
-    {
-        var outputSpan = stream.GetSpan(outputLength);
-        outputSpan.Slice(0, outputLength).Clear(); // Clear() Must be required
-        SixbitHelperEncImpl.Encode(inputBuffer, outputSpan);
-        stream.Advance(outputLength);
-    }
-
-    /// <summary>
-    /// Encodes to an intermediate buffer and writes it to the generic stream.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void EncodeCoreGeneric(Span<byte> inputBuffer, Span<byte> outputBuffer, Stream stream)
-    {
-        SixbitHelperEncImpl.Encode(inputBuffer, outputBuffer);
-        stream.WriteSpan(outputBuffer);
     }
 
     /// <summary>
     /// Fills the destination buffer from the source string (for small inputs).
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void FillInputSmall(string content, Span<byte> buffer)
     {
         ref var contentRef = ref MemoryMarshal.GetReference(content.AsSpan());
