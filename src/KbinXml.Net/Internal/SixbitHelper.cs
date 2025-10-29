@@ -92,12 +92,15 @@ internal static class SixbitHelper
         if (inputLength <= Constants.MaxStackLength)
         {
             Span<byte> inputBuffer = stackalloc byte[inputLength];
+            FillInputSmall(input, inputBuffer);
             InnerEncodeCore(inputBuffer);
         }
         else
         {
             using var rentedInput = new RentedArray<byte>(ArrayPool<byte>.Shared, inputLength);
-            InnerEncodeCore(rentedInput.Array.AsSpan(0, inputLength));
+            var inputSpan = rentedInput.Array.AsSpan(0, inputLength);
+            FillInputLarge(input, inputSpan);
+            InnerEncodeCore(inputSpan);
         }
 
         return;
@@ -105,7 +108,6 @@ internal static class SixbitHelper
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void InnerEncodeCore(Span<byte> inputBuffer)
         {
-            FillInput(input, inputBuffer);
             var outputSpan = stream.GetSpan(outputLength);
             outputSpan.Slice(0, outputLength).Clear(); // Clear() Must be required
             SixbitHelperEncImpl.Encode(inputBuffer, outputSpan);
@@ -128,6 +130,7 @@ internal static class SixbitHelper
         {
             Span<byte> inputBuffer = stackalloc byte[inputLength];
             Span<byte> outputBuffer = stackalloc byte[outputLength];
+            FillInputSmall(input, inputBuffer);
             InnerEncodeCore(inputBuffer, outputBuffer);
         }
         else
@@ -136,6 +139,7 @@ internal static class SixbitHelper
             using var rentedOutput = new RentedArray<byte>(ArrayPool<byte>.Shared, outputLength);
             var inputSpan = rentedInput.Array.AsSpan(0, inputLength);
             var outputSpan = rentedOutput.Array.AsSpan(0, outputLength);
+            FillInputLarge(input, inputSpan);
             InnerEncodeCore(inputSpan, outputSpan);
         }
 
@@ -144,15 +148,12 @@ internal static class SixbitHelper
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void InnerEncodeCore(Span<byte> inputBuffer, Span<byte> outputBuffer)
         {
-            FillInput(input, inputBuffer);
             SixbitHelperEncImpl.Encode(inputBuffer, outputBuffer);
             stream.WriteSpan(outputBuffer);
         }
     }
 
-#if NETSTANDARD2_0
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void FillInput(string content, Span<byte> buffer)
+    private static void FillInputSmall(string content, Span<byte> buffer)
     {
         ref var contentRef = ref MemoryMarshal.GetReference(content.AsSpan());
         ref var bufferRef = ref MemoryMarshal.GetReference(buffer);
@@ -160,8 +161,8 @@ internal static class SixbitHelper
         for (var i = 0; i < buffer.Length; i++)
             Unsafe.Add(ref bufferRef, i) = CharsetMapping[Unsafe.Add(ref contentRef, i)];
     }
-#else
-    private static void FillInput(string content, Span<byte> buffer)
+
+    private static void FillInputLarge(string content, Span<byte> buffer)
     {
         ref var contentRef = ref MemoryMarshal.GetReference(content.AsSpan());
         ref var bufferRef = ref MemoryMarshal.GetReference(buffer);
@@ -169,7 +170,6 @@ internal static class SixbitHelper
         var length = buffer.Length;
         var i = 0;
         var unrollLimit = length - 3;
-
         for (; i < unrollLimit; i += 4)
         {
             Unsafe.Add(ref bufferRef, i) = CharsetMapping[Unsafe.Add(ref contentRef, i)];
@@ -181,7 +181,6 @@ internal static class SixbitHelper
         for (; i < length; i++)
             Unsafe.Add(ref bufferRef, i) = CharsetMapping[Unsafe.Add(ref contentRef, i)];
     }
-#endif
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static unsafe string GetString(scoped Span<byte> input)
