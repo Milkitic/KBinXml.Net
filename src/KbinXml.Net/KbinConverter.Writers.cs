@@ -2,7 +2,6 @@
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -97,7 +96,8 @@ public static partial class KbinConverter
     /// <param name="knownEncodings">The text encoding specification for the output KBin data.</param>
     /// <param name="writeOptions">Configuration options for the conversion process.</param>
     /// <returns>The total number of bytes written to the stream.</returns>
-    public static int Write(XmlDocument xml, Stream outputStream, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
+    public static int Write(XmlDocument xml, Stream outputStream, KnownEncodings knownEncodings,
+        WriteOptions? writeOptions = null)
     {
         if (xml is null)
             throw new ArgumentNullException(nameof(xml));
@@ -116,7 +116,8 @@ public static partial class KbinConverter
     /// <param name="knownEncodings">The text encoding specification for the output KBin data.</param>
     /// <param name="writeOptions">Configuration options for serialization.</param>
     /// <returns>The total number of bytes written to the stream.</returns>
-    public static int Write(XContainer xml, Stream outputStream, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
+    public static int Write(XContainer xml, Stream outputStream, KnownEncodings knownEncodings,
+        WriteOptions? writeOptions = null)
     {
         if (xml is null)
             throw new ArgumentNullException(nameof(xml));
@@ -135,7 +136,8 @@ public static partial class KbinConverter
     /// <param name="knownEncodings">The character encoding scheme for text conversion.</param>
     /// <param name="writeOptions">Serialization control parameters.</param>
     /// <returns>The total number of bytes written to the stream.</returns>
-    public static int Write(string xmlText, Stream outputStream, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
+    public static int Write(string xmlText, Stream outputStream, KnownEncodings knownEncodings,
+        WriteOptions? writeOptions = null)
     {
         if (xmlText is null)
             throw new ArgumentNullException(nameof(xmlText));
@@ -155,7 +157,8 @@ public static partial class KbinConverter
     /// <param name="knownEncodings">The target text encoding specification.</param>
     /// <param name="writeOptions">Serialization configuration parameters.</param>
     /// <returns>The total number of bytes written to the stream.</returns>
-    public static int Write(byte[] xmlBytes, Stream outputStream, KnownEncodings knownEncodings, WriteOptions? writeOptions = null)
+    public static int Write(byte[] xmlBytes, Stream outputStream, KnownEncodings knownEncodings,
+        WriteOptions? writeOptions = null)
     {
         if (xmlBytes is null)
             throw new ArgumentNullException(nameof(xmlBytes));
@@ -167,16 +170,40 @@ public static partial class KbinConverter
         return WriteCore(reader, outputStream, knownEncodings, writeOptions);
     }
 
+    /// <summary>
+    /// Converts XML data from an input stream to KBin-formatted binary data and writes it to an output stream.
+    /// </summary>
+    /// <param name="inputStream">The stream containing the XML data to convert. Whitespace will be ignored.</param>
+    /// <param name="outputStream">The stream to write the KBin data to.</param>
+    /// <param name="knownEncodings">The target text encoding specification.</param>
+    /// <param name="writeOptions">Serialization configuration parameters.</param>
+    /// <returns>The total number of bytes written to the output stream.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="inputStream"/> or <paramref name="outputStream"/> is null.</exception>
+    /// <inheritdoc cref="Write(XmlDocument, KnownEncodings, WriteOptions?)"/>
+    public static int Write(Stream inputStream, Stream outputStream, KnownEncodings knownEncodings,
+        WriteOptions? writeOptions = null)
+    {
+        if (inputStream is null)
+            throw new ArgumentNullException(nameof(inputStream));
+        if (outputStream is null)
+            throw new ArgumentNullException(nameof(outputStream));
+
+        using var reader = XmlReader.Create(inputStream, new XmlReaderSettings { IgnoreWhitespace = true });
+        return WriteCore(reader, outputStream, knownEncodings, writeOptions);
+    }
+
     #endregion
 
     /// <summary>
     /// Central writing logic that handles context creation and disposal.
     /// </summary>
-    private static int WriteCore(XmlReader reader, Stream outputStream, KnownEncodings knownEncodings, WriteOptions? writeOptions)
+    private static int WriteCore(XmlReader reader, Stream outputStream, KnownEncodings knownEncodings,
+        WriteOptions? writeOptions)
     {
         var encoding = knownEncodings.ToEncoding();
         writeOptions ??= new WriteOptions();
-        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding), writeOptions);
+        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding),
+            writeOptions);
 
         try
         {
@@ -224,44 +251,7 @@ public static partial class KbinConverter
         switch (reader.NodeType)
         {
             case XmlNodeType.Element:
-                context.FlushPendingData();
-
-                if (reader.AttributeCount > 0)
-                {
-                    ProcessAttributes(reader, ref context, repairedPrefix);
-                }
-
-                if (context.TypeSpan.IsEmpty)
-                {
-                    context.NodeWriter.WriteU8(1);
-                }
-                else
-                {
-                    if (!NodeTypeFactory.TryGetNodeTypeId(context.TypeSpan, out var typeId)) // 内部为字典操作
-                    {
-                        throw new KbinTypeNotFoundException(context.TypeSpan.ToString());
-                    }
-
-                    context.TypeId = typeId;
-                    if (!context.ArrayCountSpan.IsEmpty)
-                    {
-                        context.NodeWriter.WriteU8((byte)(context.TypeId | 0x40));
-                    }
-                    else
-                    {
-                        context.NodeWriter.WriteU8(context.TypeId);
-                    }
-                }
-
-                var readerName = reader.Name;
-                context.NodeWriter.WriteString(GetActualName(readerName, repairedPrefix));
-
-                if (reader.IsEmptyElement)
-                {
-                    context.FlushPendingData();
-                    context.NodeWriter.WriteU8(0xFE);
-                }
-
+                ProcessElementRead(ref context, reader, repairedPrefix);
                 break;
             case XmlNodeType.Text:
                 context.ReadPendingValue(reader);
@@ -274,6 +264,47 @@ public static partial class KbinConverter
                 //Console.WriteLine("Other node {0} with value {1}",
                 //    reader.NodeType, reader.Value);
                 break;
+        }
+    }
+
+    private static void ProcessElementRead(ref WriteContext context, XmlReader reader, string? repairedPrefix)
+    {
+        context.FlushPendingData();
+
+        if (reader.AttributeCount > 0)
+        {
+            ProcessAttributes(reader, ref context, repairedPrefix);
+        }
+
+        if (context.TypeSpan.IsEmpty)
+        {
+            context.NodeWriter.WriteU8(1);
+        }
+        else
+        {
+            if (!NodeTypeFactory.TryGetNodeTypeId(context.TypeSpan, out var typeId)) // 内部为字典操作
+            {
+                throw new KbinTypeNotFoundException(context.TypeSpan.ToString());
+            }
+
+            context.TypeId = typeId;
+            if (!context.ArrayCountSpan.IsEmpty)
+            {
+                context.NodeWriter.WriteU8((byte)(context.TypeId | 0x40));
+            }
+            else
+            {
+                context.NodeWriter.WriteU8(context.TypeId);
+            }
+        }
+
+        var readerName = reader.Name;
+        context.NodeWriter.WriteString(GetActualName(readerName, repairedPrefix));
+
+        if (reader.IsEmptyElement)
+        {
+            context.FlushPendingData();
+            context.NodeWriter.WriteU8(0xFE);
         }
     }
 
@@ -483,7 +514,7 @@ public static partial class KbinConverter
         }
 
 #if !NETSTANDARD2_0
-        [SkipLocalsInit]
+        [System.Runtime.CompilerServices.SkipLocalsInit]
 #endif
         private void ProcessComplexTypeData()
         {
@@ -528,7 +559,8 @@ public static partial class KbinConverter
                 {
                     if (strictMode)
                     {
-                        throw new KbinArrayCountMissMatchException(ArrayCountSpan.ToString(), builder.Length / typeSize);
+                        throw new KbinArrayCountMissMatchException(ArrayCountSpan.ToString(),
+                            builder.Length / typeSize);
                     }
 
                     // 填充剩余字节

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
@@ -87,16 +88,22 @@ public class Program
 
     private static void SmallTest()
     {
-        var smallText = File.ReadAllText("data/small.xml");
-        for (int i = 0; i < 2000; i++)
+        var writeOptions = new WriteOptions()
         {
+            Compress = true
+        };
+        //var smallText = File.ReadAllText("data/small.xml");
+        var smallText = File.OpenRead("data/small.xml");
+        for (int i = 0; i < 10000; i++)
+        {
+            smallText.Seek(0, SeekOrigin.Begin);
             using var stream = KbinConverter.RecyclableMemoryStreamManager.GetStream();
             //await Task.Delay(1);
             //if (i == 200)
             //{
 
             //}
-            var length = KbinConverter.Write(smallText, stream, KnownEncodings.ShiftJIS);
+            var length = KbinConverter.Write(smallText, stream, KnownEncodings.ShiftJIS, writeOptions);
             //var linq = KbinConverter.ReadXmlLinq(_kbin);
             //var _xmlStr = linq.ToString();
             //KbinConverter.Write(_xmlStr, KnownEncodings.ShiftJIS, new WriteOptions { RepairedPrefix = "PREFIX_" });

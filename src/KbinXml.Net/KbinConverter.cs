@@ -49,7 +49,7 @@ public static partial class KbinConverter
             return name;
         }
 
-        if (name.Length < repairedPrefix.Length)
+        if (name.Length < repairedPrefix!.Length)
         {
             return name;
         }
