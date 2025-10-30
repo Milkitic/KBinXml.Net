@@ -88,7 +88,7 @@ public class Program
     private static void SmallTest()
     {
         var smallText = File.ReadAllText("data/small.xml");
-        for (int i = 0; i < 5000; i++)
+        for (int i = 0; i < 2000; i++)
         {
             using var stream = KbinConverter.RecyclableMemoryStreamManager.GetStream();
             //await Task.Delay(1);

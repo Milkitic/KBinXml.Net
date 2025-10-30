@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Tests\Samples\Sa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComponentsUnitTests", "Tests\ComponentsUnitTests\ComponentsUnitTests.csproj", "{C010004F-68B3-46E4-A72F-0FD46D04F186}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitBenchmarks", "Benchmarks\UnitBenchmarks\UnitBenchmarks.csproj", "{DC256266-FF77-4F52-A990-83A074C5281B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -120,6 +122,12 @@ Global
 		{C010004F-68B3-46E4-A72F-0FD46D04F186}.DebugLog|Any CPU.Build.0 = Debug|Any CPU
 		{C010004F-68B3-46E4-A72F-0FD46D04F186}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C010004F-68B3-46E4-A72F-0FD46D04F186}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC256266-FF77-4F52-A990-83A074C5281B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC256266-FF77-4F52-A990-83A074C5281B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC256266-FF77-4F52-A990-83A074C5281B}.DebugLog|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC256266-FF77-4F52-A990-83A074C5281B}.DebugLog|Any CPU.Build.0 = Debug|Any CPU
+		{DC256266-FF77-4F52-A990-83A074C5281B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC256266-FF77-4F52-A990-83A074C5281B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,6 +145,7 @@ Global
 		{3FFD0EA3-8F48-4E56-A8AD-F01D1F189135} = {E22A17F6-C130-40B0-89A1-99E3D67DBC78}
 		{D1FDB755-A831-DD36-ED52-0795A59FA410} = {0832D5CD-AFD9-440D-8925-29142DD9166C}
 		{C010004F-68B3-46E4-A72F-0FD46D04F186} = {0832D5CD-AFD9-440D-8925-29142DD9166C}
+		{DC256266-FF77-4F52-A990-83A074C5281B} = {E22A17F6-C130-40B0-89A1-99E3D67DBC78}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E1113C82-4EE9-4805-A9F1-26E8E8950B58}

@@ -25,6 +25,47 @@ internal class NodeType
         return Converter.WriteString(ref builder, str);
     }
 
+    public int WriteStrings(ref ValueListBuilder<byte> builder,
+        ReadOnlySpan<char> arrayCountSpan,
+        ReadOnlySpan<char> pendingValueSpan,
+        int requiredBytes, bool strictMode)
+    {
+        int bytesWritten = 0;
+        var valueEnumerator = pendingValueSpan.SpanSplit(' ');
+        foreach (var s in valueEnumerator)
+        {
+            try
+            {
+                if (bytesWritten == requiredBytes)
+                {
+                    if (strictMode)
+                    {
+                        throw new KbinArrayCountMissMatchException(arrayCountSpan.ToString(),
+                            pendingValueSpan.ToString().Split(' ').Length);
+                    }
+
+                    break;
+                }
+
+                var add = Converter.WriteString(ref builder, s);
+                if (add < Size)
+                {
+                    builder.AppendZeros(Size - add);
+                }
+
+                bytesWritten += Size;
+            }
+            catch (Exception e)
+            {
+                throw new KbinException(
+                    $"Error while writing data '{s.ToString()}'. See InnerException for more information.",
+                    e);
+            }
+        }
+
+        return bytesWritten;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string GetString(ReadOnlySpan<byte> bytes)
     {

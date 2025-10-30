@@ -316,22 +316,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ClearSpan(Span<byte> span, int increment)
     {
-        if (increment == 1)
-        {
-            span[0] = 0;
-        }
-        else if (increment == 2)
-        {
-            span[0] = 0;
-            span[1] = 0;
-        }
-        else if (increment == 3)
-        {
-            span[0] = 0;
-            span[1] = 0;
-            span[2] = 0;
-        }
-        else if (increment > 0)
+        if (increment > 0)
         {
             span.Slice(0, increment).Clear();
         }

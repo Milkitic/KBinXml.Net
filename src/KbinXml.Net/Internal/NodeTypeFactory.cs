@@ -3,16 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using KbinXml.Net.Internal.TypeConverters;
 
-#if NET6_0_OR_GREATER
-using System.Diagnostics.CodeAnalysis;
-#endif
-
-#if NET8_0_OR_GREATER
-using System.Collections.Frozen;
-#else
-using System.Linq;
-#endif
-
 namespace KbinXml.Net.Internal;
 
 internal static class NodeTypeFactory
@@ -78,11 +68,7 @@ internal static class NodeTypeFactory
         { 54, new NodeType(1, 3,  "3b",     U8Converter.Instance       ) },
         { 55, new NodeType(1, 4,  "4b",     U8Converter.Instance       ) },
         { 56, new NodeType(1, 16, "vb",     U8Converter.Instance       ) },
-    }
-#if NET8_0_OR_GREATER
-    .ToFrozenDictionary()
-#endif
-        ;
+    };
 #pragma warning restore Format
     // @formatter:on
     private static readonly NodeType?[] NodesArray = new NodeType?[57];
@@ -98,20 +84,29 @@ internal static class NodeTypeFactory
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryGetNodeType(byte typeCode,
 #if NET6_0_OR_GREATER
-        [NotNullWhen(true)]
+        [System.Diagnostics.CodeAnalysis.NotNullWhen(true)]
 #endif
         out NodeType? nodeType)
     {
-        nodeType = NodesArray[typeCode];
-        return nodeType != null;
+        if ((uint)typeCode < (uint)NodesArray.Length)
+        {
+            nodeType = NodesArray[typeCode];
+            return nodeType != null;
+        }
+
+        nodeType = null;
+        return false;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static NodeType GetNodeType(byte typeCode)
     {
-        var nodeType = NodesArray[typeCode];
-        if (nodeType == null) throw new InvalidOperationException($"Unknown type code: {typeCode}");
-        return nodeType;
+        if (TryGetNodeType(typeCode, out var nodeType))
+        {
+            return nodeType;
+        }
+
+        throw new InvalidOperationException($"Unknown type code: {typeCode}");
     }
 
     /// <summary>
@@ -203,9 +198,7 @@ internal static class NodeTypeFactory
             case "3b": typeId = 54; return true;
             case "4b": typeId = 55; return true;
             case "vb": typeId = 56; return true;
-            default:
-                typeId = 0;
-                return false;
+            default: typeId = 0; return false;
         }
     }
 }

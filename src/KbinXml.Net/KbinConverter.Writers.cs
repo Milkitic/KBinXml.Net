@@ -481,15 +481,13 @@ public static partial class KbinConverter
             TypeSpan = ReadOnlySpan<char>.Empty;
             TypeId = 0;
         }
-        
+
 #if !NETSTANDARD2_0
         [SkipLocalsInit]
 #endif
         private void ProcessComplexTypeData()
         {
             var type = NodeTypeFactory.GetNodeType(TypeId);
-            var valueEnumerator = PendingValueSpan.SpanSplit(' ');
-
             var typeSize = type.Size;
             var requiredBytes = (uint)(typeSize * type.Count);
             if (!ArrayCountSpan.IsEmpty)
@@ -519,43 +517,12 @@ public static partial class KbinConverter
 
             try
             {
-                int bytesWritten = 0;
                 var strictMode = WriteOptions.StrictMode;
-
                 if (PendingValueSpan.IsEmpty && strictMode && iRequiredBytes > 0)
                     throw new KbinException($"Node requires {iRequiredBytes} bytes but has no text value.");
 
-                foreach (var s in valueEnumerator)
-                {
-                    try
-                    {
-                        if (bytesWritten == iRequiredBytes)
-                        {
-                            if (strictMode)
-                            {
-                                throw new KbinArrayCountMissMatchException(ArrayCountSpan.ToString(),
-                                    PendingValueSpan.ToString().Split(' ').Length);
-                            }
-
-                            break;
-                        }
-
-                        var add = type.WriteString(ref builder, s);
-                        if (add < typeSize)
-                        {
-                            builder.AppendZeros(typeSize - add);
-                        }
-
-                        bytesWritten += typeSize;
-                    }
-                    catch (Exception e)
-                    {
-                        throw new KbinException(
-                            $"Error while writing data '{s.ToString()}'. See InnerException for more information.",
-                            e);
-                    }
-                }
-
+                var bytesWritten = type.WriteStrings(ref builder, ArrayCountSpan, PendingValueSpan,
+                    iRequiredBytes, strictMode);
                 // 处理可能的字节数不足情况
                 if (bytesWritten != iRequiredBytes)
                 {
