@@ -1,13 +1,10 @@
-using System;
-using System.Linq;
 using System.Text;
 using KbinXml.Net;
 using KbinXml.Net.Internal.Writers;
 using KbinXml.Net.Utils;
-using Xunit;
 using Xunit.Abstractions;
 
-namespace GeneralUnitTests;
+namespace ComponentsUnitTests;
 
 public class DataWriterTests
 {

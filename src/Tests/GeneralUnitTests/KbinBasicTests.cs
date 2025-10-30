@@ -536,6 +536,31 @@ namespace GeneralUnitTests
             Assert.Equal(formatXml, result.ToString(SaveOptions.DisableFormatting));
         }
 
+        [Fact]
+        public void TestEmptyNodes()
+        {
+            var xml = """
+                      <kingdom>
+                        <test>
+                          <haha />
+                        </test>
+                      </kingdom>
+                      """;
+
+            // Convert to Kbin and read back
+            var kbin = KbinConverter.Write(xml, KnownEncodings.UTF8);
+            var result = KbinConverter.ReadXmlLinq(kbin);
+
+            // Verify empty node structure preservation
+            Assert.NotNull(result.Root.Element("test"));
+            Assert.NotNull(result.Root.Element("test").Element("haha"));
+            Assert.Equal(string.Empty, result.Root.Element("test").Element("haha").Value);
+
+            var formatXml = XDocument.Parse(xml).ToString(SaveOptions.DisableFormatting);
+            Assert.Equal(formatXml, result.ToString(SaveOptions.DisableFormatting));
+        }
+
+#if !NETFRAMEWORK // 参照项目本身错误，暂时屏蔽部分测试用例
         [Theory]
         [InlineData("""
                     <root>
@@ -562,30 +587,6 @@ namespace GeneralUnitTests
         public void TestNumbers(string value)
         {
             DoWorks(value);
-        }
-
-        [Fact]
-        public void TestEmptyNodes()
-        {
-            var xml = """
-                    <kingdom>
-                      <test>
-                        <haha />
-                      </test>
-                    </kingdom>
-                    """;
-
-            // Convert to Kbin and read back
-            var kbin = KbinConverter.Write(xml, KnownEncodings.UTF8);
-            var result = KbinConverter.ReadXmlLinq(kbin);
-
-            // Verify empty node structure preservation
-            Assert.NotNull(result.Root.Element("test"));
-            Assert.NotNull(result.Root.Element("test").Element("haha"));
-            Assert.Equal(string.Empty, result.Root.Element("test").Element("haha").Value);
-
-            var formatXml = XDocument.Parse(xml).ToString(SaveOptions.DisableFormatting);
-            Assert.Equal(formatXml, result.ToString(SaveOptions.DisableFormatting));
         }
 
         [Theory]
@@ -629,6 +630,7 @@ namespace GeneralUnitTests
         {
             DoWorks(value);
         }
+#endif
 
 
         private void DoWorks(string value)
