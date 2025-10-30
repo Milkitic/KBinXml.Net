@@ -12,6 +12,7 @@ internal sealed class U32Converter : ITypeConverter
 
     public static U32Converter Instance { get; } = new();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
     {
         var numberStyle = ConvertHelper.GetNumberStyle(str, out str);
