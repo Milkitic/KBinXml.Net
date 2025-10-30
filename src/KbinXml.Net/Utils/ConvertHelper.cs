@@ -9,7 +9,7 @@ public static class ConvertHelper
     internal static readonly NumberFormatInfo UsNumberFormat = new CultureInfo("en-US", false).NumberFormat;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ToHexString(ReadOnlySpan<byte> bytes)
+    public static string ToHexString(ReadOnlySpan<byte> bytes, bool upper = true)
     {
         if (bytes.Length == 0)
         {
@@ -21,7 +21,7 @@ public static class ConvertHelper
             throw new ArgumentOutOfRangeException(nameof(bytes));
         }
 
-        return HexConverter.ToString(bytes, HexConverter.Casing.Lower);
+        return HexConverter.ToString(bytes, upper ? HexConverter.Casing.Upper : HexConverter.Casing.Lower);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

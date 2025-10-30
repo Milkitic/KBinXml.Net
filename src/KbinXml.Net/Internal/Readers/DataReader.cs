@@ -148,7 +148,7 @@ internal ref partial struct DataReader : IKBinReader
 
         return new ValueReadResult<string>
         (
-            ConvertHelper.ToHexString(spanResult.Span)
+            ConvertHelper.ToHexString(spanResult.Span, false)
 #if USELOG
             , spanResult.ReadStatus
 #endif

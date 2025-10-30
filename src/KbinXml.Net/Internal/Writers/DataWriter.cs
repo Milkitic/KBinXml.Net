@@ -66,6 +66,8 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
         ref var pointer = ref _pos32;
         var increment = GetIncrementLength(pointer);
 
+        Debug.Assert(increment == 0); // TODO: 理论上长度写完后已经是对齐的，increment 为 0
+
         // 获取足够大小的Span并写入数据
         if (increment >= 0)
         {
@@ -96,6 +98,8 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
         // 准备写入数据（32位对齐）
         ref var pointer = ref _pos32;
         var increment = GetIncrementLength(pointer);
+
+        Debug.Assert(increment == 0); // TODO: 理论上长度写完后已经是对齐的，increment 为 0
 
         // 获取足够大小的Span并写入数据
         if (increment >= 0)
@@ -337,5 +341,11 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
     private static void AlignTo4Bytes(ref int pointer)
     {
         pointer = (pointer + 3) & ~3;
+    }
+
+    internal byte[] DebugGetArray()
+    {
+        PadStream();
+        return Stream.ToArray();
     }
 }
