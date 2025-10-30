@@ -520,6 +520,14 @@ public static partial class KbinConverter
         {
             var type = NodeTypeFactory.GetNodeType(TypeId);
             var typeSize = type.Size;
+
+            // Fast path for single number without array
+            if (type.Count == 1 && ArrayCountSpan.IsEmpty)
+            {
+                FastProcessComplexTypeData(typeSize, type);
+                return;
+            }
+
             var requiredBytes = (uint)(typeSize * type.Count);
             if (!ArrayCountSpan.IsEmpty)
             {
@@ -567,7 +575,7 @@ public static partial class KbinConverter
                     builder.AppendZeros(iRequiredBytes - bytesWritten);
                 }
 
-                // 根据是否为数组选择合适的写入方法
+                // 根据是否为数组选择合适的写入方法（count > 1的数据类型不为数组）
                 // If array, force write 32bit
                 var builderSpan = builder.AsSpan();
                 if (!ArrayCountSpan.IsEmpty)
@@ -584,6 +592,23 @@ public static partial class KbinConverter
                 builder.Dispose();
                 if (arr != null) ArrayPool<byte>.Shared.Return(arr);
             }
+        }
+
+        private void FastProcessComplexTypeData(int typeSize, NodeType type)
+        {
+            Span<byte> buffer = stackalloc byte[typeSize];
+            try
+            {
+                type.WriteString(buffer, PendingValueSpan);
+            }
+            catch (Exception e)
+            {
+                throw new KbinException(
+                    $"Error while writing data '{PendingValueSpan.ToString()}'. See InnerException for more information.",
+                    e);
+            }
+
+            DataWriter.WriteBytes(buffer);
         }
 
         private void ProcessAttributes()

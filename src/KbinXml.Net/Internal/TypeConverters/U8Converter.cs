@@ -13,6 +13,14 @@ internal sealed class U8Converter : ITypeConverter
     public static U8Converter Instance { get; } = new();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
+    {
+        var numberStyle = ConvertHelper.GetNumberStyle(str, out str);
+        span[0] = ParseHelper.ParseByte(str, numberStyle);
+        return 1; // 写入 1 个字节
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int WriteString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var numberStyle = ConvertHelper.GetNumberStyle(str, out str);

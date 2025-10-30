@@ -13,6 +13,19 @@ internal sealed class Ip4Converter : ITypeConverter
     }
 
     public static Ip4Converter Instance { get; } = new();
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
+    {
+        var bytes = IPAddress.Parse(str
+#if !NETCOREAPP3_1_OR_GREATER
+                .ToString()
+#endif
+        ).GetAddressBytes();
+
+        bytes.CopyTo(span);
+        return bytes.Length; // 返回 4（IPv4 地址为 4 个字节）
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)] // todo: loop here
     public int WriteString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)

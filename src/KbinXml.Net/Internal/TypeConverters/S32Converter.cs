@@ -11,6 +11,12 @@ internal sealed class S32Converter : ITypeConverter
     }
 
     public static S32Converter Instance { get; } = new();
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
+    {
+        return BitConverterHelper.WriteBeBytes(span, ParseHelper.ParseInt32(str));
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int WriteString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)

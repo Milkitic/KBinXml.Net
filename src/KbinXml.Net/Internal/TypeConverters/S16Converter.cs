@@ -11,6 +11,12 @@ internal sealed class S16Converter : ITypeConverter
     }
 
     public static S16Converter Instance { get; } = new();
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
+    {
+        return BitConverterHelper.WriteBeBytes(span, ParseHelper.ParseInt16(str));
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int WriteString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)

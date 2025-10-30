@@ -11,6 +11,12 @@ internal sealed class DummyBinConverter : ITypeConverter
     }
 
     public static DummyBinConverter Instance { get; } = new();
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
+    {
+        throw new NotSupportedException("Binary data should not be written as string.");
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int WriteString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)

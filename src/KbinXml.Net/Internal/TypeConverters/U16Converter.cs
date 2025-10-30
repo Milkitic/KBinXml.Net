@@ -12,6 +12,12 @@ internal sealed class U16Converter : ITypeConverter
 
     public static U16Converter Instance { get; } = new();
 
+    public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
+    {
+        var numberStyle = ConvertHelper.GetNumberStyle(str, out str);
+        return BitConverterHelper.WriteBeBytes(span, ParseHelper.ParseUInt16(str, numberStyle));
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int WriteString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {

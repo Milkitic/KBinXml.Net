@@ -13,6 +13,13 @@ internal sealed class U64Converter : ITypeConverter
     public static U64Converter Instance { get; } = new();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
+    {
+        var numberStyle = ConvertHelper.GetNumberStyle(str, out str);
+        return BitConverterHelper.WriteBeBytes(span, ParseHelper.ParseUInt64(str, numberStyle));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int WriteString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var numberStyle = ConvertHelper.GetNumberStyle(str, out str);

@@ -20,6 +20,12 @@ internal class NodeType
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
+    {
+        return Converter.WriteString(span, str);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int WriteString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         return Converter.WriteString(ref builder, str);
