@@ -8,14 +8,12 @@ using Microsoft.IO;
 
 namespace KbinXml.Net.Internal.Writers;
 
-internal partial struct DataWriter : IKBinWriter, IDisposable
+internal ref partial struct DataWriter : IKBinWriter, IDisposable
 {
     internal readonly RecyclableMemoryStream Stream;
     private readonly Encoding _encoding;
 
-    private int _pos32;
-    private int _pos16;
-    private int _pos8;
+    private DataPositionTracker _tracker;
 
     public DataWriter(Encoding encoding, int capacity = 0)
     {
@@ -63,7 +61,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
         WriteU32((uint)byteCount);
 
         // 准备写入数据（32位对齐）
-        ref var pointer = ref _pos32;
+        ref var pointer = ref _tracker.Pos32;
         var increment = GetIncrementLength(pointer);
 
         Debug.Assert(increment == 0); // TODO: 理论上长度写完后已经是对齐的，increment 为 0
@@ -82,8 +80,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
         }
 
         pointer += byteCount;
-        AlignTo4Bytes(ref pointer);
-        Realign16_8();
+        _tracker.Align32();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -96,7 +93,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
         WriteU32((uint)length);
 
         // 准备写入数据（32位对齐）
-        ref var pointer = ref _pos32;
+        ref var pointer = ref _tracker.Pos32;
         var increment = GetIncrementLength(pointer);
 
         Debug.Assert(increment == 0); // TODO: 理论上长度写完后已经是对齐的，increment 为 0
@@ -115,60 +112,57 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
         }
 
         pointer += length;
-        AlignTo4Bytes(ref pointer);
-        Realign16_8();
+        _tracker.Align32();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write8BitAligned(byte value)
     {
-        var increment = GetIncrementLength(_pos8);
+        var increment = GetIncrementLength(_tracker.Pos8);
 
-        if ((_pos8 & 3) == 0)
+        if ((_tracker.Pos8 & 3) == 0)
         {
             Debug.Assert(increment >= 0);
-            _pos32 += 4;
+            _tracker.Pos32 += 4;
         }
         else
         {
             Debug.Assert(increment <= 0);
         }
 
-        WriteSingleByte(value, increment, ref _pos8);
+        WriteSingleByte(value, increment, ref _tracker.Pos8);
 
-        Realign16_8();
+        _tracker.Realign16_8();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write16BitAligned(scoped ReadOnlySpan<byte> buffer)
     {
-        var increment = GetIncrementLength(_pos16);
+        var increment = GetIncrementLength(_tracker.Pos16);
 
-        if ((_pos16 & 3) == 0)
+        if ((_tracker.Pos16 & 3) == 0)
         {
             Debug.Assert(increment >= 0);
-            _pos32 += 4;
+            _tracker.Pos32 += 4;
         }
         else
         {
             Debug.Assert(increment <= 0);
         }
 
-        WriteMultiBytes(buffer, increment, ref _pos16);
+        WriteMultiBytes(buffer, increment, ref _tracker.Pos16);
 
-        Realign16_8();
+        _tracker.Realign16_8();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write32BitAligned(scoped ReadOnlySpan<byte> streamRentBuffer)
     {
-        var increment = GetIncrementLength(_pos32);
+        var increment = GetIncrementLength(_tracker.Pos32);
 
-        WriteMultiBytes(streamRentBuffer, increment, ref _pos32);
+        WriteMultiBytes(streamRentBuffer, increment, ref _tracker.Pos32);
 
-        AlignTo4Bytes(ref _pos32);
-
-        Realign16_8();
+        _tracker.Align32();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -312,25 +306,12 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Realign16_8()
-    {
-        if ((_pos8 & 3) == 0) _pos8 = _pos32;
-        if ((_pos16 & 3) == 0) _pos16 = _pos32;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ClearSpan(Span<byte> span, int increment)
     {
         if (increment > 0)
         {
             span.Slice(0, increment).Clear();
         }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void AlignTo4Bytes(ref int pointer)
-    {
-        pointer = (pointer + 3) & ~3;
     }
 
     internal byte[] DebugGetArray()

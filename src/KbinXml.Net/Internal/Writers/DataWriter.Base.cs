@@ -56,12 +56,12 @@ internal partial struct DataWriter
     private void Write16BitAlignedInternal<T>(T value) where T : unmanaged
     {
         const int size = 2; // sizeof(short) or sizeof(ushort)
-        ref var pointer = ref _pos16;
+        ref var pointer = ref _tracker.Pos16;
         var increment = GetIncrementLength(pointer);
 
         if ((pointer & 3) == 0) // 如果16位指针是4字节对齐的
         {
-            _pos32 += 4;
+            _tracker.Pos32 += 4;
         }
 
         if (increment >= 0)
@@ -93,13 +93,13 @@ internal partial struct DataWriter
         }
 
         pointer += size;
-        Realign16_8();
+        _tracker.Realign16_8();
     }
 
     private void Write32BitAlignedInternal<T>(T value) where T : unmanaged
     {
         int size = Unsafe.SizeOf<T>();
-        ref var pointer = ref _pos32;
+        ref var pointer = ref _tracker.Pos32;
         var increment = GetIncrementLength(pointer);
 
         if (increment >= 0)
@@ -131,7 +131,6 @@ internal partial struct DataWriter
         }
 
         pointer += size;
-        AlignTo4Bytes(ref pointer);
-        Realign16_8();
+        _tracker.Align32();
     }
 }
