@@ -149,7 +149,9 @@ internal class ConsoleLogger : IKbinLogger
 
     private static string GetNodePath(Stack<XContainer> nodeStack)
     {
-        var e = string.Join(".", nodeStack.ToArray().Reverse().Select(k =>
+        var containers = nodeStack.ToArray();
+        containers.Reverse();
+        var e = string.Join(".", containers.Select(k =>
         {
             if (k == null) throw new ArgumentNullException(nameof(k));
             if (k is XElement xe) return xe.Name.ToString();
