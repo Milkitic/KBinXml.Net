@@ -31,6 +31,12 @@ internal readonly ref partial struct NodeWriter
         }
         else
         {
+            if (value.Length is 0 or > 64)
+            {
+                throw new ArgumentOutOfRangeException(nameof(value), 
+                    $"Uncompressed string length must be between 1 and 64. Actual: {value.Length}");
+            }
+
             WriteU8((byte)((value.Length - 1) | (1 << 6)));
 
             // https://stackoverflow.com/questions/9533258/what-is-the-maximum-number-of-bytes-for-a-utf-8-encoded-character
