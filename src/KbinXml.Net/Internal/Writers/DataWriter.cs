@@ -48,7 +48,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
         }
     }
 
-#if NETCOREAPP3_1_OR_GREATER
+#if NET8_0_OR_GREATER
     public void WriteString(ReadOnlySpan<char> value)
     {
 #else
@@ -189,7 +189,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NETCOREAPP3_1_OR_GREATER
+#if NET8_0_OR_GREATER
     private void WriteStringCore(ReadOnlySpan<char> value, int increment, int byteCount)
 #else
     private void WriteStringCore(string value, int increment, int byteCount)
@@ -204,7 +204,7 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
             span = span.Slice(increment);
         }
 
-#if NETCOREAPP3_1_OR_GREATER
+#if NET8_0_OR_GREATER
         int bytesWritten = _encoding.GetBytes(value, span);
         span[bytesWritten] = 0; // 添加结尾的0字节
 #else

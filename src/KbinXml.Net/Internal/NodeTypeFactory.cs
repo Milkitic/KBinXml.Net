@@ -83,7 +83,7 @@ internal static class NodeTypeFactory
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryGetNodeType(byte typeCode,
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
         [System.Diagnostics.CodeAnalysis.NotNullWhen(true)]
 #endif
         out NodeType? nodeType)

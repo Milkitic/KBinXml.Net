@@ -38,8 +38,6 @@ public static class BitConverterHelper
     {
 #if NET8_0_OR_GREATER
         return BinaryPrimitives.ReadSingleBigEndian(value);
-#elif NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
-        return BinaryPrimitivesExt.ReadSingleBigEndian(value);
 #else
         var arr = System.Buffers.ArrayPool<byte>.Shared.Rent(value.Length);
         try
@@ -130,8 +128,6 @@ public static class BitConverterHelper
     {
 #if NET8_0_OR_GREATER
         BinaryPrimitives.WriteSingleBigEndian(span, value);
-#elif NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
-        BinaryPrimitivesExt.WriteSingleBigEndian(span, value);
 #else
         BitConverter.GetBytes(value).CopyTo(span);
         span.Reverse();
@@ -210,10 +206,6 @@ public static class BitConverterHelper
 #if NET8_0_OR_GREATER
         Span<byte> span = stackalloc byte[sizeof(float)];
         BinaryPrimitives.WriteSingleBigEndian(span, value);
-        builder.AppendSpan(span);
-#elif NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
-        Span<byte> span = stackalloc byte[sizeof(float)];
-        BinaryPrimitivesExt.WriteSingleBigEndian(span, value);
         builder.AppendSpan(span);
 #else
         var bytes = BitConverter.GetBytes(value);

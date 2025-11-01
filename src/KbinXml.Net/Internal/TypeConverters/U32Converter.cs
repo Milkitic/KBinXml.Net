@@ -33,7 +33,7 @@ internal sealed class U32Converter : ITypeConverter
         return BitConverterHelper.ToBeUInt32(span).ToString();
     }
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AppendString(ref ValueStringBuilder stringBuilder, ReadOnlySpan<byte> span)
     {

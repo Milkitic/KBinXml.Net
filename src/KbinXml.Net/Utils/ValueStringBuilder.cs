@@ -157,7 +157,7 @@ public ref partial struct ValueStringBuilder : IDisposable
         int remaining = _pos - index;
         _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
         s
-#if !NET6_0_OR_GREATER
+#if !NET8_0_OR_GREATER
             .AsSpan()
 #endif
             .CopyTo(_chars.Slice(index));
@@ -271,7 +271,7 @@ public ref partial struct ValueStringBuilder : IDisposable
         return _chars.Slice(origPos, length);
     }
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AppendSpanFormattable<T>(T value, string? format = null, IFormatProvider? provider = null)
         where T : ISpanFormattable

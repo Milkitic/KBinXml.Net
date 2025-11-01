@@ -12,7 +12,7 @@ internal static class EncodingDictionary
 {
     static EncodingDictionary()
     {
-#if NETCOREAPP3_1_OR_GREATER
+#if NET8_0_OR_GREATER
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
         EncodingMap = new Dictionary<byte, Encoding>

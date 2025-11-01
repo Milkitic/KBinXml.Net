@@ -1,8 +1,5 @@
 ﻿#if USELOG
 
-#if NET8_0_OR_GREATER
-using System.Collections.Frozen;
-#endif
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,11 +7,7 @@ namespace KbinXml.Net.Internal.Debugging;
 
 internal class DebugUtils
 {
-    private static readonly IReadOnlyDictionary<int, string> NonPrintDict = CreateNonPrintDict()
-#if NET8_0_OR_GREATER
-            .ToFrozenDictionary()
-#endif
-        ;
+    private static readonly IReadOnlyDictionary<int, string> NonPrintDict = CreateNonPrintDict();
 
     public static string GetDisplayableString(string value)
     {

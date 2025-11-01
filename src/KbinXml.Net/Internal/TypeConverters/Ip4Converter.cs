@@ -18,7 +18,7 @@ internal sealed class Ip4Converter : ITypeConverter
     public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
     {
         var bytes = IPAddress.Parse(str
-#if !NETCOREAPP3_1_OR_GREATER
+#if !NET8_0_OR_GREATER
                 .ToString()
 #endif
         ).GetAddressBytes();
@@ -31,7 +31,7 @@ internal sealed class Ip4Converter : ITypeConverter
     public int WriteString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var bytes = IPAddress.Parse(str
-#if !NETCOREAPP3_1_OR_GREATER
+#if !NET8_0_OR_GREATER
                 .ToString()
 #endif
         ).GetAddressBytes();
@@ -59,7 +59,7 @@ internal sealed class Ip4Converter : ITypeConverter
         }
     }
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AppendString(ref ValueStringBuilder stringBuilder, ReadOnlySpan<byte> span)
     {

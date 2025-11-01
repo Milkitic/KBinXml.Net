@@ -19,7 +19,7 @@ namespace GeneralUnitTests
         public SpecialStructureTests(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
-#if NETCOREAPP3_1_OR_GREATER
+#if NET8_0_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
         }

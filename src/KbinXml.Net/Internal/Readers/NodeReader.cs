@@ -48,7 +48,7 @@ internal ref partial struct NodeReader : IKBinReader
     {
         var readSpanResult = ReadBytes((length & 0xBF) + 1);
 
-#if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
+#if NET8_0_OR_GREATER
         return new ValueReadResult<string>
         (
             _encoding.GetString(readSpanResult.Span)

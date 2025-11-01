@@ -30,7 +30,7 @@ public static class StreamExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteSpan(this Stream builder, ReadOnlySpan<byte> buffer)
     {
-#if NETCOREAPP3_1_OR_GREATER
+#if NET8_0_OR_GREATER
         builder.Write(buffer);
 #else
         foreach (var b in buffer) builder.WriteByte(b);

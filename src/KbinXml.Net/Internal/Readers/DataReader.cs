@@ -109,7 +109,7 @@ internal ref partial struct DataReader : IKBinReader
             );
         }
 
-#if NETCOREAPP3_1_OR_GREATER
+#if NET8_0_OR_GREATER
         return new ValueReadResult<string>
         (
             _encoding.GetString(span)
@@ -117,7 +117,7 @@ internal ref partial struct DataReader : IKBinReader
             , spanResult.ReadStatus
 #endif
         );
-#elif NETSTANDARD2_0 || NET46_OR_GREATER
+#elif NETSTANDARD2_0
         fixed (byte* p = span)
         {
             return new ValueReadResult<string>

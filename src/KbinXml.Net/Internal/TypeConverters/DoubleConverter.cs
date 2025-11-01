@@ -31,7 +31,7 @@ internal sealed class DoubleConverter : ITypeConverter
         return BitConverterHelper.ToBeDouble(span).ToString("0.000000"); // 保留 6 位小数
     }
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AppendString(ref ValueStringBuilder stringBuilder, ReadOnlySpan<byte> span)
     {

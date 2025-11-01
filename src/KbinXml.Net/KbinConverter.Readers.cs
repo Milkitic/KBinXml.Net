@@ -427,14 +427,14 @@ public static partial class KbinConverter
             for (var i = 0; i < loopCount; i++)
             {
                 var subSpan = span.Slice(i * propertyType.Size, propertyType.Size);
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
                 propertyType.AppendString(ref stringBuilder, subSpan);
 #else
                 stringBuilder.Append(propertyType.GetString(subSpan));
 #endif
                 if (i != loopCount - 1)
                 {
-#if NETCOREAPP3_1_OR_GREATER
+#if NET8_0_OR_GREATER
                     stringBuilder.Append(' ');
 #else
                     stringBuilder.Append(" ");

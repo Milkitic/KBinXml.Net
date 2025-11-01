@@ -7,7 +7,7 @@ using KbinXml.Net.Utils;
 using Microsoft.IO;
 
 //using SixbitHelperImpl = KbinXml.Net.Utils.SixbitHelperOptimized;
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 using SixbitHelperEncImpl = KbinXml.Net.Internal.Sixbit.SixbitHelperCoreClrOptimized;
 using SixbitHelperDecImpl = KbinXml.Net.Internal.Sixbit.SixbitHelperCoreClrOptimized;
 #else
@@ -195,7 +195,7 @@ internal static class SixbitHelper
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static unsafe string GetString(scoped Span<byte> input)
     {
-#if NETSTANDARD2_1 || NETCOREAPP3_1_OR_GREATER
+#if NET8_0_OR_GREATER
         fixed (byte* inputPtr = input)
         {
             return string.Create(input.Length, (nint)inputPtr, (chars, state) =>

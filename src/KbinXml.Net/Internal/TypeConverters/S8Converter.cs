@@ -32,7 +32,7 @@ internal sealed class S8Converter : ITypeConverter
         return ((sbyte)span[0]).ToString();
     }
 
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AppendString(ref ValueStringBuilder stringBuilder, ReadOnlySpan<byte> span)
     {

@@ -35,7 +35,7 @@ internal readonly ref partial struct NodeWriter
 
             // https://stackoverflow.com/questions/9533258/what-is-the-maximum-number-of-bytes-for-a-utf-8-encoded-character
             //int byteCount = _encoding.GetByteCount(value);
-#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#if NET8_0_OR_GREATER
             var span = Stream.GetSpan(value.Length * 4);
             int bytesWritten = _encoding.GetBytes(value.AsSpan(), span);
             Stream.Advance(bytesWritten);
