@@ -89,7 +89,7 @@ internal ref partial struct DataReader : IKBinReader
         //}
 
         //_pos += count;
-        _pos += count + 3 & ~3; // 向上取整到4的倍数
+        _pos += (count + 3) & ~3; // 向上取整到4的倍数
         return result;
     }
 
@@ -97,8 +97,8 @@ internal ref partial struct DataReader : IKBinReader
     public unsafe ValueReadResult<string> ReadString(int count)
     {
         var spanResult = ReadBytes32BitAligned(count);
-        var span = spanResult.Span.Slice(0, spanResult.Span.Length - 1);
-        if (span.Length == 0)
+
+        if (spanResult.Span.Length <= 1)
         {
             return new ValueReadResult<string>
             (
@@ -108,6 +108,8 @@ internal ref partial struct DataReader : IKBinReader
 #endif
             );
         }
+
+        var span = spanResult.Span.Slice(0, spanResult.Span.Length - 1);
 
 #if NET8_0_OR_GREATER
         return new ValueReadResult<string>
@@ -132,7 +134,7 @@ internal ref partial struct DataReader : IKBinReader
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ValueReadResult<string> ReadBinary(int count)
+    public ValueReadResult<string> ReadBinary(int count, bool upper)
     {
         var spanResult = ReadBytes32BitAligned(count);
         if (spanResult.Span.Length == 0)
@@ -146,27 +148,45 @@ internal ref partial struct DataReader : IKBinReader
             );
         }
 
+        if (!upper)
+            return new ValueReadResult<string>
+            (
+#if NET9_0_OR_GREATER
+                Convert.ToHexStringLower(spanResult.Span)
+#else
+                ConvertHelper.ToHexString(spanResult.Span, false)
+#endif
+
+#if USELOG
+                , spanResult.ReadStatus
+#endif
+            );
+
         return new ValueReadResult<string>
         (
-            ConvertHelper.ToHexString(spanResult.Span, false)
+#if NET8_0_OR_GREATER
+            Convert.ToHexString(spanResult.Span)
+#else
+            ConvertHelper.ToHexString(spanResult.Span, true)
+#endif
+
 #if USELOG
             , spanResult.ReadStatus
 #endif
         );
+
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ReadOnlySpan<byte> ReadBytesSafe(int offset, int count)
     {
-        int actualCount;
-        if (count + offset > _span.Length)
+        if (offset >= _span.Length)
         {
-            actualCount = _span.Length - offset;
+            return ReadOnlySpan<byte>.Empty;
         }
-        else
-        {
-            actualCount = count;
-        }
+
+        var availableBytes = _span.Length - offset;
+        var actualCount = Math.Min(count, availableBytes);
 
         var slice = _span.Slice(offset, actualCount);
         return slice;

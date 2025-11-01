@@ -232,7 +232,12 @@ internal partial struct DataWriter : IKBinWriter, IDisposable
             span = span.Slice(increment);
         }
 
+#if NET9_0_OR_GREATER
+        Convert.FromHexString(value, span.Slice(0, length), out var charsConsumed, out var bytesWritten);
+#else
         HexConverter.TryDecodeFromUtf16(value, span.Slice(0, length));
+#endif
+
         Stream.Advance(sizeHint);
     }
 

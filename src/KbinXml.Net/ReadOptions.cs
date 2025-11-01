@@ -14,4 +14,12 @@ public class ReadOptions
     /// The default value is <see langword="null"/> (repair disabled).
     /// </value>
     public string? RepairedPrefix { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether upper binary format should be used when reading KBin data.
+    /// </summary>
+    ///     /// <value>
+    /// The default value is <see langword="false"/> (Use lowercase binary).
+    /// </value>
+    public bool BinaryUppercase { get; set; }
 }

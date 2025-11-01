@@ -29,7 +29,8 @@ public static partial class KbinConverter
     public static XDocument ReadXmlLinq(ReadOnlySpan<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
-        var xDocument = (XDocument)ReaderImpl(sourceBuffer, e => new XDocumentProvider(e, readOptions), out _);
+        var xDocument = (XDocument)ReaderImpl(readOptions, sourceBuffer,
+            e => new XDocumentProvider(e, readOptions), out _);
         return xDocument;
     }
 
@@ -46,7 +47,8 @@ public static partial class KbinConverter
     {
         readOptions ??= new ReadOptions();
         var xDocument =
-            (XDocument)ReaderImpl(sourceBuffer, e => new XDocumentProvider(e, readOptions), out knownEncodings);
+            (XDocument)ReaderImpl(readOptions, sourceBuffer,
+                e => new XDocumentProvider(e, readOptions), out knownEncodings);
         return xDocument;
     }
 
@@ -64,7 +66,8 @@ public static partial class KbinConverter
     public static byte[] ReadXmlBytes(ReadOnlySpan<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
-        var bytes = (byte[])ReaderImpl(sourceBuffer, e => new XmlWriterProvider(e, readOptions), out _);
+        var bytes = (byte[])ReaderImpl(readOptions, sourceBuffer,
+            e => new XmlWriterProvider(e, readOptions), out _);
         return bytes;
     }
 
@@ -80,7 +83,8 @@ public static partial class KbinConverter
         ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
-        var bytes = (byte[])ReaderImpl(sourceBuffer, e => new XmlWriterProvider(e, readOptions), out knownEncodings);
+        var bytes = (byte[])ReaderImpl(readOptions, sourceBuffer,
+            e => new XmlWriterProvider(e, readOptions), out knownEncodings);
         return bytes;
     }
 
@@ -98,7 +102,8 @@ public static partial class KbinConverter
     public static MemoryStream GetXmlStream(ReadOnlySpan<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
-        var bytes = (MemoryStream)ReaderImpl(sourceBuffer, e => new XmlWriterProvider(e, readOptions, true),
+        var bytes = (MemoryStream)ReaderImpl(readOptions, sourceBuffer,
+            e => new XmlWriterProvider(e, readOptions, true),
             out _);
         return bytes;
     }
@@ -115,7 +120,8 @@ public static partial class KbinConverter
         ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
-        var bytes = (MemoryStream)ReaderImpl(sourceBuffer, e => new XmlWriterProvider(e, readOptions, true),
+        var bytes = (MemoryStream)ReaderImpl(readOptions, sourceBuffer,
+            e => new XmlWriterProvider(e, readOptions, true),
             out knownEncodings);
         return bytes;
     }
@@ -134,7 +140,8 @@ public static partial class KbinConverter
     public static XmlDocument ReadXml(ReadOnlySpan<byte> sourceBuffer, ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
-        var xmlDocument = (XmlDocument)ReaderImpl(sourceBuffer, e => new XmlDocumentProvider(e, readOptions), out _);
+        var xmlDocument = (XmlDocument)ReaderImpl(readOptions, sourceBuffer,
+            e => new XmlDocumentProvider(e, readOptions), out _);
         return xmlDocument;
     }
 
@@ -150,16 +157,17 @@ public static partial class KbinConverter
         ReadOptions? readOptions = null)
     {
         readOptions ??= new ReadOptions();
-        var xmlDocument = (XmlDocument)ReaderImpl(sourceBuffer, e => new XmlDocumentProvider(e, readOptions),
-            out knownEncodings);
+        var xmlDocument = (XmlDocument)ReaderImpl(readOptions, sourceBuffer,
+            e => new XmlDocumentProvider(e, readOptions), out knownEncodings);
         return xmlDocument;
     }
 
-    private static object ReaderImpl(ReadOnlySpan<byte> sourceBuffer,
+    private static object ReaderImpl(ReadOptions readOptions,
+        ReadOnlySpan<byte> sourceBuffer,
         Func<Encoding, WriterProvider> createWriterProvider,
         out KnownEncodings knownEncoding)
     {
-        var readContext = GetReadContext(sourceBuffer, createWriterProvider);
+        var readContext = GetReadContext(readOptions, sourceBuffer, createWriterProvider);
         try
         {
             knownEncoding = readContext.KnownEncoding;
@@ -202,8 +210,8 @@ public static partial class KbinConverter
         }
     }
 
-    private static ReadContext GetReadContext(ReadOnlySpan<byte> sourceBuffer,
-        Func<Encoding, WriterProvider> createWriterProvider)
+    private static ReadContext GetReadContext(ReadOptions readOptions,
+        ReadOnlySpan<byte> sourceBuffer, Func<Encoding, WriterProvider> createWriterProvider)
     {
         //Read header section.
         var binaryBuffer = new BigEndianReader(sourceBuffer);
@@ -251,7 +259,7 @@ public static partial class KbinConverter
 
         var readProvider = createWriterProvider(encoding);
 
-        var readContext = new ReadContext(nodeReader, dataReader, readProvider, encoding.ToKnownEncoding());
+        var readContext = new ReadContext(readOptions, nodeReader, dataReader, readProvider, encoding.ToKnownEncoding());
         return readContext;
     }
 
@@ -260,14 +268,17 @@ public static partial class KbinConverter
         public readonly WriterProvider WriterProvider;
         public readonly KnownEncodings KnownEncoding;
 
+        private readonly ReadOptions _readOptions;
+
         public NodeReader NodeReader;
         public DataReader DataReader;
         public string? CurrentType;
         public string? HoldValue;
 
-        public ReadContext(NodeReader nodeReader, DataReader dataReader, WriterProvider writerProvider,
+        public ReadContext(ReadOptions readOptions, NodeReader nodeReader, DataReader dataReader, WriterProvider writerProvider,
             KnownEncodings knownEncoding)
         {
+            _readOptions = readOptions;
             NodeReader = nodeReader;
             DataReader = dataReader;
             WriterProvider = writerProvider;
@@ -392,16 +403,17 @@ public static partial class KbinConverter
 
         private void ProcessBinaryType(int arraySize)
         {
+            var upper = _readOptions.BinaryUppercase;
             WriterProvider.WriteStartAttribute("__size");
             WriterProvider.WriteAttributeValue(arraySize.ToString());
             WriterProvider.WriteEndAttribute();
-            var valueReadResult = DataReader.ReadBinary(arraySize);
+            var valueReadResult = DataReader.ReadBinary(arraySize, upper);
             HoldValue = valueReadResult.Value;
 #if USELOG
             Logger.LogBinaryValue(HoldValue, valueReadResult.ReadStatus.Offset, valueReadResult.ReadStatus.Flag);
 #endif
         }
-        
+
 #if !NETSTANDARD2_0
         [SkipLocalsInit]
 #endif
