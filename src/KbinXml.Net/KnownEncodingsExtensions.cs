@@ -12,11 +12,11 @@ public static class KnownEncodingsExtensions
     {
         return knownEncodings switch
         {
-            KnownEncodings.ShiftJIS => EncodingDictionary.EncodingMap[0x80],
-            KnownEncodings.ASCII => EncodingDictionary.EncodingMap[0x20],
-            KnownEncodings.ISO_8859_1 => EncodingDictionary.EncodingMap[0x40],
-            KnownEncodings.EUC_JP => EncodingDictionary.EncodingMap[0x60],
-            KnownEncodings.UTF8 => EncodingDictionary.EncodingMap[0xA0],
+            KnownEncodings.ShiftJIS => EncodingDictionary.EncodingShiftJis,
+            KnownEncodings.ASCII => Encoding.ASCII,
+            KnownEncodings.ISO_8859_1 => EncodingDictionary.EncodingLatin1,
+            KnownEncodings.EUC_JP => EncodingDictionary.EncodingEucJp,
+            KnownEncodings.UTF8 => Encoding.UTF8,
             _ => throw new ArgumentOutOfRangeException(nameof(knownEncodings), knownEncodings, null)
         };
     }
@@ -24,16 +24,17 @@ public static class KnownEncodingsExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static KnownEncodings ToKnownEncoding(this Encoding knownEncodings)
     {
-        if (knownEncodings.EncodingName == EncodingDictionary.EncodingMap[0x80].EncodingName)
+        if (knownEncodings.CodePage == EncodingDictionary.EncodingShiftJis.CodePage)
             return KnownEncodings.ShiftJIS;
-        if (knownEncodings.EncodingName == EncodingDictionary.EncodingMap[0x20].EncodingName)
+        if (knownEncodings.CodePage == Encoding.ASCII.CodePage)
             return KnownEncodings.ASCII;
-        if (knownEncodings.EncodingName == EncodingDictionary.EncodingMap[0x40].EncodingName)
+        if (knownEncodings.CodePage == EncodingDictionary.EncodingLatin1.CodePage)
             return KnownEncodings.ISO_8859_1;
-        if (knownEncodings.EncodingName == EncodingDictionary.EncodingMap[0x60].EncodingName)
+        if (knownEncodings.CodePage == EncodingDictionary.EncodingEucJp.CodePage)
             return KnownEncodings.EUC_JP;
-        if (knownEncodings.EncodingName == EncodingDictionary.EncodingMap[0xA0].EncodingName)
+        if (knownEncodings.CodePage == Encoding.UTF8.CodePage)
             return KnownEncodings.UTF8;
-        throw new ArgumentOutOfRangeException(nameof(knownEncodings), knownEncodings, null);
+        throw new ArgumentOutOfRangeException(nameof(knownEncodings), knownEncodings,
+            $"Unsupported encoding. CodePage: {knownEncodings.CodePage}, Name: {knownEncodings.EncodingName}");
     }
 }

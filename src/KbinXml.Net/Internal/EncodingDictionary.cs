@@ -10,18 +10,27 @@ namespace KbinXml.Net.Internal;
 
 internal static class EncodingDictionary
 {
+    internal static readonly Encoding EncodingLatin1;
+    internal static readonly Encoding EncodingEucJp;
+    internal static readonly Encoding EncodingShiftJis;
+
     static EncodingDictionary()
     {
 #if NET8_0_OR_GREATER
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        EncodingLatin1 = Encoding.Latin1;
+#else
+        EncodingLatin1 = Encoding.GetEncoding("ISO-8859-1");
 #endif
+        EncodingEucJp = Encoding.GetEncoding("EUC-JP");
+        EncodingShiftJis = Encoding.GetEncoding("SHIFT-JIS");
         EncodingMap = new Dictionary<byte, Encoding>
                 {
-                    { 0x00, Encoding.GetEncoding("ISO-8859-1") },
+                    { 0x00, EncodingLatin1 },
                     { 0x20, Encoding.ASCII },
-                    { 0x40, Encoding.GetEncoding("ISO-8859-1") },
-                    { 0x60, Encoding.GetEncoding("EUC-JP") },
-                    { 0x80, Encoding.GetEncoding("SHIFT-JIS") },
+                    { 0x40, EncodingLatin1 },
+                    { 0x60, EncodingEucJp },
+                    { 0x80, EncodingShiftJis },
                     { 0xA0, Encoding.UTF8 },
                 }
 #if NET8_0_OR_GREATER
