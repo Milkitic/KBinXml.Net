@@ -12,6 +12,7 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
 {
     internal readonly RecyclableMemoryStream Stream;
     private readonly Encoding _encoding;
+    private readonly bool _disposeStream;
 
     private DataPositionTracker _tracker;
 
@@ -19,6 +20,13 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
     {
         _encoding = encoding;
         Stream = KbinConverter.RecyclableMemoryStreamManager.GetStream("wd", capacity);
+        _disposeStream = true;
+    }
+
+    public DataWriter(Encoding encoding, RecyclableMemoryStream stream)
+    {
+        _encoding = encoding;
+        Stream = stream;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -179,7 +187,8 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
 
     public void Dispose()
     {
-        Stream.Dispose();
+        if (_disposeStream)
+            Stream.Dispose();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
