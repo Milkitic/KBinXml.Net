@@ -12,6 +12,7 @@ namespace ReadBenchmark;
 [MemoryDiagnoser]
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net90)]
+[SimpleJob(RuntimeMoniker.Net10_0)]
 [SimpleJob(RuntimeMoniker.Net48)]
 public class SingleThreadComparison1
 {

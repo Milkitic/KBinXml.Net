@@ -23,6 +23,7 @@ namespace WriteBenchmark;
 #else
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net90)]
+[SimpleJob(RuntimeMoniker.Net10_0)]
 #endif
 public class MultiThreadComparisonBetweenLibsTask
 {

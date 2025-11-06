@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net48;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net48;net8.0;net9.0;net10.0</TargetFrameworks>
     <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <Configurations>Debug;Release;DebugLog</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.15.4" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.6" />
     <PackageReference Include="KbinXml.Net" Version="1.1.0" Aliases="kbin1_1" />
   </ItemGroup>
 
