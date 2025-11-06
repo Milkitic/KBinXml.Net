@@ -202,7 +202,7 @@ public static partial class KbinConverter
     {
         var encoding = knownEncodings.ToEncoding();
         writeOptions ??= new WriteOptions();
-        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding),
+        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter2(encoding),
             writeOptions);
 
         try
@@ -382,7 +382,7 @@ public static partial class KbinConverter
         public RefValueList<KeyValuePair<string, string>> PendingAttributes = new(8); // 预分配一个合理容量
 #endif
         public NodeWriter NodeWriter;
-        public DataWriter DataWriter;
+        public DataWriter2 DataWriter;
 
         public ReadOnlySpan<char> TypeSpan = ReadOnlySpan<char>.Empty;
         public ReadOnlySpan<char> ArrayCountSpan = ReadOnlySpan<char>.Empty;
@@ -394,7 +394,7 @@ public static partial class KbinConverter
 
         public byte TypeId = 0;
 
-        public WriteContext(NodeWriter nodeWriter, DataWriter dataWriter, WriteOptions writeOptions)
+        public WriteContext(NodeWriter nodeWriter, DataWriter2 dataWriter, WriteOptions writeOptions)
         {
             NodeWriter = nodeWriter;
             DataWriter = dataWriter;
