@@ -3,9 +3,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using KbinXml.Net;
-using KbinXml.Net.Internal.Writers;
 using Microsoft.IO;
-using UnitBenchmarks.Legacy;
 using DataWriter = KbinXml.Net.Internal.Writers.DataWriter;
 
 namespace UnitBenchmarks;
