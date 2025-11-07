@@ -232,13 +232,13 @@ namespace GeneralUnitTests
 
             // Test writing
             var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-            int bytesWritten = U8Converter.Instance.WriteString(ref builder, valueStr.AsSpan());
+            int bytesWritten = U8Converter.Instance.Deserialize(ref builder, valueStr.AsSpan());
 
             Assert.Equal(1, bytesWritten);
 
             // Test reading
             var bytes = builder.AsSpan().ToArray();
-            string result = U8Converter.Instance.ToString(bytes);
+            string result = U8Converter.Instance.Serialize(bytes);
 
             Assert.Equal(valueStr, result);
         }
@@ -251,13 +251,13 @@ namespace GeneralUnitTests
 
             // Test writing
             var builder = new ValueListBuilder<byte>(stackalloc byte[8]);
-            int bytesWritten = S32Converter.Instance.WriteString(ref builder, valueStr.AsSpan());
+            int bytesWritten = S32Converter.Instance.Deserialize(ref builder, valueStr.AsSpan());
 
             Assert.Equal(4, bytesWritten);
 
             // Test reading
             var bytes = builder.AsSpan().ToArray();
-            string result = S32Converter.Instance.ToString(bytes);
+            string result = S32Converter.Instance.Serialize(bytes);
 
             Assert.Equal(valueStr, result);
         }
@@ -269,13 +269,13 @@ namespace GeneralUnitTests
 
             // Test writing
             var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-            int bytesWritten = Ip4Converter.Instance.WriteString(ref builder, value.AsSpan());
+            int bytesWritten = Ip4Converter.Instance.Deserialize(ref builder, value.AsSpan());
 
             Assert.Equal(4, bytesWritten);
 
             // Test reading
             var bytes = builder.AsSpan().ToArray();
-            string result = Ip4Converter.Instance.ToString(bytes);
+            string result = Ip4Converter.Instance.Serialize(bytes);
 
             Assert.Equal(value, result);
         }
@@ -317,9 +317,9 @@ namespace GeneralUnitTests
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-                    U8Converter.Instance.WriteString(ref builder, str.AsSpan());
+                    U8Converter.Instance.Deserialize(ref builder, str.AsSpan());
                     return builder.AsSpan().ToArray();
-                }, bytes => U8Converter.Instance.ToString(bytes));
+                }, bytes => U8Converter.Instance.Serialize(bytes));
         }
 
         [Theory]
@@ -331,9 +331,9 @@ namespace GeneralUnitTests
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-                    S8Converter.Instance.WriteString(ref builder, str.AsSpan());
+                    S8Converter.Instance.Deserialize(ref builder, str.AsSpan());
                     return builder.AsSpan().ToArray();
-                }, bytes => S8Converter.Instance.ToString(bytes));
+                }, bytes => S8Converter.Instance.Serialize(bytes));
         }
 
         [Theory]
@@ -345,9 +345,9 @@ namespace GeneralUnitTests
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-                    S16Converter.Instance.WriteString(ref builder, str.AsSpan());
+                    S16Converter.Instance.Deserialize(ref builder, str.AsSpan());
                     return builder.AsSpan().ToArray();
-                }, bytes => S16Converter.Instance.ToString(bytes));
+                }, bytes => S16Converter.Instance.Serialize(bytes));
         }
 
         [Theory]
@@ -359,9 +359,9 @@ namespace GeneralUnitTests
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-                    S32Converter.Instance.WriteString(ref builder, str.AsSpan());
+                    S32Converter.Instance.Deserialize(ref builder, str.AsSpan());
                     return builder.AsSpan().ToArray();
-                }, bytes => S32Converter.Instance.ToString(bytes));
+                }, bytes => S32Converter.Instance.Serialize(bytes));
         }
 
         [Theory]
@@ -373,9 +373,9 @@ namespace GeneralUnitTests
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-                    S64Converter.Instance.WriteString(ref builder, str.AsSpan());
+                    S64Converter.Instance.Deserialize(ref builder, str.AsSpan());
                     return builder.AsSpan().ToArray();
-                }, bytes => S64Converter.Instance.ToString(bytes));
+                }, bytes => S64Converter.Instance.Serialize(bytes));
         }
 
         [Theory]
@@ -387,9 +387,9 @@ namespace GeneralUnitTests
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-                    U16Converter.Instance.WriteString(ref builder, str.AsSpan());
+                    U16Converter.Instance.Deserialize(ref builder, str.AsSpan());
                     return builder.AsSpan().ToArray();
-                }, bytes => U16Converter.Instance.ToString(bytes));
+                }, bytes => U16Converter.Instance.Serialize(bytes));
         }
 
         [Theory]
@@ -401,9 +401,9 @@ namespace GeneralUnitTests
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-                    U32Converter.Instance.WriteString(ref builder, str.AsSpan());
+                    U32Converter.Instance.Deserialize(ref builder, str.AsSpan());
                     return builder.AsSpan().ToArray();
-                }, bytes => U32Converter.Instance.ToString(bytes));
+                }, bytes => U32Converter.Instance.Serialize(bytes));
         }
 
         [Theory]
@@ -415,9 +415,9 @@ namespace GeneralUnitTests
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-                    U64Converter.Instance.WriteString(ref builder, str.AsSpan());
+                    U64Converter.Instance.Deserialize(ref builder, str.AsSpan());
                     return builder.AsSpan().ToArray();
-                }, bytes => U64Converter.Instance.ToString(bytes));
+                }, bytes => U64Converter.Instance.Serialize(bytes));
         }
 
         [Theory]
@@ -429,9 +429,9 @@ namespace GeneralUnitTests
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-                    FloatConverter.Instance.WriteString(ref builder, str.AsSpan());
+                    FloatConverter.Instance.Deserialize(ref builder, str.AsSpan());
                     return builder.AsSpan().ToArray();
-                }, bytes => FloatConverter.Instance.ToString(bytes));
+                }, bytes => FloatConverter.Instance.Serialize(bytes));
         }
 
         [Theory]
@@ -443,9 +443,9 @@ namespace GeneralUnitTests
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-                    DoubleConverter.Instance.WriteString(ref builder, str.AsSpan());
+                    DoubleConverter.Instance.Deserialize(ref builder, str.AsSpan());
                     return builder.AsSpan().ToArray();
-                }, bytes => DoubleConverter.Instance.ToString(bytes));
+                }, bytes => DoubleConverter.Instance.Serialize(bytes));
         }
 
         [Theory]
@@ -457,9 +457,9 @@ namespace GeneralUnitTests
                 str =>
                 {
                     var builder = new ValueListBuilder<byte>(stackalloc byte[4]);
-                    Ip4Converter.Instance.WriteString(ref builder, str.AsSpan());
+                    Ip4Converter.Instance.Deserialize(ref builder, str.AsSpan());
                     return builder.AsSpan().ToArray();
-                }, bytes => Ip4Converter.Instance.ToString(bytes));
+                }, bytes => Ip4Converter.Instance.Serialize(bytes));
         }
 
         private static void DoWorks(object value,

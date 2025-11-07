@@ -440,9 +440,9 @@ public static partial class KbinConverter
             {
                 var subSpan = span.Slice(i * propertyType.Size, propertyType.Size);
 #if NET8_0_OR_GREATER
-                propertyType.AppendString(ref stringBuilder, subSpan);
+                propertyType.SerializeAppend(ref stringBuilder, subSpan);
 #else
-                stringBuilder.Append(propertyType.GetString(subSpan));
+                stringBuilder.Append(propertyType.Serialize(subSpan));
 #endif
                 if (i != loopCount - 1)
                 {

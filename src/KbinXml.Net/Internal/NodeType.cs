@@ -20,18 +20,18 @@ internal class NodeType
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
+    public int Deserialize(Span<byte> span, ReadOnlySpan<char> str)
     {
-        return Converter.WriteString(span, str);
+        return Converter.Deserialize(span, str);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int WriteString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
+    public int Deserialize(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
-        return Converter.WriteString(ref builder, str);
+        return Converter.Deserialize(ref builder, str);
     }
 
-    public int WriteStrings(ref ValueListBuilder<byte> builder,
+    public int Deserialize(ref ValueListBuilder<byte> builder,
         ReadOnlySpan<char> arrayCountSpan,
         ReadOnlySpan<char> pendingValueSpan,
         int requiredBytes, bool strictMode)
@@ -53,7 +53,7 @@ internal class NodeType
                     break;
                 }
 
-                var add = Converter.WriteString(ref builder, s);
+                var add = Converter.Deserialize(ref builder, s);
                 if (add < Size)
                 {
                     builder.AppendZeros(Size - add);
@@ -73,16 +73,16 @@ internal class NodeType
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string GetString(ReadOnlySpan<byte> bytes)
+    public string Serialize(ReadOnlySpan<byte> bytes)
     {
-        return Converter.ToString(bytes);
+        return Converter.Serialize(bytes);
     }
 
 #if NET8_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AppendString(ref ValueStringBuilder stringBuilder, ReadOnlySpan<byte> span)
+    public void SerializeAppend(ref ValueStringBuilder stringBuilder, ReadOnlySpan<byte> span)
     {
-        Converter.AppendString(ref stringBuilder, span);
+        Converter.SerializeAppend(ref stringBuilder, span);
     }
 #endif
 }
