@@ -4,7 +4,7 @@ using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Internal.Writers;
 
-internal partial struct DataWriter2
+internal partial struct DataWriter
 {
     /// <summary>
     /// Unused api
@@ -13,13 +13,13 @@ internal partial struct DataWriter2
     [Obsolete]
     public void WriteS8(sbyte value)
     {
-        WriteByte((byte)value);
+        _writeContextManager.Write((byte)value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteU8(byte value)
     {
-        WriteByte(value);
+        _writeContextManager.Write(value);
     }
 
     /// <summary>

@@ -116,7 +116,7 @@ public class Program
     private static void DataWriter2Test()
     {
         using var _stream = KbinConverter.RecyclableMemoryStreamManager.GetStream();
-        using var writer1 = new DataWriter2(Encoding.UTF8, _stream);
+        using var writer1 = new DataWriter(Encoding.UTF8, _stream);
         for (var i = 0; i <100; i++)
         {
             var b = 255;
@@ -127,7 +127,7 @@ public class Program
         for (int i = 0; i < 1000000; i++)
         {
             _stream.SetLength(0);
-            using var writer = new DataWriter2(Encoding.UTF8, _stream);
+            using var writer = new DataWriter(Encoding.UTF8, _stream);
 
             writer.WriteS8(1); // 1 byte
             writer.WriteBinary("E004E0D1423A4EE2".AsSpan());

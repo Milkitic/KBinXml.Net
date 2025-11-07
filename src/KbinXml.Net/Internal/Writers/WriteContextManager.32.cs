@@ -58,17 +58,10 @@ internal ref partial struct WriteContextManager
         EndWrite32();
     }
 
-    public Span<byte> BeginWrite32(int size, bool trustPosition = false)
+    public Span<byte> BeginWrite32(int size)
     {
-        var position = _tracker.Pos32;
-
         _currentWriteSize = size;
-        if (trustPosition)
-        {
-            _streamPositionShift = 0;
-            return AllocateWriteBuffer();
-        }
-
+        var position = _tracker.Pos32;
         _streamPositionShift = ComputePositionShift(position);
         if (_streamPositionShift >= 0)
         {
@@ -77,6 +70,14 @@ internal ref partial struct WriteContextManager
 
         Debug.Assert(false);
         return AllocateWriteBufferWithSeek(position);
+    }
+
+    public Span<byte> BeginWrite32Trust(int size)
+    {
+        _currentWriteSize = size;
+        _streamPositionShift = 0;
+        _advanceHint = _currentWriteSize;
+        return _stream.GetSpan(_currentWriteSize);
     }
 
     public void EndWrite32()

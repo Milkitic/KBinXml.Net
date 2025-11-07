@@ -15,7 +15,7 @@ namespace UnitBenchmarks;
 [SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net10_0)]
 //[SimpleJob(RuntimeMoniker.Net48)]
-public class DataWriterU32Benchmark
+public class DataWriterU8U32Benchmark
 {
     private RecyclableMemoryStream _stream = null!;
     private byte[] _array = null!;
@@ -33,26 +33,16 @@ public class DataWriterU32Benchmark
     {
         _stream.SetLength(0);
         using var writer = new Legacy.DataWriter(Encoding.UTF8, _stream);
-        for (var i = 0; i < _array.Length; i++)
+        for (var i = 0; i < _array.Length - 7; i += 8)
         {
-            var b = _array[i];
-            writer.WriteU32(b);
-            _stream.SetLength(_stream.Length);
-        }
-
-        return _stream;
-    }
-
-    [Benchmark]
-    public object? OldWriterWithGap()
-    {
-        _stream.SetLength(0);
-        using var writer = new Legacy.DataWriter(Encoding.UTF8, _stream);
-        for (var i = 0; i < _array.Length; i++)
-        {
-            var b = _array[i];
-            writer.WriteU32(b);
-            _stream.SetLength(_stream.Length - 4);
+            writer.WriteU8(_array[i]);
+            writer.WriteU32(_array[i + 1]);
+            writer.WriteU8(_array[i + 2]);
+            writer.WriteU8(_array[i + 3]);
+            writer.WriteU8(_array[i + 4]);
+            writer.WriteU8(_array[i + 5]);
+            writer.WriteU8(_array[i + 6]);
+            writer.WriteU32(_array[i + 7]);
         }
 
         return _stream;
@@ -63,26 +53,16 @@ public class DataWriterU32Benchmark
     {
         _stream.SetLength(0);
         using var writer = new DataWriter(Encoding.UTF8, _stream);
-        for (var i = 0; i < _array.Length; i++)
+        for (var i = 0; i < _array.Length - 7; i += 8)
         {
-            var b = _array[i];
-            writer.WriteU32(b);
-            _stream.SetLength(_stream.Length);
-        }
-
-        return _stream;
-    }
-
-    [Benchmark]
-    public object? NewWriterWithGap()
-    {
-        _stream.SetLength(0);
-        using var writer = new DataWriter(Encoding.UTF8, _stream);
-        for (var i = 0; i < _array.Length; i++)
-        {
-            var b = _array[i];
-            writer.WriteU32(b);
-            _stream.SetLength(_stream.Length - 4);
+            writer.WriteU8(_array[i]);
+            writer.WriteU32(_array[i + 1]);
+            writer.WriteU8(_array[i + 2]);
+            writer.WriteU8(_array[i + 3]);
+            writer.WriteU8(_array[i + 4]);
+            writer.WriteU8(_array[i + 5]);
+            writer.WriteU8(_array[i + 6]);
+            writer.WriteU32(_array[i + 7]);
         }
 
         return _stream;

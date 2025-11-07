@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using KbinXml.Net.Utils;
 
-namespace KbinXml.Net.Internal.Writers;
+namespace UnitBenchmarks.Legacy;
 
 internal partial struct DataWriter
 {

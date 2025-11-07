@@ -4,7 +4,7 @@ namespace KbinXml.Net.Internal.Writers;
 
 internal ref partial struct WriteContextManager
 {
-    public void Write8(byte value)
+    public void Write(byte value)
     {
         var position = _tracker.Pos8;
 

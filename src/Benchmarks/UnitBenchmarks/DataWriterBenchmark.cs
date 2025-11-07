@@ -5,6 +5,8 @@ using BenchmarkDotNet.Order;
 using KbinXml.Net;
 using KbinXml.Net.Internal.Writers;
 using Microsoft.IO;
+using UnitBenchmarks.Legacy;
+using DataWriter = KbinXml.Net.Internal.Writers.DataWriter;
 
 namespace UnitBenchmarks;
 
@@ -29,7 +31,7 @@ public class DataWriterBenchmark
     public object? Datawriter1()
     {
         _stream.SetLength(0);
-        using var writer = new DataWriter(Encoding.UTF8, _stream);
+        using var writer = new Legacy.DataWriter(Encoding.UTF8, _stream);
 
         writer.WriteS8(1); // 1 byte
         writer.WriteBinary(CardId.AsSpan());
@@ -46,7 +48,7 @@ public class DataWriterBenchmark
     public object? DataWriter2()
     {
         _stream.SetLength(0);
-        using var writer = new DataWriter2(Encoding.UTF8, _stream);
+        using var writer = new DataWriter(Encoding.UTF8, _stream);
 
         writer.WriteS8(1); // 1 byte
         writer.WriteBinary(CardId.AsSpan());
