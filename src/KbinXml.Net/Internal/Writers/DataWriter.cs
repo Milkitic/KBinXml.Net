@@ -108,7 +108,7 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write8BitAligned(byte value)
     {
-        _writeContextManager.Write(value);
+        _writeContextManager.Write8(value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -120,9 +120,7 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write32BitAligned(scoped ReadOnlySpan<byte> span)
     {
-        var buffer = _writeContextManager.BeginWrite32(span.Length);
-        span.CopyTo(buffer);
-        _writeContextManager.EndWrite32();
+        _writeContextManager.Write32(span);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

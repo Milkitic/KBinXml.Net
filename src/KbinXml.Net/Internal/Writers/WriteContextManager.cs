@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Microsoft.IO;
 
 namespace KbinXml.Net.Internal.Writers;
@@ -20,6 +21,7 @@ internal ref partial struct WriteContextManager
         _stream = stream;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Span<byte> AllocateWriteBuffer()
     {
         Debug.Assert(_streamPositionShift >= 0);
@@ -33,12 +35,22 @@ internal ref partial struct WriteContextManager
         return AllocateWriteBufferWithGap();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Span<byte> AllocateWriteBufferWithGap()
     {
         _advanceHint = _streamPositionShift + _currentWriteSize;
         var span = _stream.GetSpan(_advanceHint);
-        ZeroFillGap(span, _streamPositionShift);
+        span.Slice(0, _streamPositionShift).Clear();
         return span.Slice(_streamPositionShift); // 外部按需进行size切片，提升性能
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Span<byte> AllocateWriteBufferWithGap(RecyclableMemoryStream stream, int streamPositionShift, int currentWriteSize, out int advanceHint)
+    {
+        advanceHint = streamPositionShift + currentWriteSize;
+        var span = stream.GetSpan(advanceHint);
+        span.Slice(0, streamPositionShift).Clear();
+        return span.Slice(streamPositionShift); // 外部按需进行size切片，提升性能
     }
 
     /// <summary>
@@ -46,6 +58,7 @@ internal ref partial struct WriteContextManager
     /// </summary>
     /// <param name="position"></param>
     /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Span<byte> AllocateWriteBufferWithSeek(int position)
     {
         _savedStreamPosition = _stream.Position;
@@ -55,23 +68,27 @@ internal ref partial struct WriteContextManager
         return span; // 外部按需进行size切片，提升性能
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void FinalizeWrite8Or16(ref int pointer)
     {
         pointer += _currentWriteSize;
         _tracker.Realign16_8();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void FinalizeWrite32()
     {
         _tracker.Pos32 += _currentWriteSize;
         _tracker.Align32();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private int ComputePositionShift(int pointer)
     {
         return pointer - (int)_stream.Length;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void AdvancePos32ToNextAlignment(int position)
     {
         if ((position & 3) == 0)
@@ -83,14 +100,6 @@ internal ref partial struct WriteContextManager
         else
         {
             Debug.Assert(_streamPositionShift <= 0);
-        }
-    }
-
-    private static void ZeroFillGap(Span<byte> span, int clearLength)
-    {
-        if (clearLength > 0)
-        {
-            span.Slice(0, clearLength).Clear();
         }
     }
 }

@@ -117,10 +117,12 @@ public class Program
     {
         using var _stream = KbinConverter.RecyclableMemoryStreamManager.GetStream();
         using var writer1 = new DataWriter(Encoding.UTF8, _stream);
-        for (var i = 0; i <100; i++)
+        Span<byte> s = stackalloc byte[4];
+        var random = new Random(1996);
+        for (var i = 0; i < 100; i++)
         {
-            var b = 255;
-            writer1.WriteS32(b);
+            random.NextBytes(s);
+            writer1.WriteBytes(s);
             _stream.SetLength(_stream.Length - 4);
         }
 

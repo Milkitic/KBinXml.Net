@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Internal.Writers;
 
@@ -9,27 +10,26 @@ internal ref partial struct WriteContextManager
         var position = _tracker.Pos16;
 
         _currentWriteSize = span.Length;
-        _streamPositionShift = ComputePositionShift(position);
+        var streamPositionShift = ComputePositionShift(position);
 
-        if (_streamPositionShift == 0)
+        if (streamPositionShift == 0)
         {
             AdvancePos32ToNextAlignment(position);
-            FastWrite16(span);
+            Write16CoreFast(span);
             return;
         }
 
-        if (_streamPositionShift < 0)
+        if (streamPositionShift < 0)
         {
-            FastWrite16(span, position);
+            Write16CoreFast(span, position);
             return;
         }
 
         AdvancePos32ToNextAlignment(position);
-        var buffer = AllocateWriteBuffer();
-        span.CopyTo(buffer);
-        EndWrite16();
+        Write16CoreSlow(span, streamPositionShift, _currentWriteSize);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Span<byte> BeginWrite16(int size)
     {
         var position = _tracker.Pos16;
@@ -45,6 +45,7 @@ internal ref partial struct WriteContextManager
         return AllocateWriteBuffer();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void EndWrite16()
     {
         _stream.Advance(_advanceHint);
@@ -52,18 +53,31 @@ internal ref partial struct WriteContextManager
         FinalizeWrite8Or16(ref _tracker.Pos16);
     }
 
-    private void FastWrite16(scoped ReadOnlySpan<byte> span)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Write16CoreFast(scoped ReadOnlySpan<byte> span)
     {
         _stream.Write(span);
         FinalizeWrite8Or16(ref _tracker.Pos16);
     }
 
-    private void FastWrite16(scoped ReadOnlySpan<byte> span, int position)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Write16CoreFast(scoped ReadOnlySpan<byte> span, int position)
     {
         _savedStreamPosition = _stream.Position;
         _stream.Position = position;
         _stream.Write(span);
         _stream.Position = _savedStreamPosition;
+
+        FinalizeWrite8Or16(ref _tracker.Pos16);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Write16CoreSlow(scoped ReadOnlySpan<byte> span, int streamPositionShift, int currentWriteSize)
+    {
+        var stream = _stream;
+        var buffer = AllocateWriteBufferWithGap(stream, streamPositionShift, currentWriteSize, out var advanceHint);
+        span.CopyTo(buffer);
+        stream.Advance(advanceHint);
 
         FinalizeWrite8Or16(ref _tracker.Pos16);
     }

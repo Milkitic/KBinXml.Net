@@ -1,35 +1,35 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Internal.Writers;
 
 internal ref partial struct WriteContextManager
 {
-    public void Write(byte value)
+    public void Write8(byte value)
     {
         var position = _tracker.Pos8;
 
         _currentWriteSize = 1;
-        _streamPositionShift = ComputePositionShift(position);
+        var streamPositionShift = ComputePositionShift(position);
 
-        if (_streamPositionShift == 0)
+        if (streamPositionShift == 0)
         {
             AdvancePos32ToNextAlignment(position);
-            FastWrite8(value);
+            Write8CoreFast(value);
             return;
         }
 
-        if (_streamPositionShift < 0)
+        if (streamPositionShift < 0)
         {
-            FastWrite8(value, position);
+            Write8CoreFast(value, position);
             return;
         }
 
         AdvancePos32ToNextAlignment(position);
-        var buffer = AllocateWriteBuffer();
-        buffer[0] = value;
-        EndWrite8();
+        Write8CoreSlow(value, streamPositionShift, _currentWriteSize);
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Span<byte> BeginWrite8(int size)
     {
         var position = _tracker.Pos8;
@@ -44,7 +44,8 @@ internal ref partial struct WriteContextManager
         AdvancePos32ToNextAlignment(position);
         return AllocateWriteBuffer();
     }
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void EndWrite8()
     {
         _stream.Advance(_advanceHint);
@@ -52,18 +53,31 @@ internal ref partial struct WriteContextManager
         FinalizeWrite8Or16(ref _tracker.Pos8);
     }
 
-    private void FastWrite8(byte value)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Write8CoreFast(byte value)
     {
         _stream.WriteByte(value);
         FinalizeWrite8Or16(ref _tracker.Pos8);
     }
-
-    private void FastWrite8(byte value, int position)
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Write8CoreFast(byte value, int position)
     {
         _savedStreamPosition = _stream.Position;
         _stream.Position = position;
         _stream.WriteByte(value);
         _stream.Position = _savedStreamPosition;
+
+        FinalizeWrite8Or16(ref _tracker.Pos8);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Write8CoreSlow(byte value, int streamPositionShift, int currentWriteSize)
+    {
+        var stream = _stream;
+        var buffer = AllocateWriteBufferWithGap(stream, streamPositionShift, currentWriteSize, out var advanceHint);
+        buffer[0] = value;
+        stream.Advance(advanceHint);
 
         FinalizeWrite8Or16(ref _tracker.Pos8);
     }

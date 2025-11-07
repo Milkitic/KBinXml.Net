@@ -13,13 +13,13 @@ internal partial struct DataWriter
     [Obsolete]
     public void WriteS8(sbyte value)
     {
-        _writeContextManager.Write((byte)value);
+        _writeContextManager.Write8((byte)value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteU8(byte value)
     {
-        _writeContextManager.Write(value);
+        _writeContextManager.Write8(value);
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ internal partial struct DataWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteU32(uint value)
     {
-        _writeContextManager.Write(value);
+        _writeContextManager.Write32(value);
     }
 
     /// <summary>
