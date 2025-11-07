@@ -1,11 +1,16 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Internal.Writers;
 
 internal partial struct DataWriter2
 {
+    /// <summary>
+    /// Unused api
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Obsolete]
     public void WriteS8(sbyte value)
     {
         WriteByte((byte)value);
@@ -17,7 +22,11 @@ internal partial struct DataWriter2
         WriteByte(value);
     }
 
+    /// <summary>
+    /// Unused api
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Obsolete]
     public void WriteS16(short value)
     {
         const int size = sizeof(short);
@@ -26,7 +35,11 @@ internal partial struct DataWriter2
         _writeContextManager.EndWrite16();
     }
 
+    /// <summary>
+    /// Unused api
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Obsolete]
     public void WriteU16(ushort value)
     {
         const int size = sizeof(ushort);
@@ -35,7 +48,11 @@ internal partial struct DataWriter2
         _writeContextManager.EndWrite16();
     }
 
+    /// <summary>
+    /// Unused api
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Obsolete]
     public void WriteS32(int value)
     {
         const int size = sizeof(int);
@@ -47,13 +64,14 @@ internal partial struct DataWriter2
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteU32(uint value)
     {
-        const int size = sizeof(uint);
-        var buffer = _writeContextManager.BeginWrite32(size);
-        BitConverterHelper.WriteBeBytes(buffer, value);
-        _writeContextManager.EndWrite32();
+        _writeContextManager.Write(value);
     }
 
+    /// <summary>
+    /// Unused api
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Obsolete]
     public void WriteS64(long value)
     {
         const int size = sizeof(long);
@@ -62,7 +80,11 @@ internal partial struct DataWriter2
         _writeContextManager.EndWrite32();
     }
 
+    /// <summary>
+    /// Unused api
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [Obsolete]
     public void WriteU64(ulong value)
     {
         const int size = sizeof(ulong);
