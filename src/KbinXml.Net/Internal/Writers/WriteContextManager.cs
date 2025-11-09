@@ -89,7 +89,7 @@ internal ref partial struct WriteContextManager
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void AdvancePos32ToNextAlignment(int position)
+    private void AdvancePos32IfAligned(int position)
     {
         if ((position & 3) == 0)
         {

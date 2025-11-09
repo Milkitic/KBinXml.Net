@@ -70,7 +70,7 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
         // 先写入长度
         WriteU32((uint)byteCount);
 
-        var buffer = _writeContextManager.BeginWrite32Trust(byteCount);
+        var buffer = _writeContextManager.BeginWrite32Sequential(byteCount);
 #if NET8_0_OR_GREATER
         int bytesWritten = _encoding.GetBytes(value, buffer);
         buffer[bytesWritten] = 0; // 添加结尾的0字节
@@ -96,7 +96,7 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
         // 先写入长度
         WriteU32((uint)length);
 
-        var buffer = _writeContextManager.BeginWrite32Trust(length);
+        var buffer = _writeContextManager.BeginWrite32Sequential(length);
 #if NET9_0_OR_GREATER
         Convert.FromHexString(value, buffer, out var charsConsumed, out var bytesWritten);
 #else

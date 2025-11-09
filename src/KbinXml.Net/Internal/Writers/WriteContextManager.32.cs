@@ -22,9 +22,9 @@ internal ref partial struct WriteContextManager
                 value = BinaryPrimitives.ReverseEndianness(value);
             var span = MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref value, 1));
             if (streamPositionShift == 0)
-                Write32CoreFast(span);
+                Write32CoreAppend(span);
             else
-                Write32CoreFast(span, position);
+                Write32CoreAt(span, position);
             return;
         }
 
@@ -52,18 +52,18 @@ internal ref partial struct WriteContextManager
 
         if (streamPositionShift == 0)
         {
-            Write32CoreFast(span);
+            Write32CoreAppend(span);
             return;
         }
 
         if (streamPositionShift > 0)
         {
-            Write32CoreSlow(span, streamPositionShift, _currentWriteSize);
+            Write32CoreWithGap(span, streamPositionShift, _currentWriteSize);
             return;
         }
 
         Debug.Assert(false);
-        Write32CoreFast(span, position);
+        Write32CoreAt(span, position);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -82,7 +82,7 @@ internal ref partial struct WriteContextManager
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Span<byte> BeginWrite32Trust(int size)
+    public Span<byte> BeginWrite32Sequential(int size)
     {
         _currentWriteSize = size;
         _streamPositionShift = 0;
@@ -100,14 +100,14 @@ internal ref partial struct WriteContextManager
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write32CoreFast(scoped ReadOnlySpan<byte> span)
+    private void Write32CoreAppend(scoped ReadOnlySpan<byte> span)
     {
         _stream.Write(span);
         FinalizeWrite32();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write32CoreFast(scoped ReadOnlySpan<byte> span, int position)
+    private void Write32CoreAt(scoped ReadOnlySpan<byte> span, int position)
     {
         _savedStreamPosition = _stream.Position;
         _stream.Position = position;
@@ -118,7 +118,7 @@ internal ref partial struct WriteContextManager
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write32CoreSlow(scoped ReadOnlySpan<byte> span, int streamPositionShift, int currentWriteSize)
+    private void Write32CoreWithGap(scoped ReadOnlySpan<byte> span, int streamPositionShift, int currentWriteSize)
     {
         var stream = _stream;
         var buffer = AllocateWriteBufferWithGap(stream, streamPositionShift, currentWriteSize, out var advanceHint);

@@ -14,19 +14,19 @@ internal ref partial struct WriteContextManager
 
         if (streamPositionShift == 0)
         {
-            AdvancePos32ToNextAlignment(position);
-            Write8CoreFast(value);
+            AdvancePos32IfAligned(position);
+            Write8CoreAppend(value);
             return;
         }
 
         if (streamPositionShift < 0)
         {
-            Write8CoreFast(value, position);
+            Write8CoreAt(value, position);
             return;
         }
 
-        AdvancePos32ToNextAlignment(position);
-        Write8CoreSlow(value, streamPositionShift, _currentWriteSize);
+        AdvancePos32IfAligned(position);
+        Write8CoreWithGap(value, streamPositionShift, _currentWriteSize);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -41,7 +41,7 @@ internal ref partial struct WriteContextManager
             return AllocateWriteBufferWithSeek(position);
         }
 
-        AdvancePos32ToNextAlignment(position);
+        AdvancePos32IfAligned(position);
         return AllocateWriteBuffer();
     }
     
@@ -54,14 +54,14 @@ internal ref partial struct WriteContextManager
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write8CoreFast(byte value)
+    private void Write8CoreAppend(byte value)
     {
         _stream.WriteByte(value);
         FinalizeWrite8Or16(ref _tracker.Pos8);
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write8CoreFast(byte value, int position)
+    private void Write8CoreAt(byte value, int position)
     {
         _savedStreamPosition = _stream.Position;
         _stream.Position = position;
@@ -72,7 +72,7 @@ internal ref partial struct WriteContextManager
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write8CoreSlow(byte value, int streamPositionShift, int currentWriteSize)
+    private void Write8CoreWithGap(byte value, int streamPositionShift, int currentWriteSize)
     {
         var stream = _stream;
         var buffer = AllocateWriteBufferWithGap(stream, streamPositionShift, currentWriteSize, out var advanceHint);
