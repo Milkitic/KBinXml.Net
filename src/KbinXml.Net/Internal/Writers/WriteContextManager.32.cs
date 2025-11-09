@@ -22,16 +22,25 @@ internal ref partial struct WriteContextManager
                 value = BinaryPrimitives.ReverseEndianness(value);
             var span = MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref value, 1));
             if (streamPositionShift == 0)
-                Write32CoreAppend(span);
+            {
+                WriteCoreAppend(span);
+            }
             else
-                Write32CoreAt(span, position);
-            return;
+            {
+#if !NETSTANDARD2_0
+                throw new UnreachableException("Write32(value) should not have a negative position shift.");
+#endif
+                Debug.Assert(false);
+                WriteCoreAt(span, position);
+            }
         }
-
-        var stream = _stream;
-        var buffer = AllocateWriteBufferWithGap(stream, streamPositionShift, _currentWriteSize, out var advanceHint);
-        BitConverterHelper.WriteBeBytes(buffer, value);
-        stream.Advance(advanceHint);
+        else
+        {
+            var stream = _stream;
+            var buffer = AllocateWriteBufferWithGap(stream, streamPositionShift, _currentWriteSize, out var advanceHint);
+            BitConverterHelper.WriteBeBytes(buffer, value);
+            stream.Advance(advanceHint);
+        }
 
         FinalizeWrite32();
 #else
@@ -52,18 +61,22 @@ internal ref partial struct WriteContextManager
 
         if (streamPositionShift == 0)
         {
-            Write32CoreAppend(span);
-            return;
+            WriteCoreAppend(span);
         }
-
-        if (streamPositionShift > 0)
+        else if (streamPositionShift > 0)
         {
-            Write32CoreWithGap(span, streamPositionShift, _currentWriteSize);
-            return;
+            WriteCoreWithGap(span, streamPositionShift, _currentWriteSize);
+        }
+        else
+        {
+#if !NETSTANDARD2_0
+            throw new UnreachableException("Write32(span) should not have a negative position shift.");
+#endif
+            Debug.Assert(false);
+            WriteCoreAt(span, position);
         }
 
-        Debug.Assert(false);
-        Write32CoreAt(span, position);
+        FinalizeWrite32();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -77,6 +90,9 @@ internal ref partial struct WriteContextManager
             return AllocateWriteBuffer();
         }
 
+#if !NETSTANDARD2_0
+        throw new UnreachableException("BeginWrite32(size) should not have a negative position shift.");
+#endif
         Debug.Assert(false);
         return AllocateWriteBufferWithSeek(position);
     }
@@ -96,35 +112,6 @@ internal ref partial struct WriteContextManager
         _stream.Advance(_advanceHint);
         Debug.Assert(_streamPositionShift >= 0);
         //if (_positionShift < 0) _stream.Position = _originalStreamPosition;
-        FinalizeWrite32();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write32CoreAppend(scoped ReadOnlySpan<byte> span)
-    {
-        _stream.Write(span);
-        FinalizeWrite32();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write32CoreAt(scoped ReadOnlySpan<byte> span, int position)
-    {
-        _savedStreamPosition = _stream.Position;
-        _stream.Position = position;
-        _stream.Write(span);
-        _stream.Position = _savedStreamPosition;
-
-        FinalizeWrite32();
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write32CoreWithGap(scoped ReadOnlySpan<byte> span, int streamPositionShift, int currentWriteSize)
-    {
-        var stream = _stream;
-        var buffer = AllocateWriteBufferWithGap(stream, streamPositionShift, currentWriteSize, out var advanceHint);
-        span.CopyTo(buffer);
-        stream.Advance(advanceHint);
-
         FinalizeWrite32();
     }
 }

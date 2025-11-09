@@ -22,6 +22,54 @@ internal ref partial struct WriteContextManager
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteCoreAppend(scoped ReadOnlySpan<byte> span)
+    {
+        _stream.Write(span);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteCoreAppend(byte value)
+    {
+        _stream.WriteByte(value);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteCoreAt(scoped ReadOnlySpan<byte> span, int position)
+    {
+        _savedStreamPosition = _stream.Position;
+        _stream.Position = position;
+        _stream.Write(span);
+        _stream.Position = _savedStreamPosition;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteCoreAt(byte value, int position)
+    {
+        _savedStreamPosition = _stream.Position;
+        _stream.Position = position;
+        _stream.WriteByte(value);
+        _stream.Position = _savedStreamPosition;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteCoreWithGap(scoped ReadOnlySpan<byte> span, int streamPositionShift, int currentWriteSize)
+    {
+        var stream = _stream;
+        var buffer = AllocateWriteBufferWithGap(stream, streamPositionShift, currentWriteSize, out var advanceHint);
+        span.CopyTo(buffer);
+        stream.Advance(advanceHint);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteCoreWithGap(byte value, int streamPositionShift, int currentWriteSize)
+    {
+        var stream = _stream;
+        var buffer = AllocateWriteBufferWithGap(stream, streamPositionShift, currentWriteSize, out var advanceHint);
+        buffer[0] = value;
+        stream.Advance(advanceHint);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Span<byte> AllocateWriteBuffer()
     {
         Debug.Assert(_streamPositionShift >= 0);

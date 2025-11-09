@@ -15,18 +15,19 @@ internal ref partial struct WriteContextManager
         if (streamPositionShift == 0)
         {
             AdvancePos32IfAligned(position);
-            Write16CoreAppend(span);
-            return;
+            WriteCoreAppend(span);
         }
-
-        if (streamPositionShift < 0)
+        else if (streamPositionShift < 0)
         {
-            Write16CoreAt(span, position);
-            return;
+            WriteCoreAt(span, position);
+        }
+        else
+        {
+            AdvancePos32IfAligned(position);
+            WriteCoreWithGap(span, streamPositionShift, _currentWriteSize);
         }
 
-        AdvancePos32IfAligned(position);
-        Write16CoreWithGap(span, streamPositionShift, _currentWriteSize);
+        FinalizeWrite8Or16(ref _tracker.Pos16);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -50,35 +51,6 @@ internal ref partial struct WriteContextManager
     {
         _stream.Advance(_advanceHint);
         if (_streamPositionShift < 0) _stream.Position = _savedStreamPosition;
-        FinalizeWrite8Or16(ref _tracker.Pos16);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write16CoreAppend(scoped ReadOnlySpan<byte> span)
-    {
-        _stream.Write(span);
-        FinalizeWrite8Or16(ref _tracker.Pos16);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write16CoreAt(scoped ReadOnlySpan<byte> span, int position)
-    {
-        _savedStreamPosition = _stream.Position;
-        _stream.Position = position;
-        _stream.Write(span);
-        _stream.Position = _savedStreamPosition;
-
-        FinalizeWrite8Or16(ref _tracker.Pos16);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void Write16CoreWithGap(scoped ReadOnlySpan<byte> span, int streamPositionShift, int currentWriteSize)
-    {
-        var stream = _stream;
-        var buffer = AllocateWriteBufferWithGap(stream, streamPositionShift, currentWriteSize, out var advanceHint);
-        span.CopyTo(buffer);
-        stream.Advance(advanceHint);
-
         FinalizeWrite8Or16(ref _tracker.Pos16);
     }
 }
