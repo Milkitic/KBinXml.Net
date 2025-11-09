@@ -86,19 +86,7 @@ internal ref partial struct WriteContextManager
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private Span<byte> AllocateWriteBufferWithGap()
     {
-        _advanceHint = _streamPositionShift + _currentWriteSize;
-        var span = _stream.GetSpan(_advanceHint);
-        span.Slice(0, _streamPositionShift).Clear();
-        return span.Slice(_streamPositionShift); // 外部按需进行size切片，提升性能
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Span<byte> AllocateWriteBufferWithGap(RecyclableMemoryStream stream, int streamPositionShift, int currentWriteSize, out int advanceHint)
-    {
-        advanceHint = streamPositionShift + currentWriteSize;
-        var span = stream.GetSpan(advanceHint);
-        span.Slice(0, streamPositionShift).Clear();
-        return span.Slice(streamPositionShift); // 外部按需进行size切片，提升性能
+        return AllocateWriteBufferWithGap(_stream, _streamPositionShift, _currentWriteSize, out _advanceHint);
     }
 
     /// <summary>
@@ -149,5 +137,14 @@ internal ref partial struct WriteContextManager
         {
             Debug.Assert(_streamPositionShift <= 0);
         }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Span<byte> AllocateWriteBufferWithGap(RecyclableMemoryStream stream, int streamPositionShift, int currentWriteSize, out int advanceHint)
+    {
+        advanceHint = streamPositionShift + currentWriteSize;
+        var span = stream.GetSpan(advanceHint);
+        span.Slice(0, streamPositionShift).Clear();
+        return span.Slice(streamPositionShift); // 外部按需进行size切片，提升性能
     }
 }
