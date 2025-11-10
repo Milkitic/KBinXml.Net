@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using KbinXml.Net.Utils;
@@ -76,39 +77,36 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
         var value = span.ToString();
 #endif
         // 计算编码后的字节长度（包括结尾的0字节）
-        int byteCount = _encoding.GetByteCount(value) + 1;
+        var byteCount = _encoding.GetByteCount(value);
+        var length = byteCount + 1;
 
         // 先写入长度
-        WriteU32((uint)byteCount);
+        WriteU32((uint)length);
 
-        int alignedLength;
-        int padding;
-        if (_zeroFillGap)
-        {
-            alignedLength = (byteCount + 3) & ~3;
-            padding = alignedLength - byteCount;
-        }
-        else
-        {
-            alignedLength = byteCount;
-            padding = 0;
-        }
+        var alignedLength = _zeroFillGap ? (length + 3) & ~3 : length;
 
         var buffer = _writeContextManager.BeginWrite32Sequential(alignedLength);
 #if !NETSTANDARD2_0 && !NETFRAMEWORK
-        int bytesWritten = _encoding.GetBytes(value, buffer);
+        var bytesWritten = _encoding.GetBytes(value, buffer);
 #else
-        int bytesWritten = byteCount - 1;
+        var bytesWritten = byteCount;
         using (var rentedArray = new RentedArray<byte>(ArrayPool<byte>.Shared, bytesWritten))
         {
-            int bytesEncoded = _encoding.GetBytes(value, 0, value.Length, rentedArray.Array, 0);
+            var bytesEncoded = _encoding.GetBytes(value, 0, value.Length, rentedArray.Array, 0);
             rentedArray.Array.AsSpan(0, bytesEncoded).CopyTo(buffer);
         }
 #endif
-        buffer[bytesWritten] = 0; // 添加结尾的0字节
-        if (_zeroFillGap && padding != 0)
+        if (_zeroFillGap)
         {
-            buffer.Slice(byteCount, padding).Clear();
+            // 同时写入结尾的0字节和padding字节
+            var clearLength = alignedLength - bytesWritten;
+            Debug.Assert(clearLength > 0); // clearLength总是大于0
+
+            buffer.Slice(bytesWritten, clearLength).Clear();
+        }
+        else
+        {
+            buffer[bytesWritten] = 0; // 添加结尾的0字节
         }
 
         _writeContextManager.EndWrite32();
@@ -118,23 +116,12 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
     public void WriteBinary(ReadOnlySpan<char> value)
     {
         // 计算二进制数据的长度（每两个字符表示一个字节）
-        int length = value.Length >> 1;
+        var length = value.Length >> 1;
 
         // 先写入长度
         WriteU32((uint)length);
 
-        int alignedLength;
-        int padding;
-        if (_zeroFillGap)
-        {
-            alignedLength = (length + 3) & ~3;
-            padding = alignedLength - length;
-        }
-        else
-        {
-            alignedLength = length;
-            padding = 0;
-        }
+        var alignedLength = _zeroFillGap ? (length + 3) & ~3 : length;
 
         var buffer = _writeContextManager.BeginWrite32Sequential(alignedLength);
 #if NET9_0_OR_GREATER
@@ -142,9 +129,13 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
 #else
         HexConverter.TryDecodeFromUtf16(value, buffer.Slice(0, length));
 #endif
-        if (_zeroFillGap && padding != 0)
+        if (_zeroFillGap)
         {
-            buffer.Slice(length, padding).Clear();
+            var padding = alignedLength - length;
+            if (padding != 0)
+            {
+                buffer.Slice(length, padding).Clear();
+            }
         }
 
         _writeContextManager.EndWrite32();

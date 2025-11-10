@@ -181,6 +181,9 @@ internal ref partial struct WriteContextManager
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     private void WriteAlignmentPadding(long position)
     {
         var posIndex = position & 3;
@@ -192,6 +195,9 @@ internal ref partial struct WriteContextManager
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#if !NETSTANDARD2_0
+    [SkipLocalsInit]
+#endif
     private void WriteAlignmentPadding()
     {
         var remainder = (int)(_stream.Length & 3);
