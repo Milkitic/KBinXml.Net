@@ -9,7 +9,7 @@ using Microsoft.IO;
 
 namespace UnitBenchmarks.Legacy;
 
-internal ref partial struct DataWriter : IKBinWriter, IDisposable
+internal ref partial struct DataWriterV1 : IKBinWriter, IDisposable
 {
     internal readonly RecyclableMemoryStream Stream;
     private readonly Encoding _encoding;
@@ -17,14 +17,14 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
 
     private DataPositionTracker _tracker;
 
-    public DataWriter(Encoding encoding, int capacity = 0)
+    public DataWriterV1(Encoding encoding, int capacity = 0)
     {
         _encoding = encoding;
         Stream = KbinConverter.RecyclableMemoryStreamManager.GetStream("wd", capacity);
         _disposeStream = true;
     }
 
-    public DataWriter(Encoding encoding, RecyclableMemoryStream stream)
+    public DataWriterV1(Encoding encoding, RecyclableMemoryStream stream)
     {
         _encoding = encoding;
         Stream = stream;

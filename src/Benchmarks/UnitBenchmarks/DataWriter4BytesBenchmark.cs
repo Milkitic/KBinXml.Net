@@ -37,7 +37,7 @@ public class DataWriter4BytesBenchmark
     public object? OldWriter()
     {
         _stream.SetLength(0);
-        using var writer = new Legacy.DataWriter(Encoding.UTF8, _stream);
+        using var writer = new Legacy.DataWriterV1(Encoding.UTF8, _stream);
         for (var i = 0; i < _list.Count; i++)
         {
             var b = _list[i];
@@ -52,7 +52,7 @@ public class DataWriter4BytesBenchmark
     public object? OldWriterWithGap()
     {
         _stream.SetLength(0);
-        using var writer = new Legacy.DataWriter(Encoding.UTF8, _stream);
+        using var writer = new Legacy.DataWriterV1(Encoding.UTF8, _stream);
         for (var i = 0; i < _list.Count; i++)
         {
             var b = _list[i];

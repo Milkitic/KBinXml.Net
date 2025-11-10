@@ -3,8 +3,8 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using KbinXml.Net;
+using KbinXml.Net.Internal.Writers;
 using Microsoft.IO;
-using DataWriter = KbinXml.Net.Internal.Writers.DataWriter;
 
 namespace UnitBenchmarks;
 
@@ -29,7 +29,7 @@ public class DataWriterBenchmark
     public object? Datawriter1()
     {
         _stream.SetLength(0);
-        using var writer = new Legacy.DataWriter(Encoding.UTF8, _stream);
+        using var writer = new Legacy.DataWriterV1(Encoding.UTF8, _stream);
 
         writer.WriteS8(1); // 1 byte
         writer.WriteBinary(CardId.AsSpan());

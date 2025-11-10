@@ -3,8 +3,8 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using KbinXml.Net;
+using KbinXml.Net.Internal.Writers;
 using Microsoft.IO;
-using DataWriter = KbinXml.Net.Internal.Writers.DataWriter;
 
 namespace UnitBenchmarks;
 
@@ -30,7 +30,7 @@ public class DataWriterU32Benchmark
     public object? OldWriter()
     {
         _stream.SetLength(0);
-        using var writer = new Legacy.DataWriter(Encoding.UTF8, _stream);
+        using var writer = new Legacy.DataWriterV1(Encoding.UTF8, _stream);
         for (var i = 0; i < _array.Length; i++)
         {
             var b = _array[i];
@@ -45,7 +45,7 @@ public class DataWriterU32Benchmark
     public object? OldWriterWithGap()
     {
         _stream.SetLength(0);
-        using var writer = new Legacy.DataWriter(Encoding.UTF8, _stream);
+        using var writer = new Legacy.DataWriterV1(Encoding.UTF8, _stream);
         for (var i = 0; i < _array.Length; i++)
         {
             var b = _array[i];
