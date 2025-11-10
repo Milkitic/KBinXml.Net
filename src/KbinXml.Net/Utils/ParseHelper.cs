@@ -1,13 +1,22 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
+/// <summary>
+/// High-performance parsing helpers that operate over <see cref="ReadOnlySpan{Char}"/>
+/// where available, minimizing intermediate string allocations.
+/// </summary>
 public static class ParseHelper
 {
     private static readonly string? DoubleMaxString = ((object)double.MaxValue).ToString();
 
+    /// <summary>
+    /// Parses a boolean from the provided character span.
+    /// </summary>
+    /// <param name="input">The input characters representing a boolean.</param>
+    /// <returns>The parsed boolean value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool ParseBoolean(ReadOnlySpan<char> input)
     {
@@ -18,6 +27,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses a byte value using the specified number styles.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="numberStyles">Number styles to use for parsing.</param>
+    /// <returns>The parsed byte value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte ParseByte(ReadOnlySpan<char> input, NumberStyles numberStyles)
     {
@@ -28,6 +43,11 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses a signed byte from the provided character span.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <returns>The parsed signed byte.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static sbyte ParseSByte(ReadOnlySpan<char> input)
     {
@@ -38,6 +58,11 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses a 16-bit signed integer.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <returns>The parsed <see cref="short"/> value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static short ParseInt16(ReadOnlySpan<char> input)
     {
@@ -48,6 +73,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses a 16-bit unsigned integer using the specified number styles.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="numberStyles">Number styles to use for parsing.</param>
+    /// <returns>The parsed <see cref="ushort"/> value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ushort ParseUInt16(ReadOnlySpan<char> input, NumberStyles numberStyles)
     {
@@ -58,6 +89,11 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses a 32-bit signed integer.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <returns>The parsed <see cref="int"/> value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ParseInt32(ReadOnlySpan<char> input)
     {
@@ -68,6 +104,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses a 32-bit unsigned integer using the specified number styles.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="numberStyles">Number styles to use for parsing.</param>
+    /// <returns>The parsed <see cref="uint"/> value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ParseUInt32(ReadOnlySpan<char> input, NumberStyles numberStyles)
     {
@@ -78,6 +120,11 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses a 64-bit signed integer.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <returns>The parsed <see cref="long"/> value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long ParseInt64(ReadOnlySpan<char> input)
     {
@@ -88,6 +135,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses a 64-bit unsigned integer using the specified number styles.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="numberStyles">Number styles to use for parsing.</param>
+    /// <returns>The parsed <see cref="ulong"/> value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong ParseUInt64(ReadOnlySpan<char> input, NumberStyles numberStyles)
     {
@@ -98,6 +151,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses a single-precision floating-point number.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="nfi">Optional number format info to use.</param>
+    /// <returns>The parsed <see cref="float"/> value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float ParseSingle(ReadOnlySpan<char> input, NumberFormatInfo? nfi = null)
     {
@@ -108,6 +167,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses a double-precision floating-point number.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="nfi">Optional number format info to use.</param>
+    /// <returns>The parsed <see cref="double"/> value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double ParseDouble(ReadOnlySpan<char> input, NumberFormatInfo? nfi = null)
     {
@@ -120,6 +185,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses an enum value from its string representation.
+    /// </summary>
+    /// <typeparam name="T">The enum type.</typeparam>
+    /// <param name="value">The string representation of the enum value.</param>
+    /// <returns>The parsed enum value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ParseEnum<T>(string value) where T : struct
     {
@@ -130,6 +201,11 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Parses a <see cref="DateTime"/> value from the provided span.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <returns>The parsed date and time.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTime ParseDateTime(ReadOnlySpan<char> input)
     {
@@ -140,6 +216,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a boolean value.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseBoolean(ReadOnlySpan<char> input, out bool value)
     {
@@ -150,6 +232,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a byte value.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseByte(ReadOnlySpan<char> input, out byte value)
     {
@@ -160,6 +248,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a signed byte value.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseSByte(ReadOnlySpan<char> input, out sbyte value)
     {
@@ -170,6 +264,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a 16-bit signed integer.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseInt16(ReadOnlySpan<char> input, out short value)
     {
@@ -180,6 +280,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a 16-bit unsigned integer.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseUInt16(ReadOnlySpan<char> input, out ushort value)
     {
@@ -190,6 +296,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a 32-bit signed integer.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseInt32(ReadOnlySpan<char> input, out int value)
     {
@@ -200,6 +312,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a 32-bit unsigned integer.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseUInt32(ReadOnlySpan<char> input, out uint value)
     {
@@ -210,6 +328,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a 64-bit signed integer.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseInt64(ReadOnlySpan<char> input, out long value)
     {
@@ -220,6 +344,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a 64-bit unsigned integer.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseUInt64(ReadOnlySpan<char> input, out ulong value)
     {
@@ -230,6 +360,13 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a single-precision floating-point number.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <param name="nfi">Optional number format info to use.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseSingle(ReadOnlySpan<char> input, out float value, NumberFormatInfo? nfi = null)
     {
@@ -240,6 +377,13 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a double-precision floating-point number.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <param name="nfi">Optional number format info to use.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseDouble(ReadOnlySpan<char> input, out double value, NumberFormatInfo? nfi = null)
     {
@@ -250,6 +394,12 @@ public static class ParseHelper
 #endif
     }
 
+    /// <summary>
+    /// Attempts to parse a <see cref="DateTime"/> value.
+    /// </summary>
+    /// <param name="input">The input characters.</param>
+    /// <param name="value">When successful, receives the parsed value.</param>
+    /// <returns><c>true</c> if parsing succeeded; otherwise <c>false</c>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryParseDateTime(ReadOnlySpan<char> input, out DateTime value)
     {

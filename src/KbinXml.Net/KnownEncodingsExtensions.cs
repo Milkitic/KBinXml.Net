@@ -1,12 +1,23 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using System.Text;
 using KbinXml.Net.Internal;
 
 namespace KbinXml.Net;
 
+/// <summary>
+/// Extension methods for converting between <see cref="KnownEncodings"/> and
+/// <see cref="System.Text.Encoding"/> instances.
+/// </summary>
 public static class KnownEncodingsExtensions
 {
+    /// <summary>
+    /// Converts a <see cref="KnownEncodings"/> value to the corresponding
+    /// <see cref="Encoding"/> instance.
+    /// </summary>
+    /// <param name="knownEncodings">The known encoding enumeration value.</param>
+    /// <returns>The matching <see cref="Encoding"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the value is not supported.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Encoding ToEncoding(this KnownEncodings knownEncodings)
     {
@@ -21,6 +32,13 @@ public static class KnownEncodingsExtensions
         };
     }
 
+    /// <summary>
+    /// Converts a <see cref="Encoding"/> instance to the corresponding
+    /// <see cref="KnownEncodings"/> value.
+    /// </summary>
+    /// <param name="knownEncodings">The .NET <see cref="Encoding"/> to map.</param>
+    /// <returns>The matching <see cref="KnownEncodings"/> value.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the encoding is unsupported.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static KnownEncodings ToKnownEncoding(this Encoding knownEncodings)
     {

@@ -1,17 +1,32 @@
-﻿using System;
+using System;
 
 namespace KbinXml.Net;
 
+/// <summary>
+/// Thrown when the specified KBin node type is not found.
+/// </summary>
 public class KbinTypeNotFoundException : KbinException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="KbinTypeNotFoundException"/> class.
+    /// </summary>
+    /// <param name="type">The missing node type name.</param>
     public KbinTypeNotFoundException(string type) : base($"The node type '{type}' was not found.")
     {
 
     }
 }
 
+/// <summary>
+/// Thrown when an array length does not match the value of the '__count' attribute.
+/// </summary>
 public class KbinArrayCountMissMatchException : KbinException
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="KbinArrayCountMissMatchException"/> class.
+    /// </summary>
+    /// <param name="expectedValue">The expected array length (may be <see langword="null"/>).</param>
+    /// <param name="actualValue">The actual array length.</param>
     public KbinArrayCountMissMatchException(object? expectedValue, object actualValue) : base(
         $"Array length does not match the '__count' attribute. Expected: {expectedValue}, Actual: {actualValue}.")
     {

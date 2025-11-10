@@ -65,7 +65,7 @@ internal readonly ref struct ValueReadResult<T>
                 return d.ToString("F");
             }
 
-            return Value.ToString();
+            return Value?.ToString() ?? "{null}";
         }
     }
 }

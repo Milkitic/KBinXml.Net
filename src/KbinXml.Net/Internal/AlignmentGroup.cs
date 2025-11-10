@@ -1,6 +1,6 @@
 ﻿namespace KbinXml.Net.Internal;
 
-public enum AlignmentGroup
+internal enum AlignmentGroup
 {
     Align8,
     Align16,

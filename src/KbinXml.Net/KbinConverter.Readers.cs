@@ -196,7 +196,7 @@ public static partial class KbinConverter
 #if USELOG
                     Logger.LogNodeData(propertyType, nodeTypeResult.Value, isArray);
 #endif
-                    readContext.ProcessDataNode(propertyType, isArray);
+                    readContext.ProcessDataNode(propertyType!, isArray);
                 }
                 else
                 {
@@ -314,7 +314,7 @@ public static partial class KbinConverter
             return null;
         }
 
-        public void ProcessDataNode(NodeType? propertyType, bool isArray)
+        public void ProcessDataNode(NodeType propertyType, bool isArray)
         {
             if (HoldValue != null)
             {

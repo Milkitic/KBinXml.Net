@@ -27,11 +27,7 @@ internal ref partial struct WriteContextManager
             }
             else
             {
-#if !NETSTANDARD2_0
                 throw new UnreachableException("Write32(value) should not have a negative position shift.");
-#endif
-                Debug.Assert(false);
-                WriteCoreAt(span, position);
             }
         }
         else
@@ -71,9 +67,10 @@ internal ref partial struct WriteContextManager
         {
 #if !NETSTANDARD2_0
             throw new UnreachableException("Write32(span) should not have a negative position shift.");
-#endif
+#else
             Debug.Assert(false);
             WriteCoreAt(span, position);
+#endif
         }
 
         FinalizeWrite32();
@@ -92,9 +89,10 @@ internal ref partial struct WriteContextManager
 
 #if !NETSTANDARD2_0
         throw new UnreachableException("BeginWrite32(size) should not have a negative position shift.");
-#endif
+#else
         Debug.Assert(false);
         return AllocateWriteBufferWithSeek(position);
+#endif
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

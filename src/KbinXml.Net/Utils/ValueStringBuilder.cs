@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -6,12 +6,30 @@ using System.Runtime.InteropServices;
 
 namespace KbinXml.Net.Utils;
 
+/// <summary>
+/// Provides a high-performance, stack-allocated string builder that minimizes heap allocations when constructing
+/// strings. Designed for scenarios where temporary string manipulation is required with minimal memory overhead.
+/// </summary>
+/// <remarks>ValueStringBuilder is a ref struct that enables efficient string construction by using a
+/// caller-provided buffer or renting memory from the array pool. It is intended for short-lived use within a single
+/// method and cannot be stored on the heap, used across await/async boundaries, or boxed. After building the desired
+/// string, call ToString() to retrieve the result OR Dispose() to return any rented buffers. This type is not
+/// thread-safe.</remarks>
 public ref partial struct ValueStringBuilder : IDisposable
 {
     private char[]? _arrayToReturnToPool;
     private Span<char> _chars;
     private int _pos;
 
+    /// <summary>
+    /// Initializes a new instance of the ValueStringBuilder struct using the specified character buffer as the initial
+    /// storage.
+    /// </summary>
+    /// <remarks>The provided buffer is used directly and is not copied. If the builder grows beyond the size
+    /// of the initial buffer, additional memory may be allocated. The caller is responsible for ensuring that the
+    /// buffer remains valid for the lifetime of the ValueStringBuilder instance.</remarks>
+    /// <param name="initialBuffer">The span of characters to use as the initial buffer for the builder. The buffer is used to store the characters
+    /// appended to the builder until it is filled.</param>
     public ValueStringBuilder(Span<char> initialBuffer)
     {
         _arrayToReturnToPool = null;
@@ -19,6 +37,12 @@ public ref partial struct ValueStringBuilder : IDisposable
         _pos = 0;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the ValueStringBuilder class with the specified initial capacity.
+    /// </summary>
+    /// <remarks>A larger initial capacity can improve performance by reducing the need for internal buffer
+    /// resizing as characters are appended.</remarks>
+    /// <param name="initialCapacity">The minimum number of characters that the builder can initially contain. Must be greater than zero.</param>
     public ValueStringBuilder(int initialCapacity)
     {
         _arrayToReturnToPool = ArrayPool<char>.Shared.Rent(initialCapacity);
@@ -26,6 +50,13 @@ public ref partial struct ValueStringBuilder : IDisposable
         _pos = 0;
     }
 
+    /// <summary>
+    /// Gets or sets the number of characters currently contained in the buffer.
+    /// </summary>
+    /// <remarks>Setting this property to a value less than the current length truncates the buffer. Setting
+    /// it to a value greater than the current length expands the buffer and may fill the new region with undefined
+    /// data, depending on the implementation. The value must be non-negative and less than or equal to the buffer's
+    /// capacity.</remarks>
     public int Length
     {
         get => _pos;
@@ -37,8 +68,15 @@ public ref partial struct ValueStringBuilder : IDisposable
         }
     }
 
+    /// <summary>
+    /// Gets the total number of elements that the internal character buffer can hold without resizing.
+    /// </summary>
     public int Capacity => _chars.Length;
 
+    /// <summary>
+    /// Ensures that the underlying storage is large enough to accommodate the specified capacity.
+    /// </summary>
+    /// <param name="capacity">The minimum number of characters that the underlying storage must be able to hold. Must be non-negative.</param>
     public void EnsureCapacity(int capacity)
     {
         // This is not expected to be called this with negative capacity
@@ -74,6 +112,14 @@ public ref partial struct ValueStringBuilder : IDisposable
         return ref MemoryMarshal.GetReference(_chars);
     }
 
+    /// <summary>
+    /// Gets a reference to the character at the specified position in the collection.
+    /// </summary>
+    /// <remarks>The returned reference allows direct modification of the character at the specified position.
+    /// Modifying the referenced value will update the underlying collection.</remarks>
+    /// <param name="index">The zero-based index of the character to retrieve. Must be greater than or equal to 0 and less than the current
+    /// length of the collection.</param>
+    /// <returns>A reference to the character at the specified index.</returns>
     public ref char this[int index]
     {
         get
@@ -83,6 +129,13 @@ public ref partial struct ValueStringBuilder : IDisposable
         }
     }
 
+    /// <summary>
+    /// Returns the current contents as a string and releases any resources used by the instance.
+    /// </summary>
+    /// <remarks>Calling this method disposes the instance. After calling ToString, the instance should not be
+    /// used.</remarks>
+    /// <returns>A string containing the characters written to the instance up to this point. Returns an empty string if no
+    /// characters have been written.</returns>
     public override string ToString()
     {
         string s = _chars.Slice(0, _pos).ToString();
@@ -107,10 +160,40 @@ public ref partial struct ValueStringBuilder : IDisposable
         return _chars.Slice(0, _pos);
     }
 
+    /// <summary>
+    /// Returns a read-only span containing the characters written to the buffer so far.
+    /// </summary>
+    /// <returns>A read-only span of characters representing the current contents of the buffer. The span length corresponds to
+    /// the number of characters written.</returns>
     public ReadOnlySpan<char> AsSpan() => _chars.Slice(0, _pos);
+
+    /// <summary>
+    /// Returns a read-only span that represents the characters from the specified starting position to the current
+    /// position.
+    /// </summary>
+    /// <param name="start">The zero-based index at which the span begins. Must be greater than or equal to 0 and less than or equal to the
+    /// current position.</param>
+    /// <returns>A read-only span of characters starting at the specified position and ending at the current position. The span
+    /// will be empty if start equals the current position.</returns>
     public ReadOnlySpan<char> AsSpan(int start) => _chars.Slice(start, _pos - start);
+
+    /// <summary>
+    /// Returns a read-only span that represents a substring of the current character sequence, starting at the
+    /// specified position and having the specified length.
+    /// </summary>
+    /// <param name="start">The zero-based index at which the span begins. Must be greater than or equal to 0 and less than or equal to the
+    /// length of the character sequence.</param>
+    /// <param name="length">The number of characters to include in the span. Must be greater than or equal to 0 and start + length must not
+    /// exceed the length of the character sequence.</param>
+    /// <returns>A read-only span of characters that starts at the specified position and has the specified length.</returns>
     public ReadOnlySpan<char> AsSpan(int start, int length) => _chars.Slice(start, length);
 
+    /// <summary>
+    /// Copies the current contents into the provided destination and disposes this instance.
+    /// </summary>
+    /// <param name="destination">The target buffer to receive the characters.</param>
+    /// <param name="charsWritten">On success, receives the number of characters written.</param>
+    /// <returns><c>true</c> if the contents fit in <paramref name="destination"/>; otherwise <c>false</c>.</returns>
     public bool TryCopyTo(Span<char> destination, out int charsWritten)
     {
         if (_chars.Slice(0, _pos).TryCopyTo(destination))
@@ -127,6 +210,12 @@ public ref partial struct ValueStringBuilder : IDisposable
         }
     }
 
+    /// <summary>
+    /// Inserts <paramref name="count"/> copies of <paramref name="value"/> at the specified index.
+    /// </summary>
+    /// <param name="index">The position at which to insert.</param>
+    /// <param name="value">The character to insert.</param>
+    /// <param name="count">The number of times the character is inserted.</param>
     public void Insert(int index, char value, int count)
     {
         if (_pos > _chars.Length - count)
@@ -140,6 +229,11 @@ public ref partial struct ValueStringBuilder : IDisposable
         _pos += count;
     }
 
+    /// <summary>
+    /// Inserts the specified string at the given index.
+    /// </summary>
+    /// <param name="index">The position at which to insert.</param>
+    /// <param name="s">The string to insert. If <c>null</c>, no action is taken.</param>
     public void Insert(int index, string? s)
     {
         if (s == null)
@@ -164,6 +258,10 @@ public ref partial struct ValueStringBuilder : IDisposable
         _pos += count;
     }
 
+    /// <summary>
+    /// Appends a single character to the end of the builder.
+    /// </summary>
+    /// <param name="c">The character to append.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Append(char c)
     {
@@ -179,6 +277,10 @@ public ref partial struct ValueStringBuilder : IDisposable
         }
     }
 
+    /// <summary>
+    /// Appends a string to the end of the builder.
+    /// </summary>
+    /// <param name="s">The string to append. If <c>null</c>, no action is taken.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Append(string? s)
     {
@@ -215,6 +317,11 @@ public ref partial struct ValueStringBuilder : IDisposable
         _pos += s.Length;
     }
 
+    /// <summary>
+    /// Appends <paramref name="count"/> copies of <paramref name="c"/> to the builder.
+    /// </summary>
+    /// <param name="c">The character to repeat.</param>
+    /// <param name="count">The number of times to append the character.</param>
     public void Append(char c, int count)
     {
         if (_pos > _chars.Length - count)
@@ -230,6 +337,11 @@ public ref partial struct ValueStringBuilder : IDisposable
         _pos += count;
     }
 
+    /// <summary>
+    /// Appends characters from an unmanaged memory buffer.
+    /// </summary>
+    /// <param name="value">A pointer to the first character to append.</param>
+    /// <param name="length">The number of characters to append.</param>
     public unsafe void Append(char* value, int length)
     {
         int pos = _pos;
@@ -246,6 +358,10 @@ public ref partial struct ValueStringBuilder : IDisposable
         _pos += length;
     }
 
+    /// <summary>
+    /// Appends the specified read-only span of characters to the builder.
+    /// </summary>
+    /// <param name="value">The characters to append.</param>
     public void Append(scoped ReadOnlySpan<char> value)
     {
         int pos = _pos;
@@ -258,6 +374,11 @@ public ref partial struct ValueStringBuilder : IDisposable
         _pos += value.Length;
     }
 
+    /// <summary>
+    /// Reserves space for <paramref name="length"/> characters and returns a writable span for the caller to fill.
+    /// </summary>
+    /// <param name="length">The number of characters to reserve.</param>
+    /// <returns>A Span&lt;char&gt; backed by the builder for writing.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Span<char> AppendSpan(int length)
     {
@@ -272,6 +393,13 @@ public ref partial struct ValueStringBuilder : IDisposable
     }
 
 #if NET8_0_OR_GREATER
+    /// <summary>
+    /// Appends a value that implements <see cref="ISpanFormattable"/> using the provided format and provider.
+    /// </summary>
+    /// <typeparam name="T">The value type implementing <see cref="ISpanFormattable"/>.</typeparam>
+    /// <param name="value">The value to format and append.</param>
+    /// <param name="format">An optional format string.</param>
+    /// <param name="provider">An optional format provider.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AppendSpanFormattable<T>(T value, string? format = null, IFormatProvider? provider = null)
         where T : ISpanFormattable
@@ -321,6 +449,9 @@ public ref partial struct ValueStringBuilder : IDisposable
         }
     }
 
+    /// <summary>
+    /// Returns any rented buffer to the pool and resets this instance.
+    /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispose()
     {
