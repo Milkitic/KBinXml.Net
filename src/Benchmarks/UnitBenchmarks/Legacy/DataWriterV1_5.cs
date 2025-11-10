@@ -15,21 +15,21 @@ internal ref partial struct DataWriterV1_5 : IKBinWriter, IDisposable
     private readonly Encoding _encoding;
     private readonly bool _disposeStream;
 
-    private WriteContextManager _writeContextManager;
+    private WriteContextManagerV1_5 _writeContextManager;
 
     public DataWriterV1_5(Encoding encoding, int capacity = 0)
     {
         _encoding = encoding;
         Stream = KbinConverter.RecyclableMemoryStreamManager.GetStream("wd", capacity);
         _disposeStream = true;
-        _writeContextManager = new WriteContextManager(Stream);
+        _writeContextManager = new WriteContextManagerV1_5(Stream);
     }
 
     public DataWriterV1_5(Encoding encoding, RecyclableMemoryStream stream)
     {
         _encoding = encoding;
         Stream = stream;
-        _writeContextManager = new WriteContextManager(Stream);
+        _writeContextManager = new WriteContextManagerV1_5(Stream);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
