@@ -10,24 +10,35 @@ namespace KbinXml.Net.Internal.Writers;
 internal ref partial struct DataWriter : IKBinWriter, IDisposable
 {
     internal readonly RecyclableMemoryStream Stream;
+    private readonly bool _zeroFillGap;
     private readonly Encoding _encoding;
     private readonly bool _disposeStream;
 
     private WriteContextManager _writeContextManager;
 
-    public DataWriter(Encoding encoding, int capacity = 0)
+    public DataWriter(Encoding encoding, int capacity = 0) : this(true, encoding, capacity)
     {
+    }
+
+    public DataWriter(Encoding encoding, RecyclableMemoryStream stream) : this(true, encoding, stream)
+    {
+    }
+
+    public DataWriter(bool zeroFillGap, Encoding encoding, int capacity = 0)
+    {
+        _zeroFillGap = zeroFillGap;
         _encoding = encoding;
         Stream = KbinConverter.RecyclableMemoryStreamManager.GetStream("wd", capacity);
         _disposeStream = true;
-        _writeContextManager = new WriteContextManager(Stream);
+        _writeContextManager = new WriteContextManager(zeroFillGap, Stream);
     }
 
-    public DataWriter(Encoding encoding, RecyclableMemoryStream stream)
+    public DataWriter(bool zeroFillGap, Encoding encoding, RecyclableMemoryStream stream)
     {
+        _zeroFillGap = zeroFillGap;
         _encoding = encoding;
         Stream = stream;
-        _writeContextManager = new WriteContextManager(Stream);
+        _writeContextManager = new WriteContextManager(zeroFillGap, Stream);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -55,7 +66,7 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
         }
     }
 
-#if NET8_0_OR_GREATER
+#if !NETSTANDARD2_0 && !NETFRAMEWORK
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteString(ReadOnlySpan<char> value)
     {
@@ -70,10 +81,22 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
         // 先写入长度
         WriteU32((uint)byteCount);
 
-        var buffer = _writeContextManager.BeginWrite32Sequential(byteCount);
-#if NET8_0_OR_GREATER
+        int alignedLength;
+        int padding;
+        if (_zeroFillGap)
+        {
+            alignedLength = (byteCount + 3) & ~3;
+            padding = alignedLength - byteCount;
+        }
+        else
+        {
+            alignedLength = byteCount;
+            padding = 0;
+        }
+
+        var buffer = _writeContextManager.BeginWrite32Sequential(alignedLength);
+#if !NETSTANDARD2_0 && !NETFRAMEWORK
         int bytesWritten = _encoding.GetBytes(value, buffer);
-        buffer[bytesWritten] = 0; // 添加结尾的0字节
 #else
         int bytesWritten = byteCount - 1;
         using (var rentedArray = new RentedArray<byte>(ArrayPool<byte>.Shared, bytesWritten))
@@ -81,9 +104,13 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
             int bytesEncoded = _encoding.GetBytes(value, 0, value.Length, rentedArray.Array, 0);
             rentedArray.Array.AsSpan(0, bytesEncoded).CopyTo(buffer);
         }
-
-        buffer[bytesWritten] = 0; // 添加结尾的0字节
 #endif
+        buffer[bytesWritten] = 0; // 添加结尾的0字节
+        if (_zeroFillGap && padding != 0)
+        {
+            buffer.Slice(byteCount, padding).Clear();
+        }
+
         _writeContextManager.EndWrite32();
     }
 
@@ -96,12 +123,30 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
         // 先写入长度
         WriteU32((uint)length);
 
-        var buffer = _writeContextManager.BeginWrite32Sequential(length);
+        int alignedLength;
+        int padding;
+        if (_zeroFillGap)
+        {
+            alignedLength = (length + 3) & ~3;
+            padding = alignedLength - length;
+        }
+        else
+        {
+            alignedLength = length;
+            padding = 0;
+        }
+
+        var buffer = _writeContextManager.BeginWrite32Sequential(alignedLength);
 #if NET9_0_OR_GREATER
-        Convert.FromHexString(value, buffer, out var charsConsumed, out var bytesWritten);
+        Convert.FromHexString(value, buffer, out _, out _);
 #else
         HexConverter.TryDecodeFromUtf16(value, buffer.Slice(0, length));
 #endif
+        if (_zeroFillGap && padding != 0)
+        {
+            buffer.Slice(length, padding).Clear();
+        }
+
         _writeContextManager.EndWrite32();
     }
 
@@ -124,15 +169,9 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void PadStream()
+    public void FinalizeData()
     {
-        var remainder = (int)(Stream.Length & 3);
-        switch (remainder)
-        {
-            case 1: Stream.WriteByte(0); Stream.WriteByte(0); Stream.WriteByte(0); break;
-            case 2: Stream.WriteByte(0); Stream.WriteByte(0); break;
-            case 3: Stream.WriteByte(0); break;
-        }
+        _writeContextManager.FinalizeData();
     }
 
     public void Dispose()
@@ -143,7 +182,7 @@ internal ref partial struct DataWriter : IKBinWriter, IDisposable
 
     internal byte[] DebugGetArray()
     {
-        PadStream();
+        FinalizeData();
         return Stream.ToArray();
     }
 }

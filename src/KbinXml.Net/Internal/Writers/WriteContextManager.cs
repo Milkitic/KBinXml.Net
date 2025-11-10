@@ -7,6 +7,9 @@ namespace KbinXml.Net.Internal.Writers;
 
 internal ref partial struct WriteContextManager
 {
+    private static readonly byte[] PaddingBytes = [0, 0, 0];
+
+    private readonly bool _zeroFillGap;
     private readonly RecyclableMemoryStream _stream;
     private DataPositionTracker _tracker;
 
@@ -16,8 +19,9 @@ internal ref partial struct WriteContextManager
     private long _savedStreamPosition;
     private int _advanceHint;
 
-    public WriteContextManager(RecyclableMemoryStream stream)
+    public WriteContextManager(bool zeroFillGap, RecyclableMemoryStream stream)
     {
+        _zeroFillGap = zeroFillGap;
         _stream = stream;
     }
 
@@ -144,7 +148,56 @@ internal ref partial struct WriteContextManager
     {
         advanceHint = streamPositionShift + currentWriteSize;
         var span = stream.GetSpan(advanceHint);
-        span.Slice(0, streamPositionShift).Clear();
+        // 关键优化点：
+        // 不在这里执行 span.Slice(0, streamPositionShift).Clear()。
+        // 这样Hot Path上没有任何 Clear() 操作，同时会在流中留下脏数据（例如 [FFEE ?? ?? ABCD]）
+        // 脏数据将由 FinalizeData() 或外部（WriteString、WriteBinary）负责
         return span.Slice(streamPositionShift); // 外部按需进行size切片，提升性能
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void FinalizeData()
+    {
+        var length = _stream.Length;
+        if (_zeroFillGap)
+        {
+            if (_tracker.Pos8 != length)
+            {
+                WriteAlignmentPadding(_tracker.Pos8);
+            }
+
+            if (_tracker.Pos16 != length)
+            {
+                WriteAlignmentPadding(_tracker.Pos16);
+            }
+        }
+
+        if (_stream.Position != length)
+        {
+            _stream.Position = length;
+        }
+
+        WriteAlignmentPadding();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteAlignmentPadding(long position)
+    {
+        var posIndex = position & 3;
+        if (posIndex == 0) return;
+
+        _stream.Position = position;
+        var paddingLength = 4 - (int)posIndex;
+        _stream.Write(PaddingBytes.AsSpan(0, paddingLength));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteAlignmentPadding()
+    {
+        var remainder = (int)(_stream.Length & 3);
+        if (remainder == 0) return;
+
+        var paddingLength = 4 - remainder;
+        _stream.Write(PaddingBytes.AsSpan(0, paddingLength));
     }
 }

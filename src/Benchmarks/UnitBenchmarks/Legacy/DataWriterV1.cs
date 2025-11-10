@@ -9,9 +9,9 @@ using Microsoft.IO;
 
 namespace UnitBenchmarks.Legacy;
 
-internal ref partial struct DataWriterV1 : IKBinWriter, IDisposable
+public ref partial struct DataWriterV1 : IKBinWriter, IDisposable
 {
-    internal readonly RecyclableMemoryStream Stream;
+    public readonly RecyclableMemoryStream Stream;
     private readonly Encoding _encoding;
     private readonly bool _disposeStream;
 

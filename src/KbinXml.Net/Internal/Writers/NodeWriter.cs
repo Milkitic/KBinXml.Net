@@ -13,10 +13,19 @@ internal readonly ref partial struct NodeWriter
     public readonly bool Compressed;
 
     private readonly Encoding _encoding;
+    private readonly bool _disposeStream;
 
     public NodeWriter(bool compressed, Encoding encoding, int capacity = 0)
     {
         Stream = KbinConverter.RecyclableMemoryStreamManager.GetStream("wn", capacity);
+        Compressed = compressed;
+        _encoding = encoding;
+        _disposeStream = true;
+    }
+
+    public NodeWriter(bool compressed, Encoding encoding, RecyclableMemoryStream stream)
+    {
+        Stream = stream;
         Compressed = compressed;
         _encoding = encoding;
     }
@@ -33,7 +42,7 @@ internal readonly ref partial struct NodeWriter
         {
             if (value.Length is 0 or > 64)
             {
-                throw new ArgumentOutOfRangeException(nameof(value), 
+                throw new ArgumentOutOfRangeException(nameof(value),
                     $"Uncompressed string length must be between 1 and 64. Actual: {value.Length}");
             }
 
@@ -65,6 +74,7 @@ internal readonly ref partial struct NodeWriter
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispose()
     {
-        Stream.Dispose();
+        if (_disposeStream)
+            Stream.Dispose();
     }
 }

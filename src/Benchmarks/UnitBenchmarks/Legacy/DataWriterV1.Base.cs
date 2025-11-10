@@ -3,7 +3,7 @@ using KbinXml.Net.Utils;
 
 namespace UnitBenchmarks.Legacy;
 
-internal partial struct DataWriterV1
+partial struct DataWriterV1
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteS8(sbyte value)

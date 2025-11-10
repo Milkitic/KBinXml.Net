@@ -3,14 +3,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using KbinXml.Net;
 using KbinXml.Net.Internal.Writers;
+using KBinXML;
 using kbinxmlcs;
 using Microsoft.IO;
+using UnitBenchmarks.Legacy;
 
 namespace ManualTests;
 
@@ -94,12 +94,11 @@ public class Program
     private static void DataWriterTest()
     {
         using var _stream = KbinConverter.RecyclableMemoryStreamManager.GetStream();
-        _stream.Position += 100;
-        var o2 = _stream.ToArray();
+
         for (int i = 0; i < 1000000; i++)
         {
             _stream.SetLength(0);
-            using var writer = new DataWriter(Encoding.UTF8, _stream);
+            using var writer = new DataWriterV1(Encoding.UTF8, _stream);
 
             writer.WriteS8(1); // 1 byte
             writer.WriteBinary("E004E0D1423A4EE2".AsSpan());
@@ -109,23 +108,14 @@ public class Program
             writer.WriteS16(1996); // 2 bytes
             writer.WriteS32(4); // 4 bytes
             writer.WriteU8(240); // 1 byte
-            var o = writer.Stream.GetBuffer();
+            writer.PadStream();
+            //var o = writer.Stream.GetBuffer();
         }
     }
 
     private static void DataWriter2Test()
     {
         using var _stream = KbinConverter.RecyclableMemoryStreamManager.GetStream();
-        using var writer1 = new DataWriter(Encoding.UTF8, _stream);
-        Span<byte> s = stackalloc byte[4];
-        var random = new Random(1996);
-        for (var i = 0; i < 100; i++)
-        {
-            random.NextBytes(s);
-            writer1.WriteBytes(s);
-            _stream.SetLength(_stream.Length - 4);
-        }
-
         for (int i = 0; i < 1000000; i++)
         {
             _stream.SetLength(0);
@@ -139,7 +129,8 @@ public class Program
             writer.WriteS16(1996); // 2 bytes
             writer.WriteS32(4); // 4 bytes
             writer.WriteU8(240); // 1 byte
-            var o = writer.Stream.GetBuffer();
+            writer.FinalizeData();
+            //var o = writer.Stream.GetBuffer();
         }
     }
 

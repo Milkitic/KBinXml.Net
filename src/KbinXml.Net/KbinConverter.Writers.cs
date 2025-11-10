@@ -202,8 +202,8 @@ public static partial class KbinConverter
     {
         var encoding = knownEncodings.ToEncoding();
         writeOptions ??= new WriteOptions();
-        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding),
-            writeOptions);
+        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding),
+            new DataWriter(writeOptions.ZeroFillGap, encoding), writeOptions);
 
         try
         {
@@ -241,7 +241,7 @@ public static partial class KbinConverter
 
         context.NodeWriter.WriteU8(255);
         context.NodeWriter.Pad();
-        context.DataWriter.PadStream();
+        context.DataWriter.FinalizeData();
 
         return FinalizeOutput(outputStream, ref context, encodingBytes);
     }

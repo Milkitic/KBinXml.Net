@@ -160,6 +160,22 @@ public class DataWriterTests
     #endregion
 
     #region Alignment Tests
+    
+    [Fact]
+    public void TestAlignment_String_S16_Sequence()
+    {
+        using var writer = new DataWriter(Encoding.UTF8);
+
+        writer.WriteString("hello".AsSpan());
+        writer.WriteS16(11451); // 2 bytes
+        var bytes = writer.DebugGetArray();
+
+        Assert.Equal(16, bytes.Length);
+        Assert.Equal("00000006", ConvertHelper.ToHexString(bytes.Skip(0).Take(4).ToArray())); // String length
+        Assert.Equal("68656C6C6F00", ConvertHelper.ToHexString(bytes.Skip(4).Take(6).ToArray())); // String value
+        Assert.Equal("0000", ConvertHelper.ToHexString(bytes.Skip(10).Take(2).ToArray())); // Gap
+        Assert.Equal("2CBB", ConvertHelper.ToHexString(bytes.Skip(12).Take(2).ToArray())); // S16 value
+    }
 
     [Fact]
     public void TestAlignment_S8_S16_Sequence()

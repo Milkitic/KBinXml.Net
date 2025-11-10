@@ -32,7 +32,7 @@ public class DataWriterBenchmark2
     }
 
     [Benchmark(Baseline = true)]
-    public object? Datawriter1()
+    public object? DataWriterV1()
     {
         _stream.SetLength(0);
         using var writer = new Legacy.DataWriterV1(Encoding.UTF8, _stream);
@@ -41,12 +41,27 @@ public class DataWriterBenchmark2
         {
             writer.WriteBytes(memory.Span);
         }
-
+        
+        writer.PadStream();
         return _stream;
     }
 
     [Benchmark]
-    public object? DataWriter2()
+    public object? DataWriterV1_5()
+    {
+        _stream.SetLength(0);
+        using var writer = new Legacy.DataWriterV1_5(Encoding.UTF8, _stream);
+        foreach (var memory in _chunks)
+        {
+            writer.WriteBytes(memory.Span);
+        }
+
+        writer.PadStream();
+        return _stream;
+    }
+    
+    [Benchmark]
+    public object? DataWriterExp()
     {
         _stream.SetLength(0);
         using var writer = new DataWriter(Encoding.UTF8, _stream);
@@ -55,6 +70,7 @@ public class DataWriterBenchmark2
             writer.WriteBytes(memory.Span);
         }
 
+        writer.FinalizeData();
         return _stream;
     }
 
