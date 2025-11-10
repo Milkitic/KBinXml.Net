@@ -103,7 +103,7 @@ internal static class NodeTypeFactory
     {
         if (TryGetNodeType(typeCode, out var nodeType))
         {
-            return nodeType;
+            return nodeType!;
         }
 
         throw new InvalidOperationException($"Unknown type code: {typeCode}");

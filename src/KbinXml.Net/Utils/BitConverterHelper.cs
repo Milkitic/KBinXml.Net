@@ -1,38 +1,77 @@
-﻿using System;
+using System;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
+/// <summary>
+/// Helper methods for reading and writing primitive numeric types in big-endian
+/// format and for converting values to their byte representations.
+/// </summary>
 #if !NETSTANDARD2_0
 [SkipLocalsInit]
 #endif
 public static class BitConverterHelper
 {
+    /// <summary>
+    /// Reads an unsigned 16-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="readBytes">The source bytes.</param>
+    /// <returns>The parsed <see cref="ushort"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ushort ToBeUInt16(ReadOnlySpan<byte> readBytes) =>
         BinaryPrimitives.ReadUInt16BigEndian(readBytes);
 
+    /// <summary>
+    /// Reads a signed 16-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="readBytes">The source bytes.</param>
+    /// <returns>The parsed <see cref="short"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static short ToBeInt16(ReadOnlySpan<byte> readBytes) =>
         BinaryPrimitives.ReadInt16BigEndian(readBytes);
 
+    /// <summary>
+    /// Reads an unsigned 32-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="value">The source bytes.</param>
+    /// <returns>The parsed <see cref="uint"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint ToBeUInt32(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadUInt32BigEndian(value);
 
+    /// <summary>
+    /// Reads a signed 32-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="value">The source bytes.</param>
+    /// <returns>The parsed <see cref="int"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToBeInt32(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadInt32BigEndian(value);
 
+    /// <summary>
+    /// Reads an unsigned 64-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="value">The source bytes.</param>
+    /// <returns>The parsed <see cref="ulong"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong ToBeUInt64(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadUInt64BigEndian(value);
 
+    /// <summary>
+    /// Reads a signed 64-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="value">The source bytes.</param>
+    /// <returns>The parsed <see cref="long"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long ToBeInt64(ReadOnlySpan<byte> value) =>
         BinaryPrimitives.ReadInt64BigEndian(value);
 
+    /// <summary>
+    /// Reads a single-precision float in big-endian order.
+    /// </summary>
+    /// <param name="value">The source bytes.</param>
+    /// <returns>The parsed <see cref="float"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float ToBeSingle(ReadOnlySpan<byte> value)
     {
@@ -54,6 +93,11 @@ public static class BitConverterHelper
 #endif
     }
 
+    /// <summary>
+    /// Reads a double-precision float in big-endian order.
+    /// </summary>
+    /// <param name="value">The source bytes.</param>
+    /// <returns>The parsed <see cref="double"/>.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double ToBeDouble(ReadOnlySpan<byte> value)
     {
@@ -64,6 +108,13 @@ public static class BitConverterHelper
 #endif
     }
 
+    /// <summary>
+    /// Writes a primitive value of type <typeparamref name="T"/> to the span in big-endian order.
+    /// </summary>
+    /// <typeparam name="T">An unmanaged primitive type.</typeparam>
+    /// <param name="span">The destination span.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The number of bytes written.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytesT<T>(Span<byte> span, T value) where T : unmanaged
     {
@@ -81,6 +132,12 @@ public static class BitConverterHelper
         };
     }
 
+    /// <summary>
+    /// Writes an unsigned 16-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="span">The destination span.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The number of bytes written.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(Span<byte> span, ushort value)
     {
@@ -88,6 +145,12 @@ public static class BitConverterHelper
         return sizeof(ushort);
     }
 
+    /// <summary>
+    /// Writes a signed 16-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="span">The destination span.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The number of bytes written.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(Span<byte> span, short value)
     {
@@ -95,6 +158,12 @@ public static class BitConverterHelper
         return sizeof(short);
     }
 
+    /// <summary>
+    /// Writes an unsigned 32-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="span">The destination span.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The number of bytes written.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(Span<byte> span, uint value)
     {
@@ -102,6 +171,12 @@ public static class BitConverterHelper
         return sizeof(uint);
     }
 
+    /// <summary>
+    /// Writes a signed 32-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="span">The destination span.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The number of bytes written.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(Span<byte> span, int value)
     {
@@ -109,6 +184,12 @@ public static class BitConverterHelper
         return sizeof(int);
     }
 
+    /// <summary>
+    /// Writes an unsigned 64-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="span">The destination span.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The number of bytes written.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(Span<byte> span, ulong value)
     {
@@ -116,6 +197,12 @@ public static class BitConverterHelper
         return sizeof(ulong);
     }
 
+    /// <summary>
+    /// Writes a signed 64-bit integer in big-endian order.
+    /// </summary>
+    /// <param name="span">The destination span.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The number of bytes written.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(Span<byte> span, long value)
     {
@@ -123,6 +210,12 @@ public static class BitConverterHelper
         return sizeof(long);
     }
 
+    /// <summary>
+    /// Writes a single-precision float in big-endian order.
+    /// </summary>
+    /// <param name="span">The destination span.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The number of bytes written.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(Span<byte> span, float value)
     {
@@ -135,6 +228,12 @@ public static class BitConverterHelper
         return sizeof(float);
     }
 
+    /// <summary>
+    /// Writes a double-precision float in big-endian order.
+    /// </summary>
+    /// <param name="span">The destination span.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The number of bytes written.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int WriteBeBytes(Span<byte> span, double value)
     {

@@ -202,8 +202,8 @@ public static partial class KbinConverter
     {
         var encoding = knownEncodings.ToEncoding();
         writeOptions ??= new WriteOptions();
-        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding), new DataWriter(encoding),
-            writeOptions);
+        var context = new WriteContext(new NodeWriter(writeOptions.Compress, encoding),
+            new DataWriter(writeOptions.ZeroFillGap, encoding), writeOptions);
 
         try
         {
@@ -241,7 +241,7 @@ public static partial class KbinConverter
 
         context.NodeWriter.WriteU8(255);
         context.NodeWriter.Pad();
-        context.DataWriter.PadStream();
+        context.DataWriter.FinalizeData();
 
         return FinalizeOutput(outputStream, ref context, encodingBytes);
     }
@@ -560,7 +560,7 @@ public static partial class KbinConverter
                 if (PendingValueSpan.IsEmpty && strictMode && iRequiredBytes > 0)
                     throw new KbinException($"Node requires {iRequiredBytes} bytes but has no text value.");
 
-                var bytesWritten = type.WriteStrings(ref builder, ArrayCountSpan, PendingValueSpan,
+                var bytesWritten = type.Deserialize(ref builder, ArrayCountSpan, PendingValueSpan,
                     iRequiredBytes, strictMode);
                 // 处理可能的字节数不足情况
                 if (bytesWritten != iRequiredBytes)
@@ -599,7 +599,7 @@ public static partial class KbinConverter
             Span<byte> buffer = stackalloc byte[typeSize];
             try
             {
-                type.WriteString(buffer, PendingValueSpan);
+                type.Deserialize(buffer, PendingValueSpan);
             }
             catch (Exception e)
             {

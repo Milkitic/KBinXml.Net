@@ -3,13 +3,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using KbinXml.Net;
+using KbinXml.Net.Internal.Writers;
+using KBinXML;
 using kbinxmlcs;
 using Microsoft.IO;
+using UnitBenchmarks.Legacy;
 
 namespace ManualTests;
 
@@ -42,7 +43,11 @@ public class Program
         //stream.Advance(10);
         //g = stream.ToArray();
         //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        SmallTest();
+        if (args.Length > 0)
+            DataWriterTest();
+        else
+            DataWriter2Test();
+        //SmallTest();
         //InvalidTest();
 
         return;
@@ -84,6 +89,49 @@ public class Program
         //    }
         //});
         //return;
+    }
+
+    private static void DataWriterTest()
+    {
+        using var _stream = KbinConverter.RecyclableMemoryStreamManager.GetStream();
+
+        for (int i = 0; i < 1000000; i++)
+        {
+            _stream.SetLength(0);
+            using var writer = new DataWriterV1(Encoding.UTF8, _stream);
+
+            writer.WriteS8(1); // 1 byte
+            writer.WriteBinary("E004E0D1423A4EE2".AsSpan());
+            writer.WriteS16(2); // 2 bytes
+            writer.WriteS8(3); // 1 byte
+            writer.WriteString("Hello".AsSpan());
+            writer.WriteS16(1996); // 2 bytes
+            writer.WriteS32(4); // 4 bytes
+            writer.WriteU8(240); // 1 byte
+            writer.PadStream();
+            //var o = writer.Stream.GetBuffer();
+        }
+    }
+
+    private static void DataWriter2Test()
+    {
+        using var _stream = KbinConverter.RecyclableMemoryStreamManager.GetStream();
+        for (int i = 0; i < 1000000; i++)
+        {
+            _stream.SetLength(0);
+            using var writer = new DataWriter(Encoding.UTF8, _stream);
+
+            writer.WriteS8(1); // 1 byte
+            writer.WriteBinary("E004E0D1423A4EE2".AsSpan());
+            writer.WriteS16(2); // 2 bytes
+            writer.WriteS8(3); // 1 byte
+            writer.WriteString("Hello".AsSpan());
+            writer.WriteS16(1996); // 2 bytes
+            writer.WriteS32(4); // 4 bytes
+            writer.WriteU8(240); // 1 byte
+            writer.FinalizeData();
+            //var o = writer.Stream.GetBuffer();
+        }
     }
 
     private static void SmallTest()

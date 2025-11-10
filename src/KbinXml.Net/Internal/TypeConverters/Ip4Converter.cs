@@ -15,7 +15,7 @@ internal sealed class Ip4Converter : ITypeConverter
     public static Ip4Converter Instance { get; } = new();
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int WriteString(Span<byte> span, ReadOnlySpan<char> str)
+    public int Deserialize(Span<byte> span, ReadOnlySpan<char> str)
     {
         var bytes = IPAddress.Parse(str
 #if !NET8_0_OR_GREATER
@@ -28,7 +28,7 @@ internal sealed class Ip4Converter : ITypeConverter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)] // todo: loop here
-    public int WriteString(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
+    public int Deserialize(ref ValueListBuilder<byte> builder, ReadOnlySpan<char> str)
     {
         var bytes = IPAddress.Parse(str
 #if !NET8_0_OR_GREATER
@@ -45,7 +45,7 @@ internal sealed class Ip4Converter : ITypeConverter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string ToString(ReadOnlySpan<byte> span)
+    public string Serialize(ReadOnlySpan<byte> span)
     {
         var privateAddress = MemoryMarshal.Read<uint>(span);
         Span<char> dst = stackalloc char[15];
@@ -61,7 +61,7 @@ internal sealed class Ip4Converter : ITypeConverter
 
 #if NET8_0_OR_GREATER
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AppendString(ref ValueStringBuilder stringBuilder, ReadOnlySpan<byte> span)
+    public void SerializeAppend(ref ValueStringBuilder stringBuilder, ReadOnlySpan<byte> span)
     {
         var privateAddress = MemoryMarshal.Read<uint>(span);
         Span<char> dst = stackalloc char[15];

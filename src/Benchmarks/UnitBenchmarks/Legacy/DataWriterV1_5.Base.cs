@@ -1,10 +1,9 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using KbinXml.Net.Utils;
 
-namespace KbinXml.Net.Internal.Writers;
+namespace UnitBenchmarks.Legacy;
 
-internal partial struct DataWriter
+internal partial struct DataWriterV1_5
 {
     /// <summary>
     /// Unused api

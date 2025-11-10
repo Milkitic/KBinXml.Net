@@ -1,13 +1,23 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
 namespace KbinXml.Net.Utils;
 
+/// <summary>
+/// Utility methods for converting data to and from textual representations
+/// commonly used in kbin workflows.
+/// </summary>
 public static class ConvertHelper
 {
     internal static readonly NumberFormatInfo UsNumberFormat = new CultureInfo("en-US", false).NumberFormat;
 
+    /// <summary>
+    /// Converts a span of bytes to a hexadecimal string.
+    /// </summary>
+    /// <param name="bytes">The source bytes.</param>
+    /// <param name="upper">Whether to use uppercase letters in the output.</param>
+    /// <returns>The hexadecimal string representation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ToHexString(ReadOnlySpan<byte> bytes, bool upper = true)
     {
@@ -24,6 +34,13 @@ public static class ConvertHelper
         return HexConverter.ToString(bytes, upper ? HexConverter.Casing.Upper : HexConverter.Casing.Lower);
     }
 
+    /// <summary>
+    /// Detects the number style (hex or integer) from the input and returns the
+    /// normalized numeric span.
+    /// </summary>
+    /// <param name="str">The input span which may represent a hex value (e.g., 0xFF, &#38;HFF).</param>
+    /// <param name="hex">Receives the span containing only the numeric portion.</param>
+    /// <returns>The appropriate <see cref="NumberStyles"/> for parsing.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static NumberStyles GetNumberStyle(ReadOnlySpan<char> str, out ReadOnlySpan<char> hex)
     {
