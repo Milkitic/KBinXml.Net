@@ -10,7 +10,7 @@ namespace KbinXml.Net.Utils;
 /// </summary>
 public static class ConvertHelper
 {
-    internal static readonly NumberFormatInfo UsNumberFormat = new CultureInfo("en-US", false).NumberFormat;
+    internal static readonly NumberFormatInfo UsNumberFormat = NumberFormatInfo.InvariantInfo;
 
     /// <summary>
     /// Converts a span of bytes to a hexadecimal string.
