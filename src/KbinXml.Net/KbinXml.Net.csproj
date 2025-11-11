@@ -14,9 +14,10 @@
     <IsAotCompatible>true</IsAotCompatible>
     <PublishAot>true</PublishAot>
     <OptimizationPreference>Speed</OptimizationPreference>
+    <InvariantGlobalization>true</InvariantGlobalization>
     <StackTraceSupport>false</StackTraceSupport>
     <UseSystemResourceKeys>true</UseSystemResourceKeys>
-    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <XmlResolverIsNetworkingEnabledByDefault>false</XmlResolverIsNetworkingEnabledByDefault>
   </PropertyGroup>
 
   <PropertyGroup Label="PackageSetting">
