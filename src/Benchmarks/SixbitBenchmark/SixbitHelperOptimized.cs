@@ -9,7 +9,7 @@ namespace KbinXml.Net.Internal.Sixbit;
 /// This class contains performance-critical code using pointer operations.
 /// All methods require proper buffer size validation before invocation.
 /// </remarks>
-internal static class SixbitHelperOptimized
+public static class SixbitHelperOptimized
 {
     /// <summary>
     /// Encodes 6-bit values into a packed bitstream.

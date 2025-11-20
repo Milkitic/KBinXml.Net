@@ -5,15 +5,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using KbinXml.Net.Utils;
 using Microsoft.IO;
-
-//using SixbitHelperImpl = KbinXml.Net.Utils.SixbitHelperOptimized;
-#if NET8_0_OR_GREATER
-using SixbitHelperEncImpl = KbinXml.Net.Internal.Sixbit.SixbitHelperCoreClrOptimized;
-using SixbitHelperDecImpl = KbinXml.Net.Internal.Sixbit.SixbitHelperCoreClrOptimized;
-#else
-using SixbitHelperEncImpl = KbinXml.Net.Internal.Sixbit.SixbitHelperSuperOptimized;
-using SixbitHelperDecImpl = KbinXml.Net.Internal.Sixbit.SixbitHelperSuperOptimized;
-#endif
+using SixbitHelperDecImpl = KbinXml.Net.Internal.Sixbit.SixbitHelperBmi2;
+using SixbitHelperEncImpl = KbinXml.Net.Internal.Sixbit.SixbitHelperBmi2;
 
 namespace KbinXml.Net.Internal;
 

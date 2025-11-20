@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Benchmarks\SixbitBenchmark\SixbitBenchmark.csproj" />
     <ProjectReference Include="..\..\KbinXml.Net\KbinXml.Net.csproj" />
   </ItemGroup>
 

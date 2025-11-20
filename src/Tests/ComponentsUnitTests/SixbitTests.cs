@@ -24,7 +24,11 @@ public class SixbitTests
         SixbitHelperOptimized.Encode(testData, outputOptimized);
         SixbitHelperSuperOptimized.Encode(testData, outputSuperOptimized);
         SixbitHelperCoreClrOptimized.Encode(testData, outputCoreClrOptimized);
-
+#if NET8_0_OR_GREATER
+        Span<byte> outputBmi2 = new byte[testData.Length * 6 / 8];
+        SixbitHelperBmi2.Encode(testData, outputBmi2);
+        Assert.Equal(outputOriginal.ToArray(), outputBmi2.ToArray());
+#endif
         Assert.Equal(outputOriginal.ToArray(), outputOptimized.ToArray());
         Assert.Equal(outputOriginal.ToArray(), outputSuperOptimized.ToArray());
         Assert.Equal(outputOriginal.ToArray(), outputCoreClrOptimized.ToArray());
@@ -54,7 +58,11 @@ public class SixbitTests
         SixbitHelperOptimized.Decode(output, inputOptimized);
         SixbitHelperSuperOptimized.Decode(output, inputSuperOptimized);
         SixbitHelperCoreClrOptimized.Decode(output, inputCoreClrOptimized);
-
+#if NET8_0_OR_GREATER
+        Span<byte> inputBmi2 = new byte[output.Length * 8 / 6];
+        SixbitHelperBmi2.Decode(output, inputBmi2);
+        Assert.Equal(inputOriginal.ToArray(), inputBmi2.ToArray());
+#endif
         Assert.Equal(inputOriginal.ToArray(), inputOptimized.ToArray());
         Assert.Equal(inputOriginal.ToArray(), inputSuperOptimized.ToArray());
         Assert.Equal(inputSuperOptimized.ToArray(), inputCoreClrOptimized.ToArray());

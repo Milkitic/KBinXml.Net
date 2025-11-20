@@ -5,15 +5,15 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Running;
 using KbinXml.Net.Internal.Sixbit;
-using SixbitBenchmark;
 
-//BenchmarkRunner.Run<EncodeTask>();
-BenchmarkRunner.Run<EncodeFrontendBenchmark>();
+BenchmarkRunner.Run<EncodeTask>();
+//BenchmarkRunner.Run<EncodeFrontendBenchmark>();
 
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [SimpleJob(RuntimeMoniker.Net48)]
-//[SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.Net80)]
 [SimpleJob(RuntimeMoniker.Net90)]
+[SimpleJob(RuntimeMoniker.Net10_0)]
 public class EncodeTask
 {
     private const int Length = 1024 * 1024;
@@ -34,17 +34,17 @@ public class EncodeTask
     //public object? Encode_Original()
     //{
     //    Span<byte> output = _pool.AsSpan(0, Length * 6 / 8);
-    //    SixbitHelperOriginal.Encode(_testData, ref output);
+    //    SixbitHelperOriginal.Encode(_testData, output);
     //    return _pool;
     //}
 
-    [Benchmark(Baseline = true)]
-    public object? Encode_AlgorithmOptimized()
-    {
-        Span<byte> output = _pool.AsSpan(0, Length * 6 / 8);
-        SixbitHelperOptimized.Encode(_testData, output);
-        return _pool;
-    }
+    //[Benchmark(Baseline = true)]
+    //public object? Encode_AlgorithmOptimized()
+    //{
+    //    Span<byte> output = _pool.AsSpan(0, Length * 6 / 8);
+    //    SixbitHelperOptimized.Encode(_testData, output);
+    //    return _pool;
+    //}
 
     [Benchmark]
     public object? Encode_AlgorithmSuperOptimized()
@@ -59,6 +59,22 @@ public class EncodeTask
     {
         Span<byte> output = _pool.AsSpan(0, Length * 6 / 8);
         SixbitHelperCoreClrOptimized.Encode(_testData, output);
+        return _pool;
+    }
+
+    [Benchmark(Baseline = true)]
+    public object? Encode_AlgorithmBmi2()
+    {
+        Span<byte> output = _pool.AsSpan(0, Length * 6 / 8);
+        SixbitHelperBmi2.Encode(_testData, output);
+        return _pool;
+    }
+
+    [Benchmark]
+    public object? Encode_AlgorithmScalarUnrolled()
+    {
+        Span<byte> output = _pool.AsSpan(0, Length * 6 / 8);
+        SixbitHelperBmi2.EncodeScalarUnrolled(_testData, output);
         return _pool;
     }
 }

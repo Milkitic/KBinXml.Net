@@ -2,7 +2,7 @@
 
 namespace KbinXml.Net.Internal.Sixbit;
 
-internal static class SixbitHelperCoreClrOptimized
+public static class SixbitHelperCoreClrOptimized
 {
     /// <summary>
     /// 将6位编码流编码为字节流

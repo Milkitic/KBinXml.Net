@@ -1,0 +1,31 @@
+﻿BenchmarkDotNet v0.15.6, Windows 11 (10.0.26200.7171)
+13th Gen Intel Core i7-13700K 3.40GHz, 1 CPU, 24 logical and 16 physical cores
+.NET SDK 10.0.100
+  [Host]             : .NET 9.0.11 (9.0.11, 9.0.1125.51716), X64 RyuJIT x86-64-v3
+  .NET 10.0          : .NET 10.0.0 (10.0.0, 10.0.25.52411), X64 RyuJIT x86-64-v3
+  .NET 8.0           : .NET 8.0.22 (8.0.22, 8.0.2225.52707), X64 RyuJIT x86-64-v3
+  .NET 9.0           : .NET 9.0.11 (9.0.11, 9.0.1125.51716), X64 RyuJIT x86-64-v3
+  .NET Framework 4.8 : .NET Framework 4.8.1 (4.8.9221.0), X64 RyuJIT VectorSize=256
+
+
+| Method                           | Job                | Runtime            | Mean       | Error   | StdDev  | Ratio | RatioSD |
+|--------------------------------- |------------------- |------------------- |-----------:|--------:|--------:|------:|--------:|
+| Encode_AlgorithmBmi2             | .NET 10.0          | .NET 10.0          |   174.6 us | 0.47 us | 0.42 us |  1.00 |    0.00 |
+| Encode_AlgorithmCoreClrOptimized | .NET 10.0          | .NET 10.0          |   319.7 us | 0.98 us | 0.91 us |  1.83 |    0.01 |
+| Encode_AlgorithmScalarUnrolled   | .NET 10.0          | .NET 10.0          |   345.9 us | 2.33 us | 2.18 us |  1.98 |    0.01 |
+| Encode_AlgorithmSuperOptimized   | .NET 10.0          | .NET 10.0          | 1,086.9 us | 9.59 us | 8.97 us |  6.23 |    0.05 |
+|                                  |                    |                    |            |         |         |       |         |
+| Encode_AlgorithmBmi2             | .NET 8.0           | .NET 8.0           |   174.4 us | 0.37 us | 0.34 us |  1.00 |    0.00 |
+| Encode_AlgorithmCoreClrOptimized | .NET 8.0           | .NET 8.0           |   319.4 us | 0.60 us | 0.50 us |  1.83 |    0.00 |
+| Encode_AlgorithmScalarUnrolled   | .NET 8.0           | .NET 8.0           |   346.7 us | 2.77 us | 2.59 us |  1.99 |    0.01 |
+| Encode_AlgorithmSuperOptimized   | .NET 8.0           | .NET 8.0           | 1,076.6 us | 0.46 us | 0.41 us |  6.17 |    0.01 |
+|                                  |                    |                    |            |         |         |       |         |
+| Encode_AlgorithmBmi2             | .NET 9.0           | .NET 9.0           |   174.2 us | 0.26 us | 0.23 us |  1.00 |    0.00 |
+| Encode_AlgorithmCoreClrOptimized | .NET 9.0           | .NET 9.0           |   312.6 us | 1.22 us | 1.14 us |  1.79 |    0.01 |
+| Encode_AlgorithmScalarUnrolled   | .NET 9.0           | .NET 9.0           |   341.9 us | 1.96 us | 1.84 us |  1.96 |    0.01 |
+| Encode_AlgorithmSuperOptimized   | .NET 9.0           | .NET 9.0           | 1,078.8 us | 2.74 us | 2.29 us |  6.19 |    0.01 |
+|                                  |                    |                    |            |         |         |       |         |
+| Encode_AlgorithmBmi2             | .NET Framework 4.8 | .NET Framework 4.8 |   315.7 us | 0.99 us | 0.92 us |  1.00 |    0.00 |
+| Encode_AlgorithmScalarUnrolled   | .NET Framework 4.8 | .NET Framework 4.8 |   316.3 us | 1.16 us | 1.09 us |  1.00 |    0.00 |
+| Encode_AlgorithmCoreClrOptimized | .NET Framework 4.8 | .NET Framework 4.8 |   446.2 us | 0.88 us | 0.74 us |  1.41 |    0.00 |
+| Encode_AlgorithmSuperOptimized   | .NET Framework 4.8 | .NET Framework 4.8 | 1,164.6 us | 4.33 us | 4.05 us |  3.69 |    0.02 |
