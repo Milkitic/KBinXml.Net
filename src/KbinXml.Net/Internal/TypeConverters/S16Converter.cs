@@ -1,9 +1,15 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Internal.TypeConverters;
 
+#if NET8_0_OR_GREATER
+internal static class S16Converter
+{
+    public static ITypeConverter Instance => GenericTypeConverter<short>.Instance;
+}
+#else
 internal sealed class S16Converter : ITypeConverter
 {
     private S16Converter()
@@ -39,3 +45,4 @@ internal sealed class S16Converter : ITypeConverter
     }
 #endif
 }
+#endif

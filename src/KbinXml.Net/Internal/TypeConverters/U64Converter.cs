@@ -1,9 +1,15 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Internal.TypeConverters;
 
+#if NET8_0_OR_GREATER
+internal static class U64Converter
+{
+    public static ITypeConverter Instance => GenericTypeConverter<ulong>.Instance;
+}
+#else
 internal sealed class U64Converter : ITypeConverter
 {
     private U64Converter()
@@ -41,3 +47,4 @@ internal sealed class U64Converter : ITypeConverter
     }
 #endif
 }
+#endif

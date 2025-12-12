@@ -108,6 +108,53 @@ public static class BitConverterHelper
 #endif
     }
 
+#if NET8_0_OR_GREATER
+    /// <summary>
+    /// Writes a primitive integer value of type <typeparamref name="T"/> to the span in big-endian order.
+    /// </summary>
+    /// <typeparam name="T">An integer type implementing <see cref="System.Numerics.IBinaryInteger{T}"/>.</typeparam>
+    /// <param name="span">The destination span.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The number of bytes written.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int WriteBeBytes<T>(Span<byte> span, T value) where T : System.Numerics.IBinaryInteger<T>
+    {
+        if (value.TryWriteBigEndian(span, out int bytesWritten))
+        {
+            return bytesWritten;
+        }
+        throw new ArgumentException("Span too small");
+    }
+
+    /// <summary>
+    /// Writes a primitive integer value of type <typeparamref name="T"/> to the builder in big-endian order.
+    /// </summary>
+    /// <typeparam name="T">An integer type implementing <see cref="System.Numerics.IBinaryInteger{T}"/>.</typeparam>
+    /// <param name="builder">The destination builder.</param>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The number of bytes written.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int WriteBeBytes<T>(ref ValueListBuilder<byte> builder, T value) where T : System.Numerics.IBinaryInteger<T>
+    {
+        Span<byte> span = stackalloc byte[value.GetByteCount()];
+        value.TryWriteBigEndian(span, out int bytesWritten);
+        builder.AppendSpan(span);
+        return bytesWritten;
+    }
+
+    /// <summary>
+    /// Reads an integer of type <typeparamref name="T"/> in big-endian order.
+    /// </summary>
+    /// <typeparam name="T">An integer type implementing <see cref="System.Numerics.IBinaryInteger{T}"/> and <see cref="System.Numerics.IMinMaxValue{T}"/>.</typeparam>
+    /// <param name="span">The source bytes.</param>
+    /// <returns>The parsed value.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T ToBe<T>(ReadOnlySpan<byte> span) where T : System.Numerics.IBinaryInteger<T>, System.Numerics.IMinMaxValue<T>
+    {
+        return T.ReadBigEndian(span, T.IsZero(T.MinValue));
+    }
+#endif
+
     /// <summary>
     /// Writes a primitive value of type <typeparamref name="T"/> to the span in big-endian order.
     /// </summary>

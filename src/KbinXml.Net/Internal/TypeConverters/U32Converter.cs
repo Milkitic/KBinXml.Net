@@ -1,9 +1,15 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using KbinXml.Net.Utils;
 
 namespace KbinXml.Net.Internal.TypeConverters;
 
+#if NET8_0_OR_GREATER
+internal static class U32Converter
+{
+    public static ITypeConverter Instance => GenericTypeConverter<uint>.Instance;
+}
+#else
 internal sealed class U32Converter : ITypeConverter
 {
     private U32Converter()
@@ -41,3 +47,4 @@ internal sealed class U32Converter : ITypeConverter
     }
 #endif
 }
+#endif
