@@ -180,7 +180,7 @@ public static partial class KbinConverter
                 //Array flag is on the second bit
                 var isArray = (bNodeType & 0x40) > 0;
                 bNodeType = (byte)(bNodeType & ~0x40);
-                if (ControlTypes.Contains(bNodeType))
+                if (IsControlType(bNodeType))
                 {
 #if USELOG
                     Logger.LogNodeControl(bNodeType, nodeTypeResult.Value, isArray);

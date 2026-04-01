@@ -90,10 +90,10 @@ namespace GeneralUnitTests
         }
 
         [Theory]
-        [InlineData("s64", "0", "0")]
-        [InlineData("s64", "-9223372036854775808", "-9223372036854775808")]
-        [InlineData("s64", "9223372036854775807", "9223372036854775807")]
-        public void NumericTypeS64_ConversionIsCorrect(string type, string value, string expected)
+        [InlineData("s64", "0")]
+        [InlineData("s64", "-9223372036854775808")]
+        [InlineData("s64", "9223372036854775807")]
+        public void NumericTypeS64_ConversionIsCorrect(string type, string value)
         {
             TestNumericTypeConversion(type, value);
         }

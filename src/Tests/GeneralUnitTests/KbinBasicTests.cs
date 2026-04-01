@@ -70,6 +70,38 @@ namespace GeneralUnitTests
         }
 
         [Fact]
+        public void ReadXmlLinq_NestedElementsAndAttributes_RoundTripsCorrectly()
+        {
+            // Prepare XML with nested elements, attributes, and text nodes to cover all control node types
+            var xml =
+                "<root id=\"r1\"><parent kind=\"container\"><child __type=\"str\" code=\"c1\">value</child><empty flag=\"1\" /></parent></root>";
+
+            // Convert to Kbin and read back
+            var kbin = KbinConverter.Write(xml, KnownEncodings.UTF8);
+            var result = KbinConverter.ReadXmlLinq(kbin);
+
+            // Verify nested structure and attributes
+            Assert.Equal("r1", result.Root.Attribute("id")?.Value);
+
+            var parent = result.Root.Element("parent");
+            Assert.NotNull(parent);
+            Assert.Equal("container", parent.Attribute("kind")?.Value);
+
+            var child = parent.Element("child");
+            Assert.NotNull(child);
+            Assert.Equal("c1", child.Attribute("code")?.Value);
+            Assert.Equal("str", child.Attribute("__type")?.Value);
+            Assert.Equal("value", child.Value);
+
+            var empty = parent.Element("empty");
+            Assert.NotNull(empty);
+            Assert.Equal("1", empty.Attribute("flag")?.Value);
+            Assert.Empty(empty.Value);
+
+            Assert.Equal(xml, result.ToString(SaveOptions.DisableFormatting));
+        }
+
+        [Fact]
         public void ReadXmlBytes_ValidKbin_ReturnsXmlBytes()
         {
             // Prepare valid XML

@@ -1,8 +1,6 @@
-﻿using System;
+using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using KbinXml.Net.Internal;
 using KbinXml.Net.Internal.Debugging;
@@ -19,16 +17,6 @@ public static partial class KbinConverter
     internal static ConsoleLogger Logger { get; } = new ConsoleLogger();
 #else
     internal static NullLogger Logger { get; } = new NullLogger();
-#endif
-
-#if !NET5_0_OR_GREATER
-    private static readonly Type ControlTypeT = typeof(ControlType);
-#endif
-    private static readonly HashSet<byte> ControlTypes =
-#if NET5_0_OR_GREATER
-        new(Enum.GetValues<ControlType>().Cast<byte>());
-#else
-        new(Enum.GetValues(ControlTypeT).Cast<byte>());
 #endif
 
     internal static readonly RecyclableMemoryStreamManager RecyclableMemoryStreamManager = new()
@@ -82,6 +70,16 @@ public static partial class KbinConverter
     private static bool IsDigit(char c)
     {
         return c is >= '0' and <= '9';
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal static bool IsControlType(byte nodeType)
+    {
+        return nodeType is
+            (byte)ControlType.NodeStart or
+            (byte)ControlType.Attribute or
+            (byte)ControlType.NodeEnd or
+            (byte)ControlType.FileEnd;
     }
 
     /// <summary>
