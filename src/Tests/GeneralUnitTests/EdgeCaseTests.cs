@@ -130,7 +130,7 @@ namespace GeneralUnitTests
             Assert.NotNull(result);
             Assert.NotNull(result.Root);
             Assert.Equal("root", result.Root.Name);
-            Assert.Equal(0, result.Root.Elements().Count());
+            Assert.Empty(result.Root.Elements());
         }
 
         [Fact]
